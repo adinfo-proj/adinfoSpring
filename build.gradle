@@ -1,0 +1,37 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.6'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'com.ad'
+version = '1.0.0-REAL'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    apply plugin: 'io.spring.dependency-management'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.4'
+    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+}
+
+test {
+    useJUnitPlatform()
+}
