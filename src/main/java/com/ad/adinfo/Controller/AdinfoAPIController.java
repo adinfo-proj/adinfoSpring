@@ -458,7 +458,7 @@ public class AdinfoAPIController {
     }
 
     /*------------------------------------------------------------------------------------------------------------------
-     * 캠페인 업종분류 정보 조회
+     * 공통코드 CODE TP 정보 조회
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2021.07.12
      * 작성자 : 박형준
@@ -471,11 +471,32 @@ public class AdinfoAPIController {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @RequestMapping(value = "getCommon", method = RequestMethod.GET)
+    @RequestMapping(value = "getCommonByTp", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public List<COMMON_CODE> getCommonCode(HttpServletRequest rq) throws Exception {
-//        System.out.println("tp : [" + rq.getParameter("tp") + "]");
-        return commonCode.getCommonCode(rq.getParameter("tp"));
+    public List<COMMON_CODE> getCommonByTp(HttpServletRequest rq) throws Exception {
+        System.out.println("tp : [" + rq.getParameter("tp") + "]");
+        return commonCode.getCommonByTp(rq.getParameter("tp"));
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 공통코드 CODE 상세 정보 조회
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2021.11.22
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] COMMON_CODE
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "getCommonCodeByDescr", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<COMMON_CODE> getCommonCodeByDescr(HttpServletRequest rq) throws Exception {
+        System.out.println("tp : [" + rq.getParameter("tp") + "]");
+        return commonCode.getCommonCodeByDescr(rq.getParameter("tp"), rq.getParameter("codeDescr"));
     }
 
     /*------------------------------------------------------------------------------------------------------------------
