@@ -8,7 +8,9 @@ public class COMMON_CODE {
     private String  tpNm;
     private String  tpDescr;
     private String  code;
+    private String  subCode;
     private String  codeNm;
     private String  codeDescr;
+    private String  codeEtc;
     private String  useYn;
 }
