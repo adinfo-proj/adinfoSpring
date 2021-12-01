@@ -44,7 +44,6 @@ public class AdinfoAPIController {
     private final CpaData               cpaData;
     private final AdAdvertBalance       adAdvertBalance;
     private final AdUserMaster          adUserMaster;
-    private final CommonCode            commonCode;
     private final AdInfoUtil            adInfoUtil;
     private final DateCalc              dateCalc;
     private final Utility               utility;
@@ -159,10 +158,10 @@ public class AdinfoAPIController {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @RequestMapping(value = "/CampaignLst", method = RequestMethod.GET)
+    @RequestMapping(value = "/CampaignAllList", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public List<CPA_MASTER> CampaignList() {
-        return cpaCampaign.getCpaMasterAll();
+    public List<CAMPAIGN_MASTER> CampaignAllList() {
+        return campaignMaster.getCampaignMasterAll(0L);
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -511,7 +510,6 @@ public class AdinfoAPIController {
         //-------------------------------------------------------------------
         // DB에 데이터를 생성한다.
         //-------------------------------------------------------------------
-
         campaignMaster.insCampaignMaster(cpaCampaignMaster);
         System.out.println(String.valueOf(cpaCampaignMaster.getCaId()));
 
@@ -519,49 +517,6 @@ public class AdinfoAPIController {
         // SEQ로 생성된 캠페인 아이디를 리턴한다.
         //-------------------------------------------------------------------
         return cpaCampaignMaster.getCaId();
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     * 공통코드 CODE TP 정보 조회
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2021.07.12
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R] COMMON_CODE
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "getCommonByTp", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public List<COMMON_CODE> getCommonByTp(HttpServletRequest rq) throws Exception {
-        System.out.println("tp : [" + rq.getParameter("tp") + "]");
-        return commonCode.getCommonByTp(rq.getParameter("tp"));
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     * 공통코드 CODE 상세 정보 조회
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2021.11.22
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R] COMMON_CODE
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "getCommonCodeByCode", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public List<COMMON_CODE> getCommonCodeByCode(HttpServletRequest rq) throws Exception {
-        System.out.println("tp : [" + rq.getParameter("tp") + "]");
-        System.out.println("code : [" + rq.getParameter("code") + "]");
-        return commonCode.getCommonCodeByCode(rq.getParameter("tp"), rq.getParameter("code"));
     }
 
     /*------------------------------------------------------------------------------------------------------------------

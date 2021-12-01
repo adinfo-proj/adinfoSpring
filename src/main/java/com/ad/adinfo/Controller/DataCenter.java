@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,16 +28,16 @@ public class DataCenter {
      * 작성자 : 박형준
      *------------------------------------------------------------------------------------------------------------------
      * 테이블 : [C]
-     *         [R] CPA_CAMPAIGN_MASTER
+     *         [R] CAMPAIGN_MASTER
      *         [U]
      *         [D]
      *------------------------------------------------------------------------------------------------------------------
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @RequestMapping(value = "/DataCenter/Summary", method = RequestMethod.GET)
+    @RequestMapping(value = "/DataCenter/Dashboard/Summary", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public JSONObject DataCenterBySummary(HttpServletRequest rq) throws Exception {
+    public JSONObject DataCenterDashboardBySummary(HttpServletRequest rq) throws Exception {
         JSONObject      returnObj = new JSONObject();
 
         String      srtDt = rq.getParameter("srtDt");
@@ -48,78 +49,108 @@ public class DataCenter {
         System.out.println("caId  : [" + rq.getParameter("caId" ) + "]");
 
         //------------------------------------------------------------------------
-        // 당일일자를 조회한다. (YYYYMMDD)
+        // 합산 예치금
         //------------------------------------------------------------------------
-        String toDateDate = dateCalc.DateInterval(0);
+        String    depositAmt = null;
+        if( (depositAmt = dataCenterMapper.DataCenterBySummaryForDeposit(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("caId" )))) == null )
+            returnObj.put("depositAmt", 0);
+        else
+            returnObj.put("depositAmt", depositAmt);
 
         //------------------------------------------------------------------------
-        // Summary - Header
+        // 잔여 예치금
         //------------------------------------------------------------------------
-        {
-            ArrayList<Map<String, Object>> liveArr = new ArrayList<Map<String, Object>>();
+        String    depositAmtRemain = null;
+        if( (depositAmtRemain = dataCenterMapper.DataCenterBySummaryForDepositRemain(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("caId" )))) == null )
+            returnObj.put("depositAmtRemain", 0);
+        else
+            returnObj.put("depositAmtRemain", depositAmtRemain);
 
-            //------------------------------------------------------------------------
-            // 참여 마케터의 수
-            //------------------------------------------------------------------------
-            returnObj.put("mktCount", dataCenterMapper.DataCenterBySummaryForMaketerCount(375L));
-            liveArr.add(returnObj);
+        System.out.println("returnObj : [" + returnObj + "]");
 
-            System.out.println("liveArr 1 : [" + liveArr + "]");
+        //------------------------------------------------------------------------
+        // 잔여 합산 충전금
+        //------------------------------------------------------------------------
+        String    chargeAmt = null;
+        if( (chargeAmt = dataCenterMapper.DataCenterBySummaryForChargeAmt(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("caId" )))) == null )
+            returnObj.put("chargeAmt", 0);
+        else
+            returnObj.put("chargeAmt", chargeAmt);
 
-            //------------------------------------------------------------------------
-            // 당일 DB 접수건
-            //------------------------------------------------------------------------
-            returnObj.put("todayDbCount", dataCenterMapper.DataCenterBySummaryForTodayDBCount(0L, 0L, "11"));
-            liveArr.add(returnObj);
-
-            System.out.println("liveArr 2 : [" + liveArr + "]");
-
-            //------------------------------------------------------------------------
-            // 누적 DB 접수건
-            //------------------------------------------------------------------------
-            returnObj.put("allSumDbCount", dataCenterMapper.DataCenterBySummaryForSumDBCount(srtDt, endDt, 0L, 0L));
-            liveArr.add(returnObj);
-
-            System.out.println("liveArr 3 : [" + liveArr + "]");
-
-            //------------------------------------------------------------------------
-            // 누적 유효 DB 접수건
-            //------------------------------------------------------------------------
-            returnObj.put("allValidDbCount", dataCenterMapper.DataCenterBySummaryForValidDBCount(srtDt, endDt,0L, 0L, "Y"));
-            liveArr.add(returnObj);
-
-            System.out.println("liveArr 4 : [" + liveArr + "]");
-
-            //------------------------------------------------------------------------
-            // 누적 무효 DB 접수건
-            //------------------------------------------------------------------------
-            returnObj.put("allInValidDbCount", dataCenterMapper.DataCenterBySummaryForValidDBCount(srtDt, endDt, 0L, 0L, "C"));
-            liveArr.add(returnObj);
-
-            System.out.println("liveArr 5 : [" + liveArr + "]");
-
-            //------------------------------------------------------------------------
-            // 누적 전체 캠페인 중 중복 DB 접수건
-            //------------------------------------------------------------------------
-            returnObj.put("allDupDbCount", dataCenterMapper.DataCenterBySummaryForAllDupDBCount(srtDt, endDt, 0L, 0L));
-            liveArr.add(returnObj);
-
-            System.out.println("liveArr 6 : [" + liveArr + "]");
-
-            //------------------------------------------------------------------------
-            // 누적 해당 캠페인 중 중복 DB 접수건
-            //------------------------------------------------------------------------
-            returnObj.put("thisDupDbCount", dataCenterMapper.DataCenterBySummaryForThisDupDBCount(srtDt, endDt, 0L, 0L));
-            liveArr.add(returnObj);
-
-            System.out.println("liveArr 7 : [" + liveArr + "]");
-
-//            returnObj.put("liveCount", liveArr.size());
-//            returnObj.put("liveResult", liveArr);
-        }
-
-        System.out.println("returnObj : [" + "]");
+        System.out.println("returnObj : [" + returnObj + "]");
 
         return returnObj;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * DASHBOARD -> Live 그리드
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2021.11.30
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] CAMPAIGN_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "/DataCenter/Dashboard/LiveGrid", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Map<String, Object>> DataCenterDashboardByLiveGrid(HttpServletRequest rq) throws Exception {
+        List<Map<String, Object>> cpaResult = new ArrayList<Map<String, Object>>();
+
+        System.out.println("mbId  : [" + rq.getParameter("mbId" ) + "]");
+        System.out.println("adId  : [" + rq.getParameter("adId" ) + "]");
+
+        //------------------------------------------------------------------------
+        // 캠페인명 조회
+        //------------------------------------------------------------------------
+        List<Map<String, Object>> objList = dataCenterMapper.DataCenterByLiveGridToMaster(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("adId" )), "00");
+        System.out.println("objList  : [" + objList + "]");
+
+        for(int i = 0 ; i < objList.size(); i++) {
+            Map<String, Object> result = new HashMap<String, Object>();
+
+//            result.put("ptId", ptList.get(i).getPtId());
+//            result.put("ptCd", ptList.get(i).getPtCd());
+//            result.put("caId", ptList.get(i).getCaId());
+//
+//            cpaResult.add(result);
+
+            Map<String, Object> maps = objList.get(i);
+            System.out.println("maps name  : [" + maps.get("NAME") + "]");
+
+            // 캠페인명
+            result.put("name", maps.get("NAME"));
+
+            // 총 충전광고비
+            String exchangeAmt = dataCenterMapper.DataCenterBySummaryForExchangeAmt(Long.parseLong(maps.get("MB_ID").toString()), Long.parseLong(maps.get("AD_ID").toString()), Long.parseLong(maps.get("CA_ID").toString()));
+            if(exchangeAmt == null)
+                result.put("exchangeAmt", 0);
+            else
+                result.put("exchangeAmt", exchangeAmt);
+
+            // 총 잔여광고비
+            String remainAmt = dataCenterMapper.DataCenterBySummaryForAdAdvtyBalanceCampRemainAmt(Long.parseLong(maps.get("MB_ID").toString()), Long.parseLong(maps.get("AD_ID").toString()), Long.parseLong(maps.get("CA_ID").toString()));
+            if(remainAmt == null)
+                result.put("remainAmt", 0);
+            else
+                result.put("remainAmt", remainAmt);
+
+            // 이벤트 광고비
+            result.put("eventAmt", "300,000");
+
+            // 금일수량
+            result.put("todayQty", "10 / 52");
+
+            // 전일수량
+            result.put("befdayQty", "6 / 52");
+
+            cpaResult.add(result);
+        }
+
+        return cpaResult;
     }
 }

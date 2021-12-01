@@ -102,8 +102,8 @@ public interface CpaMaster {
             "       , CA_AUTO_CONFIRM" +
             " FROM " +
             "       CPA_MASTER" +
-            " WHERE " +
-            "       CA_STATUS = 'R' " +
+//            " WHERE " +
+//            "       CA_STATUS = 'R' " +
             " ORDER BY CA_CA_ID ${order}" +
             " LIMIT ${srt}, ${end}")
     @Results({
