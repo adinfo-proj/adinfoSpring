@@ -49,19 +49,21 @@ public class DataCenter {
         System.out.println("caId  : [" + rq.getParameter("caId" ) + "]");
 
         //------------------------------------------------------------------------
-        // 합산 예치금
+        // 대행사 기준 합산 예치금
+        //   - AD_TRANSACTIONAL : 입출금 테이블의 입금내역을 합산한다.
         //------------------------------------------------------------------------
         String    depositAmt = null;
-        if( (depositAmt = dataCenterMapper.DataCenterBySummaryForDeposit(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("caId" )))) == null )
+        if( (depositAmt = dataCenterMapper.DataCenterBySummaryForDepositToAd(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("adId" )))) == null )
             returnObj.put("depositAmt", 0);
         else
             returnObj.put("depositAmt", depositAmt);
 
         //------------------------------------------------------------------------
         // 잔여 예치금
+        //   - AD_ADVERT_BALANCE : 충전금 마스터 테이블의 CPA 잔여 내역을 합산한다.
         //------------------------------------------------------------------------
         String    depositAmtRemain = null;
-        if( (depositAmtRemain = dataCenterMapper.DataCenterBySummaryForDepositRemain(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("caId" )))) == null )
+        if( (depositAmtRemain = dataCenterMapper.DataCenterBySummaryForChargeAmtToAd(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("adId" )), "T")) == null )
             returnObj.put("depositAmtRemain", 0);
         else
             returnObj.put("depositAmtRemain", depositAmtRemain);
@@ -72,10 +74,12 @@ public class DataCenter {
         // 잔여 합산 충전금
         //------------------------------------------------------------------------
         String    chargeAmt = null;
-        if( (chargeAmt = dataCenterMapper.DataCenterBySummaryForChargeAmt(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("caId" )))) == null )
+        if( (chargeAmt = dataCenterMapper.DataCenterBySummaryForChargeAmtToAd(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("adId" )), "A")) == null )
             returnObj.put("chargeAmt", 0);
         else
             returnObj.put("chargeAmt", chargeAmt);
+
+        returnObj.put("returnAmt", "5,000");
 
         System.out.println("returnObj : [" + returnObj + "]");
 
