@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class COMMON_CODE {
+    private boolean  flag=true;
     private String  tp;
     private String  tpNm;
     private String  tpDescr;

@@ -221,7 +221,7 @@ public interface CampaignMaster {
             "       , CAMPAIGN_KIND " +
             "       , CAMPAIGN_AREA " +
             "       , CAMPAIGN_AREA_ETC " +
-            "       , AD_STATUS " +
+            "       , STATUS " +
             "       , NAME " +
             "       , TP " +
             "       , TOP_KIND " +
@@ -238,12 +238,12 @@ public interface CampaignMaster {
             "       , SRT_DT " +
             "       , SRT_TM " +
             "       , END_DT " +
-            "       , ENDTM " +
+            "       , END_TM " +
             "       , COMMENT " +
             "       , USP " +
             "       , REFER_ID " +
-            "       , REQ_WORD_COND " +
             "       , ASK_LIST " +
+            "       , REQ_WORD_COND " +
             "       , EXCEPT_MEANT " +
             "       , CNCL_DATA " +
             "       , SMS_YN " +
@@ -262,52 +262,52 @@ public interface CampaignMaster {
             ") " +
             "VALUES(" +
             "         NOW()" +
-            "       , ${campaignMaster.mbId " +
-            "       , ${campaignMaster.adId " +
-            "       , ${campaignMaster.caId " +
-            "       , #{campaignMaster.operId " +
-            "       , #{campaignMaster.campaignKind " +
-            "       , #{campaignMaster.campaignArea " +
-            "       , #{campaignMaster.campaignAreaEtc " +
-            "       , #{campaignMaster.status " +
-            "       , #{campaignMaster.name " +
-            "       , #{campaignMaster.tp " +
-            "       , #{campaignMaster.topKind " +
-            "       , #{campaignMaster.middleKind " +
-            "       , #{campaignMaster.purpose " +
-            "       , #{campaignMaster.pirce " +
-            "       , #{campaignMaster.promotionPrice " +
-            "       , #{campaignMaster.snsYn " +
-            "       , #{campaignMaster.formYn " +
-            "       , #{campaignMaster.potenYn " +
-            "       , #{campaignMaster.externDataYn " +
-            "       , #{campaignMaster.dayLimit " +
-            "       , #{campaignMaster.regIp " +
-            "       , #{campaignMaster.srtDt " +
-            "       , #{campaignMaster.srtTm " +
-            "       , #{campaignMaster.endDt " +
-            "       , #{campaignMaster.endTm " +
-            "       , #{campaignMaster.comment " +
-            "       , #{campaignMaster.usp " +
-            "       , #{campaignMaster.referId " +
-            "       , #{campaignMaster.reqWordCond " +
-            "       , #{campaignMaster.askList " +
-            "       , #{campaignMaster.exceptMeant " +
-            "       , #{campaignMaster.cnclData " +
-            "       , #{campaignMaster.smsYn " +
-            "       , #{campaignMaster.smsNo " +
-            "       , #{campaignMaster.landingPageTitle " +
-            "       , #{campaignMaster.landingUrl " +
-            "       , #{campaignMaster.bannerPath " +
-            "       , #{campaignMaster.autoConfirm " +
-            "       , #{campaignMaster.approval " +
-            "       , #{campaignMaster.nullifyCond " +
-            "       , #{campaignMaster.cancelCond " +
-            "       , #{campaignMaster.banCannelCond " +
-            "       , #{campaignMaster.banImageCond " +
-            "       , #{campaignMaster.banWordCond " +
-            "       , #{campaignMaster.ageTarget " +
-            ")")
-    @Options(useGeneratedKeys = true, keyProperty = "caCaId")
+            "       , #{campaignMaster.mbId}" +
+            "       , #{campaignMaster.adId}" +
+            "       , #{campaignMaster.caId}" +
+            "       , #{campaignMaster.operId}" +
+            "       , #{campaignMaster.campaignKind}" +
+            "       , #{campaignMaster.campaignArea}" +
+            "       , #{campaignMaster.campaignAreaEtc}" +
+            "       , #{campaignMaster.status}" +
+            "       , #{campaignMaster.name}" +
+            "       , #{campaignMaster.tp}" +
+            "       , #{campaignMaster.topKind}" +
+            "       , #{campaignMaster.middleKind}" +
+            "       , #{campaignMaster.purpose}" +
+            "       , #{campaignMaster.price}" +
+            "       , #{campaignMaster.promotionPrice}" +
+            "       , #{campaignMaster.snsYn}" +
+            "       , #{campaignMaster.formYn}" +
+            "       , #{campaignMaster.potenYn}" +
+            "       , #{campaignMaster.externDataYn}" +
+            "       , #{campaignMaster.dayLimit}" +
+            "       , #{campaignMaster.regIp}" +
+            "       , #{campaignMaster.srtDt}" +
+            "       , #{campaignMaster.srtTm}" +
+            "       , #{campaignMaster.endDt}" +
+            "       , #{campaignMaster.endTm}" +
+            "       , #{campaignMaster.comment}" +
+            "       , #{campaignMaster.usp}" +
+            "       , #{campaignMaster.referId}" +
+            "       , #{campaignMaster.askList}" +
+            "       , #{campaignMaster.reqWordCond}" +
+            "       , #{campaignMaster.exceptMeant}" +
+            "       , #{campaignMaster.cnclData}" +
+            "       , #{campaignMaster.smsYn}" +
+            "       , #{campaignMaster.smsNo}" +
+            "       , #{campaignMaster.landingPageTitle}" +
+            "       , #{campaignMaster.landingUrl}" +
+            "       , #{campaignMaster.bannerPath}" +
+            "       , #{campaignMaster.autoConfirm}" +
+            "       , #{campaignMaster.approval}" +
+            "       , #{campaignMaster.nullifyCond}" +
+            "       , #{campaignMaster.cancelCond}" +
+            "       , #{campaignMaster.banChannelCond}" +
+            "       , #{campaignMaster.banImageCond}" +
+            "       , #{campaignMaster.banWordCond}" +
+            "       , #{campaignMaster.ageTarget}" +
+            ")" )
+    @Options(useGeneratedKeys = true, keyProperty = "caId")
     Long insCampaignMaster(@Param("campaignMaster") CAMPAIGN_MASTER campaignMaster);
 }

@@ -40,7 +40,8 @@ public interface CommonCode {
     List<COMMON_CODE> getCommonByTp(String tp);
 
     @Select("SELECT " +
-            "         TP" +
+            "         'true' AS FLAG" +
+            "       , TP" +
             "       , TP_NM" +
             "       , TP_DESCR" +
             "       , CODE" +
@@ -57,6 +58,7 @@ public interface CommonCode {
             " AND   USE_YN     = 'Y' " +
             " ORDER BY CODE, SUB_CODE ASC")
     @Results({
+            @Result(property = "flag" , column = "FLAG"),
             @Result(property = "tp" , column = "TP"),
             @Result(property = "tpNm" , column = "TP_NM"),
             @Result(property = "tpDescr" , column = "TP_DESCR"),

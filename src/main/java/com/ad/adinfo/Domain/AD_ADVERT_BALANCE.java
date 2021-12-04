@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class AD_ADVERT_BALANCE {
     private String  UpdateDt;
+    private Long    mbId;
     private Long    adId;
     private Long    caId;
     private String  advtMedia;
@@ -13,4 +14,5 @@ public class AD_ADVERT_BALANCE {
     private Double  supportAmt;
     private Double  beforeChargeAmt;
     private String  smsSendYn;
+    private String  zeroAmtSmsYn;
 }
