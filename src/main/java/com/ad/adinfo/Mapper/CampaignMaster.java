@@ -1,6 +1,7 @@
 package com.ad.adinfo.Mapper;
 
 import com.ad.adinfo.Domain.CAMPAIGN_MASTER;
+import com.ad.adinfo.Domain.COMMON_CODE;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -8,6 +9,18 @@ import java.util.Map;
 
 @Mapper
 public interface CampaignMaster {
+    @Select("SELECT " +
+            "       MAX(CA_ID) AS CA_ID" +
+            " FROM " +
+            "       CAMPAIGN_MASTER" +
+            " WHERE " +
+            "       MB_ID      = #{mbId}" +
+            " AND   AD_ID      = #{adId}" )
+    @Results({
+            @Result(property = "caId" , column = "CA_ID")
+    })
+    Long getCampaignMasterMaxCaId(Long mbId, Long adId);
+
     @Select("SELECT " +
             "         UPDATE_DT" +
             "       , MB_ID" +

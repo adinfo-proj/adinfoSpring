@@ -113,7 +113,11 @@ public class CampaignManage {
         System.out.println(cpaCampaignMaster.getAdId());
 
         // 캠페인 아이디는 Seq로 자동 증가한다. (1,000부터 시작)
-        cpaCampaignMaster.setCaId(0L);
+        //   - MB_ID와 AD_ID 기준으로 CA_ID번호를 산출한다.
+        Long newCaId = campaignMaster.getCampaignMasterMaxCaId(cpaCampaignMaster.getMbId(), cpaCampaignMaster.getAdId());
+        System.out.println("Max CA_ID : [" + newCaId + "]");
+        newCaId = (newCaId == null) ? 1000L : newCaId + 1;
+        cpaCampaignMaster.setCaId(newCaId);
 
         // 작업자 ID
         cpaCampaignMaster.setOperId(rq.getParameter("operId"));
