@@ -46,6 +46,7 @@ public class CAMPAIGN_MASTER {
     private Double  approval;
     private String  nullifyCond;
     private String  cancelCond;
+    private String  banExChannelCond;
     private String  banChannelCond;
     private String  banImageCond;
     private String  banWordCond;

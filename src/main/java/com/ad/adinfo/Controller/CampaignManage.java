@@ -49,6 +49,7 @@ public class CampaignManage {
         AD_ADVERT_BALANCE   adAdvertBalance     = new AD_ADVERT_BALANCE();
 
         UUID uuid                = UUID.randomUUID();
+        Long newCaId             = 0L;
 
 //        String srcFullName      = "";
 //        //---------------------------------------------------------------------------------------------------------
@@ -114,9 +115,15 @@ public class CampaignManage {
 
         // 캠페인 아이디는 Seq로 자동 증가한다. (1,000부터 시작)
         //   - MB_ID와 AD_ID 기준으로 CA_ID번호를 산출한다.
-        Long newCaId = campaignMaster.getCampaignMasterMaxCaId(cpaCampaignMaster.getMbId(), cpaCampaignMaster.getAdId());
-        System.out.println("Max CA_ID : [" + newCaId + "]");
-        newCaId = (newCaId == null) ? 1000L : newCaId + 1;
+        try {
+            newCaId = campaignMaster.getCampaignMasterMaxCaId(cpaCampaignMaster.getMbId(), cpaCampaignMaster.getAdId());
+            System.out.println("Max CA_ID : [" + newCaId + "]");
+            newCaId = (newCaId == null) ? 1000L : newCaId + 1L;
+        }
+        catch (Exception e) {
+            System.out.println("campaignMaster.getCampaignMasterMaxCaId Fail : [" + e + "]");
+        }
+
         cpaCampaignMaster.setCaId(newCaId);
 
         // 작업자 ID
@@ -255,8 +262,11 @@ public class CampaignManage {
         // 취소 조건
         cpaCampaignMaster.setCancelCond(rq.getParameter("cancelCond"));
 
+        // 선호 채널
+        cpaCampaignMaster.setBanExChannelCond(rq.getParameter("banExChannel"));
+
         // 금지 채널
-        cpaCampaignMaster.setBanChannelCond(rq.getParameter("banExChannel"));
+        cpaCampaignMaster.setBanChannelCond(rq.getParameter("banChannel"));
 
         // 금지 이미지
         cpaCampaignMaster.setBanImageCond(rq.getParameter("banImageCond"));
@@ -269,7 +279,12 @@ public class CampaignManage {
         //-------------------------------------------------------------------
         // 캠페인 마스터에 데이터를 생성한다.
         //-------------------------------------------------------------------
-        campaignMaster.insCampaignMaster(cpaCampaignMaster);
+        try {
+            campaignMaster.insCampaignMaster(cpaCampaignMaster);
+        }
+        catch (Exception e) {
+            System.out.println("campaignMaster.insCampaignMaster Fail : [" + e + "]");
+        }
 
         //-------------------------------------------------------------------
         // 광고주 충전금 마스터 (AD_ADVERT_BALANCE) 테이블에 해당 캠페인의 충전금액 항목을 생성한다.
@@ -288,7 +303,12 @@ public class CampaignManage {
         adAdvertBalance.setSmsSendYn(cpaCampaignMaster.getSmsYn());
         adAdvertBalance.setZeroAmtSmsYn("N");
 
-        adAdvertBalanceMapper.insAdAdvertBalance(adAdvertBalance);
+        try {
+            adAdvertBalanceMapper.insAdAdvertBalance(adAdvertBalance);
+        }
+        catch (Exception e) {
+            System.out.println("adAdvertBalanceMapper.insAdAdvertBalance Fail : [" + e + "]");
+        }
 
         //-------------------------------------------------------------------
         // SEQ로 생성된 캠페인 아이디를 리턴한다.

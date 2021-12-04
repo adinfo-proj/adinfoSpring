@@ -64,6 +64,7 @@ public interface CampaignMaster {
             "       , APPROVAL" +
             "       , NULLIFY_COND" +
             "       , CANCEL_COND" +
+            "       , BAN_EX_CHANNEL_COND" +
             "       , BAN_CHANNEL_COND" +
             "       , BAN_IMAGE_COND" +
             "       , BAN_WORD_COND" +
@@ -115,6 +116,7 @@ public interface CampaignMaster {
             @Result(property = "approval" , column = "APPROVAL"),
             @Result(property = "nullifyCond" , column = "NULLIFY_COND"),
             @Result(property = "cancelCond" , column = "CANCEL_COND"),
+            @Result(property = "banExChannelCond" , column = "BAN_EX_CHANNEL_COND"),
             @Result(property = "banChannelCond" , column = "BAN_CHANNEL_COND"),
             @Result(property = "banImageCond" , column = "BAN_IMAGE_COND"),
             @Result(property = "banWordCond" , column = "BAN_WORD_COND"),
@@ -165,6 +167,7 @@ public interface CampaignMaster {
             "       , APPROVAL" +
             "       , NULLIFY_COND" +
             "       , CANCEL_COND" +
+            "       , BAN_EX_CHANNEL_COND" +
             "       , BAN_CHANNEL_COND" +
             "       , BAN_IMAGE_COND" +
             "       , BAN_WORD_COND" +
@@ -217,6 +220,7 @@ public interface CampaignMaster {
             @Result(property = "approval" , column = "APPROVAL"),
             @Result(property = "nullifyCond" , column = "NULLIFY_COND"),
             @Result(property = "cancelCond" , column = "CANCEL_COND"),
+            @Result(property = "banExChannelCond" , column = "BAN_EX_CHANNEL_COND"),
             @Result(property = "banChannelCond" , column = "BAN_CHANNEL_COND"),
             @Result(property = "banImageCond" , column = "BAN_IMAGE_COND"),
             @Result(property = "banWordCond" , column = "BAN_WORD_COND"),
@@ -268,6 +272,7 @@ public interface CampaignMaster {
             "       , APPROVAL " +
             "       , NULLIFY_COND " +
             "       , CANCEL_COND " +
+            "       , BAN_EX_CHANNEL_COND" +
             "       , BAN_CHANNEL_COND " +
             "       , BAN_IMAGE_COND " +
             "       , BAN_WORD_COND " +
@@ -316,6 +321,7 @@ public interface CampaignMaster {
             "       , #{campaignMaster.approval}" +
             "       , #{campaignMaster.nullifyCond}" +
             "       , #{campaignMaster.cancelCond}" +
+            "       , #{campaignMaster.banExChannelCond}" +
             "       , #{campaignMaster.banChannelCond}" +
             "       , #{campaignMaster.banImageCond}" +
             "       , #{campaignMaster.banWordCond}" +
