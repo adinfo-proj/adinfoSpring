@@ -10,6 +10,8 @@
 package com.ad.adinfo.Controller;
 
 import com.ad.adinfo.Domain.*;
+import com.ad.adinfo.Domain.Member.CreateMember;
+import com.ad.adinfo.Domain.Member.TokenResponse;
 import com.ad.adinfo.Mapper.*;
 import com.ad.adinfo.Service.AdInfoUtil;
 import com.ad.adinfo.Service.DateCalc;
@@ -18,19 +20,15 @@ import com.ad.adinfo.Service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.ibatis.annotations.Result;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -537,11 +535,13 @@ public class AdinfoAPIController {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @PostMapping(value = "/AccessLogin")
+    @PostMapping(value = "/login")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> AccessLogin(@RequestBody TokenResponse req,  HttpServletResponse res) {
+    public ResponseEntity<Map<String, Object>> AccessLogin(@RequestBody TokenResponse req, HttpServletResponse res) {
         Map<String, Object> resMap = new HashMap<>();
         HttpStatus status = null;
+
+        System.out.println("gradeCd 0 : [" + req.getEmailId() + "]");
 
         //-------------------------------------------------------------------
         // 수신된 아이디와 패스워드로 DB를 조회하여 확인한다.
@@ -595,6 +595,149 @@ public class AdinfoAPIController {
                 }
             }
         }
+
+        return new ResponseEntity<Map<String, Object>>(resMap, status);
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/addmember")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> CreateUser(@RequestBody CreateMember req, HttpServletResponse res) {
+        Map<String, Object> resMap = new HashMap<>();
+        AD_USER_MASTER creAdUserMaster = null;
+        HttpStatus status = null;
+
+        //-------------------------------------------------------------------
+        // 기 생성된 사용자를 확인한다.
+        //-------------------------------------------------------------------
+        String createdUser = adUserMaster.getAdUserMasterForId(req.getEmailId());
+        if(createdUser == null || createdUser == "") {
+            creAdUserMaster.setAdClntId(req.getEmailId());
+            creAdUserMaster.setAdClntNm(req.getUserName());
+            creAdUserMaster.setAdMbId(20000L);
+            creAdUserMaster.setAdGradeCd(req.getAdGradeCd());
+
+//            if(req.getAdGradeCd() != null) {
+//                if(req.getAdGradeCd().equals("")) {
+//                    // Error로 정보를 알리자
+//                    ;
+//                }
+//                else {
+//                    // 사용자 등급 처리
+//                    creAdUserMaster.setAdGradeCd(req.getAdGradeCd());
+//
+//                    // 약정등록일
+//                    // 약정해지일 (2999.12.31)
+//                    // 약정시작일
+//                    // 약정종료일 (2999.12.31)
+//
+//                    // 회원사
+//                    if(req.getAdGradeCd().equals("02")) {
+//
+//                    }
+//                    else if(req.getAdGradeCd().equals("03")) {
+//
+//                    }
+//                    else if(req.getAdGradeCd().equals("04")) {
+//
+//                    }
+//                    else {
+//                        // 관리자로 등록이므로 이는 별개로 처리
+//                    }
+//                }
+//            }
+
+            try {
+                Long returnMbId = adUserMaster.insCampaignMaster(creAdUserMaster);
+                System.out.println("returnMbId : [" + returnMbId + "]");
+
+                TokenResponse loginInfo = new TokenResponse();
+
+                loginInfo.setEmailId(req.getEmailId());
+
+                String token = jwtService.create(loginInfo);
+
+                //System.out.println("token : [" + token + "]");
+
+                resMap.put("status", true);
+                resMap.put("emailId", req.getEmailId());
+                resMap.put("mbId", returnMbId);
+                resMap.put("adGradeCd", req.getAdGradeCd());
+                resMap.put("jwtAuthToken", token);
+                status = HttpStatus.ACCEPTED;
+            } catch (RuntimeException e) {
+                log.error("로그인 실패", e);
+                resMap.put("status" , false);
+                resMap.put("message", e.getMessage());
+                status = HttpStatus.ACCEPTED;
+            }
+        }
+
+//
+//        //-------------------------------------------------------------------
+//        // 회원정보를 생성한다.
+//        //-------------------------------------------------------------------
+//
+//        //-------------------------------------------------------------------
+//        // 토큰을 발행한다.
+//        //-------------------------------------------------------------------
+//
+//        //-------------------------------------------------------------------
+//        // 생성결과를 처리한다.
+//        //-------------------------------------------------------------------
+//
+//        //-------------------------------------------------------------------
+//        // 수신된 아이디와 패스워드로 DB를 조회하여 확인한다.
+//        //-------------------------------------------------------------------
+//        String sqlAdGrade = adUserMaster.getAdUserMasterForId(req.getEmailId());
+//
+//        System.out.println("gradeCd 1 : [" + sqlAdGrade + "]");
+//
+//        if( sqlAdGrade == null || sqlAdGrade == "" ) {
+//            log.error("1. 로그인 실패");
+//            resMap.put("status" , "1");
+//            resMap.put("message", "등록된 사용자가 없습니다.");
+//            resMap.put("gradeCd", "ZZ");
+//            status = HttpStatus.ACCEPTED;
+//        } else {
+//            sqlAdGrade = adUserMaster.getAdUserMasterForIdPw(req.getEmailId(), req.getEmailPw());
+//
+//            System.out.println("gradeCd 2 : [" + sqlAdGrade + "]");
+//
+//            if( sqlAdGrade == null || sqlAdGrade == "" ) {
+//                log.error("2. 로그인 실패");
+//                resMap.put("status", "2");
+//                resMap.put("message", "비밀번호가 틀렸습니다.");
+//                resMap.put("gradeCd", "ZZ");
+//                status = HttpStatus.ACCEPTED;
+//            }
+//            else {
+//
+//                System.out.println("gradeCd 3 : [" + sqlAdGrade + "]");
+//
+//                resMap.put("gradeCd", sqlAdGrade);
+//
+//                try {
+//                    TokenResponse loginInfo = new TokenResponse();
+//
+//                    loginInfo.setEmailId(req.getEmailId());
+//
+//                    String token = jwtService.create(loginInfo);
+//
+//                    //System.out.println("token : [" + token + "]");
+//
+//                    resMap.put("status", "0");
+//                    resMap.put("emailId", req.getEmailId());
+//                    resMap.put("authToken", token);
+//                    status = HttpStatus.ACCEPTED;
+//                } catch (RuntimeException e) {
+//                    log.error("로그인 실패", e);
+//                    resMap.put("status" , "3");
+//                    resMap.put("message", e.getMessage());
+//                    status = HttpStatus.ACCEPTED;
+//                }
+//            }
+//        }
 
         return new ResponseEntity<Map<String, Object>>(resMap, status);
     }

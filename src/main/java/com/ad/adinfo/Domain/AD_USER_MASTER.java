@@ -24,10 +24,11 @@ public class AD_USER_MASTER {
     private String  adAbnDt;
     private String  adSrtDt;
     private String  adExpDt;
-    private Integer adSponserId;
+    private Long    adSponserId;
     private Double  adSponserRate;
-    private Integer adAdId;
+    private Long    adMbId;
+    private Long    adAdId;
     private String  adPtCd;
-    private Integer adPtId;
+    private Long    adPtId;
     private String  adComment;
 }

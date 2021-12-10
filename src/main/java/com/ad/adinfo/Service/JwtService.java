@@ -1,12 +1,10 @@
 package com.ad.adinfo.Service;
 
-import com.ad.adinfo.Domain.TokenResponse;
+import com.ad.adinfo.Domain.Member.TokenResponse;
 import io.jsonwebtoken.*;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 
