@@ -208,8 +208,8 @@ public interface AdUserMaster {
             "       AD_USER_MASTER" +
             " WHERE " +
             "       AD_CLNT_ID = #{adClntId} " +
-//            " AND   AES_DECRYPT(UNHEX(AD_CLNT_PW), 'dbfactory') = #{adClntPw}")
-            " AND   AD_CLNT_PW = #{adClntPw}")
+            " AND   AES_DECRYPT(UNHEX(AD_CLNT_PW), 'dbfactory') = #{adClntPw}")
+//            " AND   AD_CLNT_PW = #{adClntPw}")
     @Results({
             @Result(property = "adGradeCd", column = "AD_GRADE_CD")
     })

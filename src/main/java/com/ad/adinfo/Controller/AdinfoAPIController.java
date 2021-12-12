@@ -11,6 +11,7 @@ package com.ad.adinfo.Controller;
 
 import com.ad.adinfo.Domain.*;
 import com.ad.adinfo.Domain.Member.CreateMember;
+import com.ad.adinfo.Domain.Member.LoginConnect;
 import com.ad.adinfo.Domain.Member.TokenResponse;
 import com.ad.adinfo.Mapper.*;
 import com.ad.adinfo.Service.AdInfoUtil;
@@ -24,8 +25,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -535,20 +538,19 @@ public class AdinfoAPIController {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @PostMapping(value = "/login")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> AccessLogin(@RequestBody TokenResponse req, HttpServletResponse res) {
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public Map<String, Object> login(@RequestBody LoginConnect loginConnect ) throws Exception {
         Map<String, Object> resMap = new HashMap<>();
         HttpStatus status = null;
 
-        System.out.println("gradeCd 0 : [" + req.getEmailId() + "]");
+        System.out.println("req.getEmailId : [" + loginConnect.getEmailId() + "]");
 
         //-------------------------------------------------------------------
         // 수신된 아이디와 패스워드로 DB를 조회하여 확인한다.
         //-------------------------------------------------------------------
-        String sqlAdGrade = adUserMaster.getAdUserMasterForId(req.getEmailId());
+        String sqlAdGrade = adUserMaster.getAdUserMasterForId(loginConnect.getEmailId());
 
-        System.out.println("gradeCd 1 : [" + sqlAdGrade + "]");
+        System.out.println("sqlAdGrade : [" + sqlAdGrade + "]");
 
         if( sqlAdGrade == null || sqlAdGrade == "" ) {
             log.error("1. 로그인 실패");
@@ -557,7 +559,7 @@ public class AdinfoAPIController {
             resMap.put("gradeCd", "ZZ");
             status = HttpStatus.ACCEPTED;
         } else {
-            sqlAdGrade = adUserMaster.getAdUserMasterForIdPw(req.getEmailId(), req.getEmailPw());
+            sqlAdGrade = adUserMaster.getAdUserMasterForIdPw(loginConnect.getEmailId(), loginConnect.getEmailPw());
 
             System.out.println("gradeCd 2 : [" + sqlAdGrade + "]");
 
@@ -577,14 +579,14 @@ public class AdinfoAPIController {
                 try {
                     TokenResponse loginInfo = new TokenResponse();
 
-                    loginInfo.setEmailId(req.getEmailId());
+                    loginInfo.setEmailId(loginConnect.getEmailId());
 
                     String token = jwtService.create(loginInfo);
 
                     //System.out.println("token : [" + token + "]");
 
                     resMap.put("status", "0");
-                    resMap.put("emailId", req.getEmailId());
+                    resMap.put("emailId", loginConnect.getEmailId());
                     resMap.put("authToken", token);
                     status = HttpStatus.ACCEPTED;
                 } catch (RuntimeException e) {
@@ -596,7 +598,7 @@ public class AdinfoAPIController {
             }
         }
 
-        return new ResponseEntity<Map<String, Object>>(resMap, status);
+        return resMap;
     }
 
     @CrossOrigin
@@ -740,6 +742,36 @@ public class AdinfoAPIController {
 //        }
 
         return new ResponseEntity<Map<String, Object>>(resMap, status);
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/confirmaccess")
+    public Map<String, Object> confirmaccess( @RequestBody Map<String, Object> jwtAuthToken) {
+        Map<String, Object> resMap = new HashMap<>();
+        HttpStatus status = null;
+
+        System.out.println("JWT : [" + jwtAuthToken + "]");
+        System.out.println("JWT : [" + jwtAuthToken.get("emailId") + "]");
+        System.out.println("JWT : [" + jwtAuthToken.get("jwtAuthToken") + "]");
+
+        try {
+            jwtService.readToken((String)jwtAuthToken.get("jwtAuthToken"));
+            resMap.put("status", true);
+            status = HttpStatus.ACCEPTED;
+            System.out.println("************************************************************************************");
+            System.out.println("* AccessInfo Alive...");
+            System.out.println("************************************************************************************");
+        } catch (RuntimeException e) {
+            log.error("정보조회 실패", e);
+            resMap.put("status", false);
+            resMap.put("message", "토큰 시간이 만료되었습니다.");
+            status = HttpStatus.ACCEPTED;
+            System.out.println("************************************************************************************");
+            System.out.println("* AccessInfo Dead...");
+            System.out.println("************************************************************************************");
+        }
+
+        return resMap;
     }
 
     @CrossOrigin

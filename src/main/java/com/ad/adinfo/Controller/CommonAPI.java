@@ -70,7 +70,6 @@ public class CommonAPI {
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
     @RequestMapping(value = "/CommonCode/getCommonByTp", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
     public List<COMMON_CODE> getCommonByTp(HttpServletRequest rq) throws Exception {
         System.out.println("tp : [" + rq.getParameter("tp") + "]");
         return commonCode.getCommonByTp(rq.getParameter("tp"));
