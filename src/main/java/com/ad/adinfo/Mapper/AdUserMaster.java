@@ -70,12 +70,10 @@ public interface AdUserMaster {
     })
     List<AD_USER_MASTER> getAdUserMaster(String adClntId);
 
-
-
-
     @Insert("INSERT INTO AD_USER_MASTER " +
             "( " +
             "         AD_UPDATE_DT" +
+            "       , AD_MB_ID" +
             "       , AD_CLNT_ID" +
             "       , AD_CLNT_NM" +
             "       , AD_NICK_NM" +
@@ -97,7 +95,6 @@ public interface AdUserMaster {
             "       , AD_EXP_DT" +
             "       , AD_SPONSER_ID" +
             "       , AD_SPONSER_RATE" +
-            "       , AD_MB_ID" +
             "       , AD_AD_ID" +
             "       , AD_PT_CD" +
             "       , AD_PT_ID" +
@@ -105,10 +102,12 @@ public interface AdUserMaster {
             ") " +
             "VALUES(" +
             "         NOW()" +
+            "       , #{adUserMaster.adMbId}" +
             "       , #{adUserMaster.adClntId}" +
             "       , #{adUserMaster.adClntNm}" +
             "       , #{adUserMaster.adNickNm}" +
-            "       , #{adUserMaster.adClntPw}" +
+            "       , HEX(AES_ENCRYPT(#{adUserMaster.adClntPw}, 'dbfactory'))" +
+//            "       , #{adUserMaster.adClntPw}" +
             "       , #{adUserMaster.adClntSubsNo}" +
             "       , #{adUserMaster.adCompanyNm}" +
             "       , #{adUserMaster.adCompanyNo}" +
@@ -126,7 +125,6 @@ public interface AdUserMaster {
             "       , #{adUserMaster.adExpDt}" +
             "       , #{adUserMaster.adSponserId}" +
             "       , #{adUserMaster.adSponserRate}" +
-            "       , #{adUserMaster.adMbId}" +
             "       , #{adUserMaster.adAdId}" +
             "       , #{adUserMaster.adPtCd}" +
             "       , #{adUserMaster.adPtId}" +
@@ -135,6 +133,7 @@ public interface AdUserMaster {
     @Options(useGeneratedKeys = true, keyProperty = "adMbId")
     @Results({
             @Result(property = "adUpdateDt" , column = "AD_UPDATE_DT"),
+            @Result(property = "adMbId" , column = "AD_MB_ID"),
             @Result(property = "adClntId" , column = "AD_CLNT_ID"),
             @Result(property = "adClntNm" , column = "AD_CLNT_NM"),
             @Result(property = "adNickNm" , column = "AD_NICK_NM"),
@@ -156,40 +155,12 @@ public interface AdUserMaster {
             @Result(property = "adExpDt" , column = "AD_EXP_DT"),
             @Result(property = "adSponserId" , column = "AD_SPONSER_ID"),
             @Result(property = "adSponserRate" , column = "AD_SPONSER_RATE"),
-            @Result(property = "adMbId" , column = "AD_MB_ID"),
             @Result(property = "adAdId" , column = "AD_AD_ID"),
-            @Result(property = "adPtCd" , column = "AD_PT_ID"),
+            @Result(property = "adPtCd" , column = "AD_PT_CD"),
             @Result(property = "adPtId" , column = "AD_PT_ID"),
             @Result(property = "adComment" , column = "AD_COMMENT")
     })
-    Long insCampaignMaster(@Param("adUserMaster") AD_USER_MASTER adUserMaster);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    Long insAdUserMaster(@Param("adUserMaster") AD_USER_MASTER adUserMaster);
 
     @Select("SELECT " +
             "       AD_GRADE_CD " +
@@ -214,4 +185,57 @@ public interface AdUserMaster {
             @Result(property = "adGradeCd", column = "AD_GRADE_CD")
     })
     String getAdUserMasterForIdPw(String adClntId, String adClntPw);
+
+    @Select("SELECT " +
+            "       IFNULL(MAX(AD_AD_ID), 10000) AS AD_AD_ID" +
+            " FROM " +
+            "       AD_USER_MASTER" +
+            " WHERE " +
+            "       AD_MB_ID      = #{mbId}" )
+    @Results({
+            @Result(property = "adId" , column = "AD_AD_ID")
+    })
+    Long getAdUserMasterMaxAdId(Long mbId);
+
+    @Select("SELECT " +
+            "       IFNULL(MAX(AD_PT_ID), 10000) AS AD_PT_ID" +
+            " FROM " +
+            "       AD_USER_MASTER" +
+            " WHERE " +
+            "       AD_MB_ID      = #{mbId}" )
+    @Results({
+            @Result(property = "ptId" , column = "AD_PT_ID")
+    })
+    Long getAdUserMasterMaxPtId(Long mbId);
+
+    @Select("SELECT " +
+            "       AD_CLNT_ID " +
+            " FROM " +
+            "       AD_USER_MASTER" +
+            " WHERE " +
+            "       AD_MB_ID        = #{mbId}" +
+            " AND   AD_CLNT_NM      = #{userName} " +
+            " AND   AD_CLNT_SUBS_NO = #{clntSubsNo} ")
+    @Results({
+            @Result(property = "adClntId" , column = "AD_CLNT_ID")
+    })
+    String getAdUserMasterFindId(Long mbId, String userName, String clntSubsNo);
+
+
+
+
+
+
+
+
+
+
+    //
+
+    @Update(" UPDATE AD_USER_MASTER " +
+            " SET    AD_CLNT_PW = #{nanPw} " +
+            " WHERE " +
+            "       AD_MB_ID        = #{mbId}" +
+            " AND   AD_CLNT_ID      = #{userId} " )
+    Long setAdUserMasterFindPw(Long mbId, String nanPw, String userId);
 }

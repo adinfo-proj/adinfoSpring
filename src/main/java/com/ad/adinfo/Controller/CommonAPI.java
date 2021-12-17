@@ -4,8 +4,10 @@ import com.ad.adinfo.Domain.COMMON_CODE;
 import com.ad.adinfo.Domain.CPA_MASTER;
 import com.ad.adinfo.Mapper.CommonCode;
 import com.ad.adinfo.Mapper.CpaMaster;
+import com.ad.adinfo.Service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,9 @@ public class CommonAPI {
 
     private final CommonCode commonCode;
     private final CpaMaster cpaCampaign;
+
+    @Autowired
+    private JwtService jwtService;
 
     /*------------------------------------------------------------------------------------------------------------------
      * 광고주 캠페인명 목록 조회
@@ -71,7 +76,7 @@ public class CommonAPI {
     @CrossOrigin
     @RequestMapping(value = "/CommonCode/getCommonByTp", method = RequestMethod.GET)
     public List<COMMON_CODE> getCommonByTp(HttpServletRequest rq) throws Exception {
-        System.out.println("tp : [" + rq.getParameter("tp") + "]");
+        System.out.println("tp       : [" + rq.getParameter("tp") + "]");
         return commonCode.getCommonByTp(rq.getParameter("tp"));
     }
 

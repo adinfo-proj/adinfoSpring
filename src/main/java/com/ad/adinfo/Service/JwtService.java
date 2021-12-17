@@ -21,7 +21,6 @@ public class JwtService {
         final JwtBuilder builder = Jwts.builder();
 
         builder.setHeaderParam("typ", "JWT");
-
         builder.setSubject("access_token")
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 12))
                 .claim("emailId", tokenResponse);
@@ -33,25 +32,26 @@ public class JwtService {
         return jwt;
     }
 
-    public void checkValid(final String jwt) {
-        log.trace("토큰 점검 : {}", jwt);
-        Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(jwt);
-    }
-
-    public Map<String, Object> readToken(final String jwt) {
-        Jws<Claims> claims = null;
-
+    public boolean checkValid(String jwt) {
         System.out.println("jwt : [" + jwt + "]");
         try {
-            claims = Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(jwt);
-        } catch (final Exception e) {
-            throw new RuntimeException();
+            Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(jwt);
+            return true;
+        } catch (Exception e) {
+            log.trace("토큰 점검 인증 실패");
         }
-
-        log.trace("claims: {}", claims);
-
-        return claims.getBody();
+        return false;
     }
 
+    public boolean readToken(final String jwt) {
+        System.out.println("jwt : [" + jwt + "]");
+        try {
+            Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(jwt);
+            return true;
+        } catch (Exception e) {
+            log.trace("토큰 점검 인증 실패");
+        }
 
+        return false;
+    }
 }

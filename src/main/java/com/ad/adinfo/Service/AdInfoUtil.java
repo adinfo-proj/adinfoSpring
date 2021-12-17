@@ -3,9 +3,11 @@ package com.ad.adinfo.Service;
 import com.ad.adinfo.Domain.AD_USER_MASTER;
 import com.ad.adinfo.Mapper.AdUserMaster;
 import com.ad.adinfo.Mapper.CpaCampaignData;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -89,6 +91,31 @@ public class AdInfoUtil {
 //        return cpaCampaignData.getCpaCampaignDataTodayInCount(ptId, date);
 //    }
 
+    public char rndChar () {
+        int rnd = (int) (Math.random() * 52); // or use Random or whatever
+        char base = (rnd < 26) ? 'A' : 'a';
+        return (char) (base + rnd % 26);
 
+    }
 
+//    public void sendSms() {
+//        String api_key = "NCS540687B324ADE";
+//        String api_secret = "57F643F41F2521E3ADD85FF2B891DE7E";
+//        Message coolsms = new Message(api_key, api_secret);
+//        HashMap<String, String> params = new HashMap<String, String>();
+//
+//        params.put("to", "0226680020");
+//        params.put("from", "01024068222");
+//        params.put("type", "SMS");
+//        params.put("text", "인증문자 테스트");
+//        params.put("app_version", "test app 1.2");
+//
+//        try {
+//            JSONObject obj = (JSONObject) coolsms.send(params);
+//            System.out.println(obj.toString());
+//        } catch (CoolsmsException e) {
+//            System.out.println(e.getMessage());
+//            System.out.println(e.getCode());
+//        }
+//    }
 }
