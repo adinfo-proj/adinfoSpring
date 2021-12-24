@@ -70,17 +70,17 @@ public class AdUserMasterAPI {
             System.out.println("2. [" + params.get("emailId").toString() + "] 아이디가 없습니다.");
 
             try {
-                creAdUserMaster.setAdMbId(20000L);
-                creAdUserMaster.setAdClntId(params.get("emailId").toString());
-                creAdUserMaster.setAdClntNm(params.get("userName").toString());
-                creAdUserMaster.setAdClntPw(params.get("userPass").toString());
-                creAdUserMaster.setAdClntSubsNo(params.get("clntSubsNo").toString().replaceAll("-", ""));
-                creAdUserMaster.setAdActvCd("1");
-                creAdUserMaster.setAdGradeCd(params.get("adGradeCd").toString());
-                creAdUserMaster.setAdRegDt(dateCalc.DateInterval(0));
-                creAdUserMaster.setAdAbnDt("29991231");
-                creAdUserMaster.setAdSrtDt(dateCalc.DateInterval(0));
-                creAdUserMaster.setAdExpDt("29991231");
+                creAdUserMaster.setMbId(20000L);
+                creAdUserMaster.setClntId(params.get("emailId").toString());
+                creAdUserMaster.setClntNm(params.get("userName").toString());
+                creAdUserMaster.setClntPw(params.get("userPass").toString());
+                creAdUserMaster.setClntSubsNo(params.get("clntSubsNo").toString().replaceAll("-", ""));
+                creAdUserMaster.setActvCd("1");
+                creAdUserMaster.setGradeCd(params.get("adGradeCd").toString());
+                creAdUserMaster.setRegDt(dateCalc.DateInterval(0));
+                creAdUserMaster.setAbnDt("29991231");
+                creAdUserMaster.setSrtDt(dateCalc.DateInterval(0));
+                creAdUserMaster.setExpDt("29991231");
             } catch(Exception e)  {
                 System.out.println("[" + e.getMessage() + "]");
                 resMap.put("status" , false);
@@ -98,8 +98,8 @@ public class AdUserMasterAPI {
                     // 대행사
                     if(params.get("adGradeCd").equals("02")) {
                         // AD_ID 값 신규 생성
-                        adUserMaster.getAdUserMasterMaxAdId(creAdUserMaster.getAdMbId());
-                        creAdUserMaster.setAdAdId(adUserMaster.getAdUserMasterMaxAdId(creAdUserMaster.getAdMbId()) + 1);
+                        adUserMaster.getAdUserMasterMaxAdId(creAdUserMaster.getMbId());
+                        creAdUserMaster.setAdId(adUserMaster.getAdUserMasterMaxAdId(creAdUserMaster.getMbId()) + 1);
                     }
                     // 광고주
                     else if(params.get("adGradeCd").equals("03")) {
@@ -108,8 +108,8 @@ public class AdUserMasterAPI {
                     // 마케터
                     else if(params.get("adGradeCd").equals("04")) {
                         // PT_ID 값 신규 생성
-                        adUserMaster.getAdUserMasterMaxPtId(creAdUserMaster.getAdMbId());
-                        creAdUserMaster.setAdPtId(adUserMaster.getAdUserMasterMaxPtId(creAdUserMaster.getAdMbId()) + 1);
+                        adUserMaster.getAdUserMasterMaxPtId(creAdUserMaster.getMbId());
+                        creAdUserMaster.setMkId(adUserMaster.getAdUserMasterMaxPtId(creAdUserMaster.getMbId()) + 1);
 
                         // PT_CD 값 신규 생성
                         String ptCd = "";
@@ -118,7 +118,7 @@ public class AdUserMasterAPI {
                             ptCd = ptCd + Character.toString(adInfoUtil.rndChar());
                         }
                         System.out.println(ptCd);
-                        creAdUserMaster.setAdPtCd(ptCd);
+                        creAdUserMaster.setMkCd(ptCd);
                     }
                     else {
                         // 관리자로 등록이므로 이는 별개로 처리

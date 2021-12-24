@@ -8,6 +8,7 @@ import com.ad.adinfo.Service.AdInfoUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
@@ -39,6 +40,7 @@ public class CampaignManage {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
+    //@Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/newcampaign", method = RequestMethod.POST)
     public Map<String, Object> insCampaignMaster(
             @RequestHeader Map<String, Object> rHeader,
@@ -355,4 +357,3 @@ System.out.println("Step 08");
         return resultMap;
     }
 }
-

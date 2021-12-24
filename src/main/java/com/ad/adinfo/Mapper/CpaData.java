@@ -1,7 +1,6 @@
 package com.ad.adinfo.Mapper;
 
 import com.ad.adinfo.Domain.CPA_DATA;
-import com.ad.adinfo.Domain.CPA_MASTER;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -12,12 +11,13 @@ public interface CpaData {
     @Select("SELECT " +
             "         SEQ_NO " +
             "       , UPDATE_DT " +
-            "       , CA_ID " +
+            "       , MB_ID " +
             "       , AD_ID " +
-            "       , PT_ID " +
+            "       , CA_ID " +
+            "       , MK_ID " +
             "       , CA_NAME " +
             "       , PRICE " +
-            "       , PT_PRICE " +
+            "       , MK_PRICE " +
             "       , SPEC_PRICE " +
             "       , BONUS_SUPPLY " +
             "       , BONUS_PRICE " +
@@ -27,7 +27,7 @@ public interface CpaData {
             "       , AFTER_ADVT_AMT " +
             "       , INS_DT " +
             "       , INS_TM " +
-            "       , CONFIRM_YN " +
+            "       , CONFIRM_TP " +
             "       , CONFIRM_DT " +
             "       , CONFIRM_TM " +
             "       , CNCL_MEMO " +
@@ -38,6 +38,9 @@ public interface CpaData {
             "       , URL_REFERER " +
             "       , ALL_MOBILE_DUP_YN " +
             "       , THIS_MOBILE_DUP_YN " +
+            "       , POSTBACK_YN " +
+            "       , POSTBACK_RETRY_CNT " +
+            "       , POSTBACK_DTTM " +
             "       , VALUE_DATA " +
             "       , CASE WHEN LENGTH(VALUE01) = 10 THEN CONCAT(  SUBSTR(VALUE01, 1, 3), '-' " +
             "                                                    , SUBSTR(VALUE01, 4, 3), '-' " +
@@ -57,16 +60,6 @@ public interface CpaData {
             "       , VALUE08 " +
             "       , VALUE09 " +
             "       , VALUE10 " +
-            "       , VALUE11 " +
-            "       , VALUE12 " +
-            "       , VALUE13 " +
-            "       , VALUE14 " +
-            "       , VALUE15 " +
-            "       , VALUE16 " +
-            "       , VALUE17 " +
-            "       , VALUE18 " +
-            "       , VALUE19 " +
-            "       , VALUE20 " +
             " FROM " +
             "       CPA_DATA " +
             " WHERE " +
@@ -74,9 +67,10 @@ public interface CpaData {
     @Results({
             @Result(property = "seqNo" , column = "SEQ_NO"),
             @Result(property = "updateDt" , column = "UPDATE_DT"),
-            @Result(property = "caId" , column = "CA_ID"),
+            @Result(property = "mbId" , column = "MB_ID"),
             @Result(property = "adId" , column = "AD_ID"),
-            @Result(property = "ptId" , column = "PT_ID"),
+            @Result(property = "caId" , column = "CA_ID"),
+            @Result(property = "mkId" , column = "MK_ID"),
             @Result(property = "caName" , column = "CA_NAME"),
             @Result(property = "price" , column = "PRICE"),
             @Result(property = "ptPrice" , column = "PT_PRICE"),
@@ -89,7 +83,7 @@ public interface CpaData {
             @Result(property = "afterAdvtAmt" , column = "AFTER_ADVT_AMT"),
             @Result(property = "insDt" , column = "INS_DT"),
             @Result(property = "insTm" , column = "INS_TM"),
-            @Result(property = "confirmYn" , column = "CONFIRM_YN"),
+            @Result(property = "confirmTp" , column = "CONFIRM_TP"),
             @Result(property = "confirmDt" , column = "CONFIRM_DT"),
             @Result(property = "confirmTm" , column = "CONFIRM_TM"),
             @Result(property = "cnclMemo" , column = "CNCL_MEMO"),
@@ -100,6 +94,9 @@ public interface CpaData {
             @Result(property = "urlReferer" , column = "URL_REFERER"),
             @Result(property = "allMobileDupYn" , column = "ALL_MOBILE_DUP_YN"),
             @Result(property = "thisMobileDupYn" , column = "THIS_MOBILE_DUP_YN"),
+            @Result(property = "postbackYn" , column = "POSTBACK_YN"),
+            @Result(property = "postbackRetryCtn" , column = "POSTBACK_RETRY_CNT"),
+            @Result(property = "postbackDttm" , column = "POSTBACK_DTTM"),
             @Result(property = "valueData" , column = "VALUE_DATA"),
             @Result(property = "value01" , column = "VALUE01"),
             @Result(property = "value02" , column = "VALUE02"),
@@ -110,39 +107,30 @@ public interface CpaData {
             @Result(property = "value07" , column = "VALUE07"),
             @Result(property = "value08" , column = "VALUE08"),
             @Result(property = "value09" , column = "VALUE09"),
-            @Result(property = "value10" , column = "VALUE10"),
-            @Result(property = "value11" , column = "VALUE11"),
-            @Result(property = "value12" , column = "VALUE12"),
-            @Result(property = "value13" , column = "VALUE13"),
-            @Result(property = "value14" , column = "VALUE14"),
-            @Result(property = "value15" , column = "VALUE15"),
-            @Result(property = "value16" , column = "VALUE16"),
-            @Result(property = "value17" , column = "VALUE17"),
-            @Result(property = "value18" , column = "VALUE18"),
-            @Result(property = "value19" , column = "VALUE19"),
-            @Result(property = "value10" , column = "VALUE20")
+            @Result(property = "value10" , column = "VALUE10")
     })
     CPA_DATA getCpaDataForSeqNo(Long seqNo);
 
     @Select("SELECT " +
             "         SEQ_NO " +
             "       , UPDATE_DT " +
-            "       , CA_ID " +
+            "       , MB_ID " +
             "       , AD_ID " +
-            "       , PT_ID " +
+            "       , CA_ID " +
+            "       , MK_ID " +
             "       , CA_NAME " +
-            "       , PRICE " +
-            "       , PT_PRICE " +
-            "       , SPEC_PRICE " +
+            "       , FORMAT(PRICE, 0) AS PRICE " +
+            "       , FORMAT(MK_PRICE, 0) AS MK_PRICE " +
+            "       , FORMAT(SPEC_PRICE, 0) AS SPEC_PRICE " +
             "       , BONUS_SUPPLY " +
-            "       , BONUS_PRICE " +
+            "       , FORMAT(BONUS_PRICE, 0) AS BONUS_PRICE " +
             "       , SPONSER_ID " +
-            "       , SPONSER_PRICE " +
-            "       , BEFORE_ADVT_AMT " +
-            "       , AFTER_ADVT_AMT " +
+            "       , FORMAT(SPONSER_PRICE, 0) AS SPONSER_PRICE " +
+            "       , FORMAT(BEFORE_ADVT_AMT, 0) AS BEFORE_ADVT_AMT " +
+            "       , FORMAT(AFTER_ADVT_AMT, 0) AS AFTER_ADVT_AMT " +
             "       , CONCAT( SUBSTRING(INS_DT, 1, 4), '-', SUBSTRING(INS_DT, 5, 2), '-', SUBSTRING(INS_DT, 7, 2)) INS_DT " +
             "       , CONCAT( SUBSTRING(INS_TM, 1, 2), ':', SUBSTRING(INS_TM, 3, 2), ':', SUBSTRING(INS_TM, 5, 2)) INS_TM " +
-            "       , CONFIRM_YN " +
+            "       , CONFIRM_TP " +
             "       , CONFIRM_DT " +
             "       , CONFIRM_TM " +
             "       , CNCL_MEMO " +
@@ -153,6 +141,9 @@ public interface CpaData {
             "       , URL_REFERER " +
             "       , ALL_MOBILE_DUP_YN " +
             "       , THIS_MOBILE_DUP_YN " +
+            "       , POSTBACK_YN " +
+            "       , POSTBACK_RETRY_CNT " +
+            "       , POSTBACK_DTTM " +
             "       , VALUE_DATA " +
             "       , CASE WHEN LENGTH(VALUE01) = 10 THEN CONCAT(  SUBSTR(VALUE01, 1, 3), '-' " +
             "                                                    , SUBSTR(VALUE01, 4, 3), '-' " +
@@ -171,42 +162,35 @@ public interface CpaData {
             "       , VALUE08 " +
             "       , VALUE09 " +
             "       , VALUE10 " +
-            "       , VALUE11 " +
-            "       , VALUE12 " +
-            "       , VALUE13 " +
-            "       , VALUE14 " +
-            "       , VALUE15 " +
-            "       , VALUE16 " +
-            "       , VALUE17 " +
-            "       , VALUE18 " +
-            "       , VALUE19 " +
-            "       , VALUE20 " +
             " FROM " +
             "       CPA_DATA " +
             " WHERE " +
-            "       CA_ID  = #{caId} " +
+            "       MB_ID  = #{mbId} " +
             " AND   AD_ID  = #{adId} " +
-            " AND   PT_ID  = CASE WHEN #{ptId} = 0 THEN PT_ID " +
-            "                ELSE #{ptId}          END " +
-            " AND   CONFIRM_YN IN (CASE WHEN #{dbKind} = '대기DB' THEN 'N' " +
+            " AND   CA_ID  = #{caId} " +
+
+            " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
+            "                ELSE #{mkId}          END " +
+            " AND   CONFIRM_TP IN (CASE WHEN #{dbKind} = '대기DB' THEN 'N' " +
             "                           WHEN #{dbKind} = '접수DB' THEN 'R' " +
             "                           WHEN #{dbKind} = '확정DB' THEN 'Y' " +
             "                           WHEN #{dbKind} = '취소DB' THEN 'C' " +
             "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' " +
-            "                           ELSE CONFIRM_YN " +
+            "                           ELSE CONFIRM_TP " +
             "                      END) " +
             " AND    INS_DT BETWEEN #{startDt} AND #{finishDt} " +
             " ORDER BY SEQ_NO DESC " +
-            " LIMIT #{srt}, 10" )
+            " LIMIT #{srtPos}, #{rowCount}" )
     @Results({
             @Result(property = "seqNo" , column = "SEQ_NO"),
             @Result(property = "updateDt" , column = "UPDATE_DT"),
-            @Result(property = "caId" , column = "CA_ID"),
+            @Result(property = "mbId" , column = "MB_ID"),
             @Result(property = "adId" , column = "AD_ID"),
-            @Result(property = "ptId" , column = "PT_ID"),
+            @Result(property = "caId" , column = "CA_ID"),
+            @Result(property = "mkId" , column = "MK_ID"),
             @Result(property = "caName" , column = "CA_NAME"),
             @Result(property = "price" , column = "PRICE"),
-            @Result(property = "ptPrice" , column = "PT_PRICE"),
+            @Result(property = "mkPrice" , column = "MK_PRICE"),
             @Result(property = "specPrice" , column = "SPEC_PRICE"),
             @Result(property = "bonusSupply" , column = "BONUS_SUPPLY"),
             @Result(property = "bonusPrice" , column = "BONUS_PRICE"),
@@ -216,7 +200,7 @@ public interface CpaData {
             @Result(property = "afterAdvtAmt" , column = "AFTER_ADVT_AMT"),
             @Result(property = "insDt" , column = "INS_DT"),
             @Result(property = "insTm" , column = "INS_TM"),
-            @Result(property = "confirmYn" , column = "CONFIRM_YN"),
+            @Result(property = "confirmTp" , column = "CONFIRM_TP"),
             @Result(property = "confirmDt" , column = "CONFIRM_DT"),
             @Result(property = "confirmTm" , column = "CONFIRM_TM"),
             @Result(property = "cnclMemo" , column = "CNCL_MEMO"),
@@ -227,6 +211,9 @@ public interface CpaData {
             @Result(property = "urlReferer" , column = "URL_REFERER"),
             @Result(property = "allMobileDupYn" , column = "ALL_MOBILE_DUP_YN"),
             @Result(property = "thisMobileDupYn" , column = "THIS_MOBILE_DUP_YN"),
+            @Result(property = "postbackYn" , column = "POSTBACK_YN"),
+            @Result(property = "postbackRetryCnt" , column = "POSTBACK_RETRY_CNT"),
+            @Result(property = "postbackDttm" , column = "POSTBACK_DTTM"),
             @Result(property = "valueData" , column = "VALUE_DATA"),
             @Result(property = "value01" , column = "VALUE01"),
             @Result(property = "value02" , column = "VALUE02"),
@@ -238,66 +225,74 @@ public interface CpaData {
             @Result(property = "value08" , column = "VALUE08"),
             @Result(property = "value09" , column = "VALUE09"),
             @Result(property = "value10" , column = "VALUE10"),
-            @Result(property = "value11" , column = "VALUE11"),
-            @Result(property = "value12" , column = "VALUE12"),
-            @Result(property = "value13" , column = "VALUE13"),
-            @Result(property = "value14" , column = "VALUE14"),
-            @Result(property = "value15" , column = "VALUE15"),
-            @Result(property = "value16" , column = "VALUE16"),
-            @Result(property = "value17" , column = "VALUE17"),
-            @Result(property = "value18" , column = "VALUE18"),
-            @Result(property = "value19" , column = "VALUE19"),
-            @Result(property = "value10" , column = "VALUE20")
     })
-    List<CPA_DATA> getCpaDataForCaIdAdId(Long caId, Long adId, Long ptId, String dbKind, String startDt, String finishDt, Long srt);
+    List<CPA_DATA> getCpaDataForMbIdCaIdAdId(Long mbId, Long adId, Long caId, Long mkId, String dbKind, String startDt, String finishDt, Long srtPos, Long rowCount);
+
+    @Select("SELECT " +
+            "         COUNT(*) AS ROW_TOTAL_COUNT " +
+            " FROM " +
+            "       CPA_DATA " +
+            " WHERE " +
+            "       MB_ID  = #{mbId} " +
+            " AND   AD_ID  = #{adId} " +
+            " AND   CA_ID  = #{caId} " +
+            " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
+            "                ELSE      #{mkId}     END " +
+            " AND    INS_DT BETWEEN #{startDt} AND #{finishDt} " )
+    @Results({
+            @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT")
+    })
+    Long getCpaDataForMbIdCaIdAdIdRowTotalCount(Long mbId, Long adId, Long caId, Long mkId, String dbKind, String startDt, String finishDt);
 
     @Select("SELECT " +
             "       COUNT(*) COUNT " +
             " FROM " +
             "       CPA_DATA " +
             " WHERE " +
-            "       CA_ID  = #{caId} " +
+            "       MB_ID  = #{mbId} " +
             " AND   AD_ID  = #{adId} " +
-            " AND   PT_ID  = CASE WHEN #{ptId} = 0 THEN PT_ID " +
-            " ELSE                     #{ptId}     END " +
-            " AND   CONFIRM_YN IN (CASE WHEN #{dbKind} = '대기DB' THEN 'N' " +
+            " AND   CA_ID  = #{caId} " +
+            " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
+            " ELSE                     #{mkId}     END " +
+            " AND   CONFIRM_TP IN (CASE WHEN #{dbKind} = '대기DB' THEN 'N' " +
                     "                           WHEN #{dbKind} = '접수DB' THEN 'R' " +
                     "                           WHEN #{dbKind} = '확정DB' THEN 'Y' " +
                     "                           WHEN #{dbKind} = '취소DB' THEN 'C' " +
                     "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' " +
-                    "                           ELSE CONFIRM_YN " +
+                    "                           ELSE CONFIRM_TP " +
                     "                      END) " +
             "AND    INS_DT BETWEEN #{startDt} AND #{finishDt} " )
     @Results({
             @Result(property = "count" , column = "COUNT")
     })
-    Long getCpaDataForCaIdAdIdPageCount(Long caId, Long adId, Long ptId, String dbKind, String startDt, String finishDt);
+    Long getCpaDataForCaIdAdIdPageCount(Long mbId, Long adId, Long caId, Long ptId, String dbKind, String startDt, String finishDt);
 
     @Select("SELECT " +
-            "         CONFIRM_YN   AS CONFIRM_YN" +
+            "         CONFIRM_TP   AS CONFIRM_TP" +
             "       , COUNT(*)     AS COUNT " +
             " FROM " +
             "       CPA_DATA " +
             " WHERE " +
-            "       CA_ID  = #{caId} " +
+            "       MB_ID  = #{mbId} " +
             " AND   AD_ID  = #{adId} " +
-            " AND   PT_ID  = CASE WHEN #{ptId} = 0 THEN PT_ID " +
-            " ELSE                     #{ptId}     END " +
+            " AND   CA_ID  = #{caId} " +
+            " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
+            " ELSE                     #{mkId}     END " +
             " AND   INS_DT BETWEEN #{startDt} AND #{finishDt} " +
-            " GROUP BY CONFIRM_YN " )
+            " GROUP BY CONFIRM_TP " )
     @Results({
-            @Result(property = "confirmYn" , column = "CONFIRM_YN"),
+            @Result(property = "confirmTp" , column = "CONFIRM_TP"),
             @Result(property = "count" , column = "COUNT")
     })
-    List<Map<String, Object>> getCpaDataForConfirmGroupCount(Long caId, Long adId, Long ptId, String startDt, String finishDt);
+    List<Map<String, Object>> getCpaDataForConfirmGroupCount(Long mbId, Long adId, Long caId, Long ptId, String startDt, String finishDt);
 
     @Update("UPDATE CPA_DATA " +
-            "SET    CONFIRM_YN = '${confirm}' " +
+            "SET    CONFIRM_TP = '${confirm}' " +
             "WHERE  SEQ_NO     = #{seqNo} " )
     Long setOneCpaData(String   confirm, Long seqNo);
 
     @Update("UPDATE CPA_DATA " +
-            "SET      CONFIRM_YN = '${confirm}' " +
+            "SET      CONFIRM_TP = '${confirm}' " +
             "       , CONFIRM_DT = DATE_FORMAT(SYSDATE(), '%Y%m%d') " +
             "       , CONFIRM_TM = DATE_FORMAT(SYSDATE(), '%H%i%s') " +
             "WHERE  SEQ_NO     = #{seqNo} ")

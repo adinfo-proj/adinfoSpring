@@ -241,9 +241,10 @@ public class AdinfoAPIController {
             finishDt = rq.getParameter("finishDt").replaceAll("-", "");
         }
 
-        Long count =  cpaData.getCpaDataForCaIdAdIdPageCount( Long.parseLong(rq.getParameter("caId"))
+        Long count =  cpaData.getCpaDataForCaIdAdIdPageCount( Long.parseLong(rq.getParameter("mbId"))
                                                             , Long.parseLong(rq.getParameter("adId"))
-                                                            , Long.parseLong(rq.getParameter("ptId"))
+                                                            , Long.parseLong(rq.getParameter("caId"))
+                                                            , Long.parseLong(rq.getParameter("mkId"))
                                                             , dbKind
                                                             , startDt
                                                             , finishDt);
@@ -285,9 +286,10 @@ public class AdinfoAPIController {
         String      startDt = rq.getParameter("startDt").replaceAll("-", "");
         String      finishDt = rq.getParameter("finishDt").replaceAll("-", "");
 
-        cpaResult = cpaData.getCpaDataForConfirmGroupCount( Long.parseLong(rq.getParameter("caId"))
+        cpaResult = cpaData.getCpaDataForConfirmGroupCount( Long.parseLong(rq.getParameter("mbId"))
                                                           , Long.parseLong(rq.getParameter("adId"))
-                                                          , Long.parseLong(rq.getParameter("ptId"))
+                                                          , Long.parseLong(rq.getParameter("caId"))
+                                                          , Long.parseLong(rq.getParameter("mkId"))
                                                           , startDt
                                                           , finishDt);
 
@@ -306,44 +308,44 @@ public class AdinfoAPIController {
         return cpaResult;
     }
 
-    /*------------------------------------------------------------------------------------------------------------------
-     * 캠페인별 파트너 목록 조회
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2021.07.13
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R] PT_USE_CAMPAIGN
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/CampaignPtIdList", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public List<Map<String, Object>> CampaignPtIdList(HttpServletRequest rq) throws Exception {
-        List<Map<String, Object>> cpaResult = new ArrayList<Map<String, Object>>();
-        List<PT_USE_CAMPAIGN> ptList = ptUseCampaign.CampaignPtIdList(Long.parseLong(rq.getParameter("caId")));
-
-        Map<String, Object> resulto = new HashMap<String, Object>();
-        resulto.put("ptId", "전체");
-        resulto.put("ptCd", "전체");
-        resulto.put("caId", "전체");
-        cpaResult.add(resulto);
-
-        for(int i = 0 ; i < ptList.size(); i++) {
-            Map<String, Object> result = new HashMap<String, Object>();
-
-            result.put("ptId", ptList.get(i).getPtId());
-            result.put("ptCd", ptList.get(i).getPtCd());
-            result.put("caId", ptList.get(i).getCaId());
-
-            cpaResult.add(result);
-        }
-
-        return cpaResult;
-    }
+//    /*------------------------------------------------------------------------------------------------------------------
+//     * 캠페인별 파트너 목록 조회
+//     *------------------------------------------------------------------------------------------------------------------
+//     * 작성일 : 2021.07.13
+//     * 작성자 : 박형준
+//     *------------------------------------------------------------------------------------------------------------------
+//     * 테이블 : [C]
+//     *         [R] PT_USE_CAMPAIGN
+//     *         [U]
+//     *         [D]
+//     *------------------------------------------------------------------------------------------------------------------
+//     * 코멘트 : 없음.
+//     -----------------------------------------------------------------------------------------------------------------*/
+//    @CrossOrigin
+//    @RequestMapping(value = "/CampaignMkIdList", method = RequestMethod.GET)
+//    @ResponseStatus(value = HttpStatus.OK)
+//    public List<Map<String, Object>> CampaignMkIdList(HttpServletRequest rq) throws Exception {
+//        List<Map<String, Object>> cpaResult = new ArrayList<Map<String, Object>>();
+//        List<MAKETER_MASTER> ptList = ptUseCampaign.CampaignPtIdList(Long.parseLong(rq.getParameter("caId")));
+//
+//        Map<String, Object> resulto = new HashMap<String, Object>();
+//        resulto.put("mkId", "전체");
+//        resulto.put("mkCd", "전체");
+//        resulto.put("caId", "전체");
+//        cpaResult.add(resulto);
+//
+//        for(int i = 0 ; i < ptList.size(); i++) {
+//            Map<String, Object> result = new HashMap<String, Object>();
+//
+//            result.put("mkId", ptList.get(i).getMkId());
+//            result.put("mkCd", ptList.get(i).getMkCd());
+//            result.put("caId", ptList.get(i).getCaId());
+//
+//            cpaResult.add(result);
+//        }
+//
+//        return cpaResult;
+//    }
 
 //    @RequestMapping(value = "/AdUserLst", method = RequestMethod.GET)
 //    @ResponseStatus(value = HttpStatus.OK)
@@ -394,14 +396,16 @@ public class AdinfoAPIController {
 
 //        System.out.println("lSrt : [" + String.valueOf(lSrt) + "]");
 
-        List<CPA_DATA> cpaDataList = cpaData.getCpaDataForCaIdAdId( Long.parseLong(rq.getParameter("caId")),
-                                                                    Long.parseLong(rq.getParameter("adId")),
-                                                                    Long.parseLong(rq.getParameter("ptId")),
-                                                                    rq.getParameter("dbKind"),
-                                                                    startDt,
-                                                                    finishDt,
-                                                                    lSrt
-                                                                    );
+        List<CPA_DATA> cpaDataList = cpaData.getCpaDataForMbIdCaIdAdId( Long.parseLong(rq.getParameter("mbId"))
+                                                                      , Long.parseLong(rq.getParameter("adId"))
+                                                                      , Long.parseLong(rq.getParameter("caId"))
+                                                                      , Long.parseLong(rq.getParameter("mkId"))
+                                                                      , rq.getParameter("dbKind")
+                                                                      , startDt
+                                                                      , finishDt
+                                                                      , lSrt
+                                                                      , 10L
+                                                                      );
 
 //        System.out.println("cpaDataList : [" + cpaDataList.toString() + "]");
 
@@ -412,9 +416,9 @@ public class AdinfoAPIController {
             result.put("updateDt"           , cpaDataList.get(i).getUpdateDt());
             result.put("caId"               , cpaDataList.get(i).getCaId());
             result.put("adId"               , cpaDataList.get(i).getAdId());
-            result.put("ptId"               , cpaDataList.get(i).getPtId());
+            result.put("ptId"               , cpaDataList.get(i).getMkId());
             result.put("price"              , cpaDataList.get(i).getPrice());
-            result.put("ptPrice"            , cpaDataList.get(i).getPtPrice());
+            result.put("ptPrice"            , cpaDataList.get(i).getMkPrice());
             result.put("specPrice"          , cpaDataList.get(i).getSpecPrice());
             result.put("bonusSupply"        , cpaDataList.get(i).getBonusSupply());
             result.put("bonusPrice"         , cpaDataList.get(i).getBonusPrice());
@@ -424,7 +428,7 @@ public class AdinfoAPIController {
             result.put("afterAdvtAmt"       , cpaDataList.get(i).getAfterAdvtAmt());
             result.put("insDt"              , cpaDataList.get(i).getInsDt());
             result.put("insTm"              , cpaDataList.get(i).getInsTm());
-            result.put("confirmYn"          , cpaDataList.get(i).getConfirmYn());
+            result.put("confirmYn"          , cpaDataList.get(i).getConfirmTp());
             result.put("confirmDt"          , cpaDataList.get(i).getConfirmDt());
             result.put("confirmTm"          , cpaDataList.get(i).getConfirmTm());
             result.put("cnclMemo"           , cpaDataList.get(i).getCnclMemo());
@@ -437,7 +441,7 @@ public class AdinfoAPIController {
             result.put("thisMobileDupYn"    , cpaDataList.get(i).getThisMobileDupYn());
             result.put("valueData"          , cpaDataList.get(i).getValueData());
 
-            if(cpaDataList.get(i).getConfirmYn().equals("N")) {
+            if(cpaDataList.get(i).getConfirmTp().equals("N")) {
                 result.put("value01", "⨳⨳⨳-⨳⨳⨳⨳-⨳⨳⨳⨳");
                 result.put("value02", "⨳⨳⨳");
                 result.put("value03", "⨳⨳⨳⨳⨳");
@@ -469,16 +473,6 @@ public class AdinfoAPIController {
                 result.put("value08", cpaDataList.get(i).getValue08());
                 result.put("value09", cpaDataList.get(i).getValue09());
                 result.put("value10", cpaDataList.get(i).getValue10());
-                result.put("value11", cpaDataList.get(i).getValue11());
-                result.put("value12", cpaDataList.get(i).getValue12());
-                result.put("value13", cpaDataList.get(i).getValue13());
-                result.put("value14", cpaDataList.get(i).getValue14());
-                result.put("value15", cpaDataList.get(i).getValue15());
-                result.put("value16", cpaDataList.get(i).getValue16());
-                result.put("value17", cpaDataList.get(i).getValue17());
-                result.put("value18", cpaDataList.get(i).getValue18());
-                result.put("value19", cpaDataList.get(i).getValue19());
-                result.put("value20", cpaDataList.get(i).getValue20());
             }
 
             cpaResult.add(result);
@@ -983,5 +977,30 @@ public class AdinfoAPIController {
         System.out.println("걸린시간 : " + (resTime - reqTime)/1000.000);
 
         return returnObj;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 캠페인명 리스트
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2021.12.22
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] CAMPAIGN_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetCampaignNameLst", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Map<String, Object>> GetCampaignNameLst(HttpServletRequest rq) throws Exception {
+//        List<Map<String, Object>> resultObj = new ArrayList<Map<String, Object>>();
+
+        System.out.println("mbId : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId : [" + rq.getParameter("adId") + "]");
+
+        return campaignMaster.getCampaignMasterNameList(Long.parseLong(rq.getParameter("mbId")), Long.parseLong(rq.getParameter("adId")));
     }
 }

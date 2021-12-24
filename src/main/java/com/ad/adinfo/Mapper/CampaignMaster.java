@@ -329,4 +329,22 @@ public interface CampaignMaster {
             ")" )
     @Options(useGeneratedKeys = true, keyProperty = "caId")
     Long insCampaignMaster(@Param("campaignMaster") CAMPAIGN_MASTER campaignMaster);
+
+    @Select("SELECT " +
+            "         MB_ID" +
+            "       , AD_ID" +
+            "       , CA_ID" +
+            "       , NAME" +
+            " FROM " +
+            "       CAMPAIGN_MASTER" +
+            " WHERE " +
+            "       MB_ID      = #{mbId}" +
+            " AND   AD_ID      = #{adId}" )
+    @Results({
+            @Result(property = "mbId" , column = "MB_ID"),
+            @Result(property = "adId" , column = "AD_ID"),
+            @Result(property = "caId" , column = "CA_ID"),
+            @Result(property = "name" , column = "NAME")
+    })
+    List<Map<String, Object>> getCampaignMasterNameList(Long mbId, Long adId);
 }

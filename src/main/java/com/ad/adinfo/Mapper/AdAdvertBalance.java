@@ -46,7 +46,7 @@ public interface AdAdvertBalance {
             "AND    CA_ID     = #{caId}")
     Long setOneAdAdvertBalance( Long    adId
                               , Long    caId
-                              , Long    adPrice);
+                              , String    adPrice);
 
     @Insert("INSERT INTO AD_ADVERT_BALANCE " +
             "( " +

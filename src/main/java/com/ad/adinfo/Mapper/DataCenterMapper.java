@@ -9,15 +9,16 @@ import java.util.Map;
 @Mapper
 public interface DataCenterMapper {
     //------------------------------------------------------------------------
-    // 참여 마케터의 수
+    // 캠페인별 참여 마케터의 수
     //------------------------------------------------------------------------
     @Select("SELECT " +
-            "       COUNT(*) AS COUNT" +
+            "       COUNT(*) AS COUNT " +
             " FROM " +
-            "       PT_USE_CAMPAIGN" +
+            "       MAKETER_MASTER" +
             " WHERE " +
-            "       CA_ID  = ${caId}")
-    Long DataCenterBySummaryForMaketerCount(Long caId);
+            "       MB_ID  = ${mbId}" +
+            " AND   CA_ID  = #{caId} " )
+    Long DataCenterSummaryByTopToMaketer(Long mbId, Long caId);
 
     //------------------------------------------------------------------------
     // 누적 DB 접수건
@@ -27,10 +28,10 @@ public interface DataCenterMapper {
             " FROM " +
             "       CPA_DATA" +
             " WHERE " +
-            "       AD_ID  = ${adId}" +
-            " AND   CA_ID  = ${caId}" +
-            " AND   INS_DT BETWEEN #{srtDt} AND #{endDt} " )
-    Long DataCenterBySummaryForSumDBCount(String srtDt, String endDt, Long adId, Long caId);
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
+            " AND   CA_ID  = ${caId}" )
+    Long DataCenterSummaryByTopToSumDBCount(Long mbId, Long adId, Long caId);
 
     //------------------------------------------------------------------------
     // 당일 DB 접수건
@@ -40,10 +41,11 @@ public interface DataCenterMapper {
             " FROM " +
             "       CPA_DATA" +
             " WHERE " +
-            "       AD_ID  = ${adId}" +
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
             " AND   CA_ID  = ${caId}" +
-            " AND   INS_DT = #{date}")
-    Long DataCenterBySummaryForTodayDBCount(Long adId, Long caId, String date);
+            " AND   INS_DT = #{today}" )
+    Long DataCenterBySummaryForTodayDBCount(Long mbId, Long adId, Long caId, String today);
 
     //------------------------------------------------------------------------
     // 누적 유효 DB 접수건
@@ -53,11 +55,25 @@ public interface DataCenterMapper {
             " FROM " +
             "       CPA_DATA" +
             " WHERE " +
-            "       AD_ID  = #{adId}" +
+            "       MB_ID  = #{mbId}" +
+            " AND   AD_ID  = #{adId}" +
             " AND   CA_ID  = #{caId}" +
-            " AND   CONFIRM_TP = #{confirmTp}" +
-            " AND   INS_DT BETWEEN #{srtDt} AND #{endDt} " )
-    Long DataCenterBySummaryForValidDBCount(String srtDt, String endDt, Long adId, Long caId, String confirmTp);
+            " AND   CONFIRM_TP = #{confirmTp}" )
+    Long DataCenterBySummaryForValidDBCount(Long mbId, Long adId, Long caId, String confirmTp);
+
+    //------------------------------------------------------------------------
+    // 누적 무효 DB 접수건
+    //------------------------------------------------------------------------
+    @Select("SELECT " +
+            "       COUNT(*) AS COUNT" +
+            " FROM " +
+            "       CPA_DATA" +
+            " WHERE " +
+            "       MB_ID  = #{mbId}" +
+            " AND   AD_ID  = #{adId}" +
+            " AND   CA_ID  = #{caId}" +
+            " AND   CONFIRM_TP = #{confirmTp}" )
+    Long DataCenterBySummaryForInvalidDBCount(Long mbId, Long adId, Long caId, String confirmTp);
 
     //------------------------------------------------------------------------
     // 누적 전체 캠페인 중 중복 DB 접수건
@@ -67,13 +83,31 @@ public interface DataCenterMapper {
             " FROM " +
             "       CPA_DATA" +
             " WHERE " +
-            "       AD_ID  = #{adId}" +
+            "       MB_ID  = #{mbId}" +
+            " AND   AD_ID  = #{adId}" +
             " AND   CA_ID  = #{caId}" +
-            " AND   INS_DT BETWEEN #{srtDt} AND #{endDt} " +
             " AND   ALL_MOBILE_DUP_YN = 'Y'" )
-    Long DataCenterBySummaryForAllDupDBCount(String srtDt, String endDt, Long adId, Long caId);
+    Long DataCenterBySummaryForAllDupDBCount(Long mbId, Long adId, Long caId);
 
-
+    //------------------------------------------------------------------------
+    // 누적 전체 캠페인 중 중복 DB 접수건 (클릭수 / 노출수 * 100)
+    //------------------------------------------------------------------------
+    @Select("SELECT " +
+            "A.VIEW_COUNT / B.CLICK_COUNT * 100 AS CLICK_PER " +
+            "FROM " +
+            "( SELECT COUNT(EVENT_CD) AS VIEW_COUNT " +
+            "FROM   CPA_PAGE_USING_COUNT " +
+            "WHERE MB_ID  = #{mbId} " +
+            "AND   AD_ID  = #{adId} " +
+            "AND   CA_ID  = #{caId} " +
+            "AND   EVENT_CD = 'M') A, " +
+            "( SELECT COUNT(EVENT_CD) AS CLICK_COUNT " +
+            "FROM   CPA_PAGE_USING_COUNT " +
+            "WHERE MB_ID  = #{mbId} " +
+            "AND   AD_ID  = #{adId} " +
+            "AND   CA_ID  = #{caId} " +
+            "AND   EVENT_CD = 'S') B " )
+    Double DataCenterBySummaryForClickPer(Long mbId, Long adId, Long caId);
 
 
 
@@ -178,6 +212,33 @@ public interface DataCenterMapper {
             " AND   TO_CA_ID      = ${caId}" +
             " AND   TO_ADVT_MEDIA = 'A' " )
     String DataCenterBySummaryForExchangeAmt(Long mbId, Long adId, Long caId);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //------------------------------------------------------------------------
     // 캠페인별 합산 충전금

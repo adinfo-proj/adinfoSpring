@@ -35,7 +35,7 @@ public class AdInfoUtil {
     public Long AdClntIdToAdId(String adClntId) {
         List<AD_USER_MASTER> adUserMasterSql;
         adUserMasterSql = adUserMaster.getAdUserMaster(adClntId);
-        return adUserMasterSql.get(0).getAdAdId();
+        return adUserMasterSql.get(0).getAdId();
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ public class AdInfoUtil {
     public Long AdClntIdToPtId(String adClntId) {
         List<AD_USER_MASTER> adUserMasterSql;
         adUserMasterSql = adUserMaster.getAdUserMaster(adClntId);
-        return adUserMasterSql.get(0).getAdPtId();
+        return adUserMasterSql.get(0).getMkId();
     }
 
     /*------------------------------------------------------------------------------------------------------------------

@@ -8,216 +8,214 @@ import java.util.List;
 @Mapper
 public interface AdUserMaster {
     @Select("SELECT " +
-            "         AD_UPDATE_DT" +
-            "       , AD_CLNT_ID" +
-            "       , AD_CLNT_NM" +
-            "       , AD_NICK_NM" +
-            "       , AD_CLNT_PW" +
-            "       , AD_CLNT_SUBS_NO" +
-            "       , AD_COMPANY_NM" +
-            "       , AD_COMPANY_NO" +
-            "       , AD_COMPANY_UPJONG" +
-            "       , AD_COMPANY_KIND" +
-            "       , AD_ADDRESS" +
-            "       , AD_BANK_CD" +
-            "       , AD_ACNT_NM" +
-            "       , AD_ACNT_NO" +
-            "       , AD_ACTV_CD" +
-            "       , AD_GRADE_CD" +
-            "       , AD_REG_DT" +
-            "       , AD_ABN_DT" +
-            "       , AD_SRT_DT" +
-            "       , AD_EXP_DT" +
-            "       , AD_SPONSER_ID" +
-            "       , AD_SPONSER_RATE" +
-            "       , AD_MB_ID" +
-            "       , AD_AD_ID" +
-            "       , AD_PT_CD" +
-            "       , AD_PT_ID" +
-            "       , AD_COMMENT" +
+            "         UPDATE_DT" +
+            "       , MB_ID" +
+            "       , AD_ID" +
+            "       , MK_ID" +
+            "       , MK_CD" +
+            "       , CLNT_ID" +
+            "       , CLNT_NM" +
+            "       , NICK_NM" +
+            "       , CLNT_PW" +
+            "       , CLNT_SUBS_NO" +
+            "       , COMPANY_NM" +
+            "       , COMPANY_NO" +
+            "       , COMPANY_UPJONG" +
+            "       , COMPANY_KIND" +
+            "       , ADDRESS" +
+            "       , BANK_CD" +
+            "       , ACNT_NM" +
+            "       , ACNT_NO" +
+            "       , ACTV_CD" +
+            "       , GRADE_CD" +
+            "       , REG_DT" +
+            "       , ABN_DT" +
+            "       , SRT_DT" +
+            "       , EXP_DT" +
+            "       , SPONSER_ID" +
+            "       , SPONSER_RATE" +
+            "       , COMMENT" +
             " FROM " +
             "       AD_USER_MASTER" +
             " WHERE " +
-            "       AD_CLNT_ID = #{adClntId}")
+            "       CLNT_ID = #{clntId}")
     @Results({
-            @Result(property = "adUpdateDt" , column = "AD_UPDATE_DT"),
-            @Result(property = "adClntId" , column = "AD_CLNT_ID"),
-            @Result(property = "adClntNm" , column = "AD_CLNT_NM"),
-            @Result(property = "adNickNm" , column = "AD_NICK_NM"),
-            @Result(property = "adClntPw" , column = "AD_CLNT_PW"),
-            @Result(property = "adClntSubsNo" , column = "AD_CLNT_SUBS_NO"),
-            @Result(property = "adCompanyNm" , column = "AD_COMPANY_NM"),
-            @Result(property = "adCompanyNo" , column = "AD_COMPANY_NO"),
-            @Result(property = "adCompanyUpjong" , column = "AD_COMPANY_UPJONG"),
-            @Result(property = "adCompanyKind" , column = "AD_COMPANY_KIND"),
-            @Result(property = "adAddress" , column = "AD_ADDRESS"),
-            @Result(property = "adBankCd" , column = "AD_BANK_CD"),
-            @Result(property = "adAcntNm" , column = "AD_ACNT_NM"),
-            @Result(property = "adAcntNo" , column = "AD_ACNT_NO"),
-            @Result(property = "adActvCd" , column = "AD_ACTV_CD"),
-            @Result(property = "adGradeCd" , column = "AD_GRADE_CD"),
-            @Result(property = "adRegDt" , column = "AD_REG_DT"),
-            @Result(property = "adAbnDt" , column = "AD_ABN_DT"),
-            @Result(property = "adSrtDt" , column = "AD_SRT_DT"),
-            @Result(property = "adExpDt" , column = "AD_EXP_DT"),
-            @Result(property = "adSponserId" , column = "AD_SPONSER_ID"),
-            @Result(property = "adSponserRate" , column = "AD_SPONSER_RATE"),
-            @Result(property = "adMbId" , column = "AD_MB_ID"),
-            @Result(property = "adAdId" , column = "AD_AD_ID"),
-            @Result(property = "adPtCd" , column = "AD_PT_ID"),
-            @Result(property = "adPtId" , column = "AD_PT_ID"),
-            @Result(property = "adComment" , column = "AD_COMMENT")
+            @Result(property = "updateDt" , column = "UPDATE_DT"),
+            @Result(property = "mbId" , column = "MB_ID"),
+            @Result(property = "adId" , column = "AD_ID"),
+            @Result(property = "mkId" , column = "MK_ID"),
+            @Result(property = "mkCd" , column = "MK_CD"),
+            @Result(property = "clntId" , column = "CLNT_ID"),
+            @Result(property = "clntNm" , column = "CLNT_NM"),
+            @Result(property = "nickNm" , column = "NICK_NM"),
+            @Result(property = "clntPw" , column = "CLNT_PW"),
+            @Result(property = "clntSubsNo" , column = "CLNT_SUBS_NO"),
+            @Result(property = "companyNm" , column = "COMPANY_NM"),
+            @Result(property = "companyNo" , column = "COMPANY_NO"),
+            @Result(property = "companyUpjong" , column = "COMPANY_UPJONG"),
+            @Result(property = "companyKind" , column = "COMPANY_KIND"),
+            @Result(property = "address" , column = "ADDRESS"),
+            @Result(property = "bankCd" , column = "BANK_CD"),
+            @Result(property = "acntNm" , column = "ACNT_NM"),
+            @Result(property = "acntNo" , column = "ACNT_NO"),
+            @Result(property = "actvCd" , column = "ACTV_CD"),
+            @Result(property = "gradeCd" , column = "GRADE_CD"),
+            @Result(property = "regDt" , column = "REG_DT"),
+            @Result(property = "abnDt" , column = "ABN_DT"),
+            @Result(property = "srtDt" , column = "SRT_DT"),
+            @Result(property = "expDt" , column = "EXP_DT"),
+            @Result(property = "sponserId" , column = "SPONSER_ID"),
+            @Result(property = "sponserRate" , column = "SPONSER_RATE"),
+            @Result(property = "comment" , column = "COMMENT")
     })
     List<AD_USER_MASTER> getAdUserMaster(String adClntId);
 
     @Insert("INSERT INTO AD_USER_MASTER " +
             "( " +
-            "         AD_UPDATE_DT" +
-            "       , AD_MB_ID" +
-            "       , AD_CLNT_ID" +
-            "       , AD_CLNT_NM" +
-            "       , AD_NICK_NM" +
-            "       , AD_CLNT_PW" +
-            "       , AD_CLNT_SUBS_NO" +
-            "       , AD_COMPANY_NM" +
-            "       , AD_COMPANY_NO" +
-            "       , AD_COMPANY_UPJONG" +
-            "       , AD_COMPANY_KIND" +
-            "       , AD_ADDRESS" +
-            "       , AD_BANK_CD" +
-            "       , AD_ACNT_NM" +
-            "       , AD_ACNT_NO" +
-            "       , AD_ACTV_CD" +
-            "       , AD_GRADE_CD" +
-            "       , AD_REG_DT" +
-            "       , AD_ABN_DT" +
-            "       , AD_SRT_DT" +
-            "       , AD_EXP_DT" +
-            "       , AD_SPONSER_ID" +
-            "       , AD_SPONSER_RATE" +
-            "       , AD_AD_ID" +
-            "       , AD_PT_CD" +
-            "       , AD_PT_ID" +
-            "       , AD_COMMENT" +
+            "         UPDATE_DT" +
+            "       , MB_ID" +
+            "       , AD_ID" +
+            "       , MK_ID" +
+            "       , MK_CD" +
+            "       , CLNT_ID" +
+            "       , CLNT_NM" +
+            "       , NICK_NM" +
+            "       , CLNT_PW" +
+            "       , CLNT_SUBS_NO" +
+            "       , COMPANY_NM" +
+            "       , COMPANY_NO" +
+            "       , COMPANY_UPJONG" +
+            "       , COMPANY_KIND" +
+            "       , ADDRESS" +
+            "       , BANK_CD" +
+            "       , ACNT_NM" +
+            "       , ACNT_NO" +
+            "       , ACTV_CD" +
+            "       , GRADE_CD" +
+            "       , REG_DT" +
+            "       , ABN_DT" +
+            "       , SRT_DT" +
+            "       , EXP_DT" +
+            "       , SPONSER_ID" +
+            "       , SPONSER_RATE" +
+            "       , COMMENT" +
             ") " +
             "VALUES(" +
             "         NOW()" +
-            "       , #{adUserMaster.adMbId}" +
-            "       , #{adUserMaster.adClntId}" +
-            "       , #{adUserMaster.adClntNm}" +
-            "       , #{adUserMaster.adNickNm}" +
-            "       , HEX(AES_ENCRYPT(#{adUserMaster.adClntPw}, 'dbfactory'))" +
-//            "       , #{adUserMaster.adClntPw}" +
-            "       , #{adUserMaster.adClntSubsNo}" +
-            "       , #{adUserMaster.adCompanyNm}" +
-            "       , #{adUserMaster.adCompanyNo}" +
-            "       , #{adUserMaster.adCompanyUpjong}" +
-            "       , #{adUserMaster.adCompanyKind}" +
-            "       , #{adUserMaster.adAddress}" +
-            "       , #{adUserMaster.adBankCd}" +
-            "       , #{adUserMaster.adAcntNm}" +
-            "       , #{adUserMaster.adAcntNo}" +
-            "       , #{adUserMaster.adActvCd}" +
-            "       , #{adUserMaster.adGradeCd}" +
-            "       , #{adUserMaster.adRegDt}" +
-            "       , #{adUserMaster.adAbnDt}" +
-            "       , #{adUserMaster.adSrtDt}" +
-            "       , #{adUserMaster.adExpDt}" +
-            "       , #{adUserMaster.adSponserId}" +
-            "       , #{adUserMaster.adSponserRate}" +
-            "       , #{adUserMaster.adAdId}" +
-            "       , #{adUserMaster.adPtCd}" +
-            "       , #{adUserMaster.adPtId}" +
-            "       , #{adUserMaster.adComment}" +
+            "       , #{adUserMaster.mbId}" +
+            "       , #{adUserMaster.adId}" +
+            "       , #{adUserMaster.mkId}" +
+            "       , #{adUserMaster.mkCd}" +
+            "       , #{adUserMaster.clntId}" +
+            "       , #{adUserMaster.clntNm}" +
+            "       , #{adUserMaster.nickNm}" +
+            "       , HEX(AES_ENCRYPT(#{adUserMaster.clntPw}, 'dbfactory'))" +
+            "       , #{adUserMaster.clntSubsNo}" +
+            "       , #{adUserMaster.companyNm}" +
+            "       , #{adUserMaster.companyNo}" +
+            "       , #{adUserMaster.companyUpjong}" +
+            "       , #{adUserMaster.companyKind}" +
+            "       , #{adUserMaster.address}" +
+            "       , #{adUserMaster.bankCd}" +
+            "       , #{adUserMaster.acntNm}" +
+            "       , #{adUserMaster.acntNo}" +
+            "       , #{adUserMaster.actvCd}" +
+            "       , #{adUserMaster.gradeCd}" +
+            "       , #{adUserMaster.regDt}" +
+            "       , #{adUserMaster.abnDt}" +
+            "       , #{adUserMaster.srtDt}" +
+            "       , #{adUserMaster.expDt}" +
+            "       , #{adUserMaster.sponserId}" +
+            "       , #{adUserMaster.sponserRate}" +
+            "       , #{adUserMaster.comment}" +
             ")" )
-    @Options(useGeneratedKeys = true, keyProperty = "adMbId")
+    @Options(useGeneratedKeys = true, keyProperty = "mbId")
     @Results({
-            @Result(property = "adUpdateDt" , column = "AD_UPDATE_DT"),
-            @Result(property = "adMbId" , column = "AD_MB_ID"),
-            @Result(property = "adClntId" , column = "AD_CLNT_ID"),
-            @Result(property = "adClntNm" , column = "AD_CLNT_NM"),
-            @Result(property = "adNickNm" , column = "AD_NICK_NM"),
-            @Result(property = "adClntPw" , column = "AD_CLNT_PW"),
-            @Result(property = "adClntSubsNo" , column = "AD_CLNT_SUBS_NO"),
-            @Result(property = "adCompanyNm" , column = "AD_COMPANY_NM"),
-            @Result(property = "adCompanyNo" , column = "AD_COMPANY_NO"),
-            @Result(property = "adCompanyUpjong" , column = "AD_COMPANY_UPJONG"),
-            @Result(property = "adCompanyKind" , column = "AD_COMPANY_KIND"),
-            @Result(property = "adAddress" , column = "AD_ADDRESS"),
-            @Result(property = "adBankCd" , column = "AD_BANK_CD"),
-            @Result(property = "adAcntNm" , column = "AD_ACNT_NM"),
-            @Result(property = "adAcntNo" , column = "AD_ACNT_NO"),
-            @Result(property = "adActvCd" , column = "AD_ACTV_CD"),
-            @Result(property = "adGradeCd" , column = "AD_GRADE_CD"),
-            @Result(property = "adRegDt" , column = "AD_REG_DT"),
-            @Result(property = "adAbnDt" , column = "AD_ABN_DT"),
-            @Result(property = "adSrtDt" , column = "AD_SRT_DT"),
-            @Result(property = "adExpDt" , column = "AD_EXP_DT"),
-            @Result(property = "adSponserId" , column = "AD_SPONSER_ID"),
-            @Result(property = "adSponserRate" , column = "AD_SPONSER_RATE"),
-            @Result(property = "adAdId" , column = "AD_AD_ID"),
-            @Result(property = "adPtCd" , column = "AD_PT_CD"),
-            @Result(property = "adPtId" , column = "AD_PT_ID"),
-            @Result(property = "adComment" , column = "AD_COMMENT")
+            @Result(property = "updateDt" , column = "UPDATE_DT"),
+            @Result(property = "mbId" , column = "MB_ID"),
+            @Result(property = "adId" , column = "AD_ID"),
+            @Result(property = "mkId" , column = "MK_ID"),
+            @Result(property = "mkCd" , column = "MK_CD"),
+            @Result(property = "clntId" , column = "CLNT_ID"),
+            @Result(property = "clntNm" , column = "CLNT_NM"),
+            @Result(property = "nickNm" , column = "NICK_NM"),
+            @Result(property = "clntPw" , column = "CLNT_PW"),
+            @Result(property = "clntSubsNo" , column = "CLNT_SUBS_NO"),
+            @Result(property = "companyNm" , column = "COMPANY_NM"),
+            @Result(property = "companyNo" , column = "COMPANY_NO"),
+            @Result(property = "companyUpjong" , column = "COMPANY_UPJONG"),
+            @Result(property = "companyKind" , column = "COMPANY_KIND"),
+            @Result(property = "address" , column = "ADDRESS"),
+            @Result(property = "bankCd" , column = "BANK_CD"),
+            @Result(property = "acntNm" , column = "ACNT_NM"),
+            @Result(property = "acntNo" , column = "ACNT_NO"),
+            @Result(property = "actvCd" , column = "ACTV_CD"),
+            @Result(property = "gradeCd" , column = "GRADE_CD"),
+            @Result(property = "regDt" , column = "REG_DT"),
+            @Result(property = "abnDt" , column = "ABN_DT"),
+            @Result(property = "srtDt" , column = "SRT_DT"),
+            @Result(property = "expDt" , column = "EXP_DT"),
+            @Result(property = "sponserId" , column = "SPONSER_ID"),
+            @Result(property = "sponserRate" , column = "SPONSER_RATE"),
+            @Result(property = "comment" , column = "COMMENT")
     })
     Long insAdUserMaster(@Param("adUserMaster") AD_USER_MASTER adUserMaster);
 
     @Select("SELECT " +
-            "       AD_GRADE_CD " +
+            "       GRADE_CD " +
             " FROM " +
             "       AD_USER_MASTER" +
             " WHERE " +
-            "       AD_CLNT_ID = #{adClntId} ")
+            "       CLNT_ID = #{clntId} ")
     @Results({
-            @Result(property = "adGradeCd", column = "AD_GRADE_CD")
+            @Result(property = "gradeCd", column = "GRADE_CD")
     })
-    String getAdUserMasterForId(String adClntId);
+    String getAdUserMasterForId(String clntId);
 
     @Select("SELECT " +
-            "       AD_GRADE_CD " +
+            "       GRADE_CD " +
             " FROM " +
             "       AD_USER_MASTER" +
             " WHERE " +
-            "       AD_CLNT_ID = #{adClntId} " +
-            " AND   AES_DECRYPT(UNHEX(AD_CLNT_PW), 'dbfactory') = #{adClntPw}")
-//            " AND   AD_CLNT_PW = #{adClntPw}")
+            "       CLNT_ID = #{clntId} " +
+            " AND   AES_DECRYPT(UNHEX(CLNT_PW), 'dbfactory') = #{clntPw}")
     @Results({
-            @Result(property = "adGradeCd", column = "AD_GRADE_CD")
+            @Result(property = "gradeCd", column = "GRADE_CD")
     })
-    String getAdUserMasterForIdPw(String adClntId, String adClntPw);
+    String getAdUserMasterForIdPw(String clntId, String clntPw);
 
     @Select("SELECT " +
-            "       IFNULL(MAX(AD_AD_ID), 10000) AS AD_AD_ID" +
+            "       IFNULL(MAX(AD_ID), 10000) AS AD_ID" +
             " FROM " +
             "       AD_USER_MASTER" +
             " WHERE " +
-            "       AD_MB_ID      = #{mbId}" )
+            "       MB_ID      = #{mbId}" )
     @Results({
-            @Result(property = "adId" , column = "AD_AD_ID")
+            @Result(property = "adId" , column = "AD_ID")
     })
     Long getAdUserMasterMaxAdId(Long mbId);
 
     @Select("SELECT " +
-            "       IFNULL(MAX(AD_PT_ID), 10000) AS AD_PT_ID" +
+            "       IFNULL(MAX(MK_ID), 10000) AS MK_ID" +
             " FROM " +
             "       AD_USER_MASTER" +
             " WHERE " +
-            "       AD_MB_ID      = #{mbId}" )
+            "       MB_ID      = #{mbId}" )
     @Results({
-            @Result(property = "ptId" , column = "AD_PT_ID")
+            @Result(property = "mkId" , column = "MK_ID")
     })
     Long getAdUserMasterMaxPtId(Long mbId);
 
     @Select("SELECT " +
-            "       AD_CLNT_ID " +
+            "       CLNT_ID " +
             " FROM " +
             "       AD_USER_MASTER" +
             " WHERE " +
-            "       AD_MB_ID        = #{mbId}" +
-            " AND   AD_CLNT_NM      = #{userName} " +
-            " AND   AD_CLNT_SUBS_NO = #{clntSubsNo} ")
+            "       MB_ID        = #{mbId}" +
+            " AND   CLNT_NM      = #{userName} " +
+            " AND   CLNT_SUBS_NO = #{clntSubsNo} ")
     @Results({
-            @Result(property = "adClntId" , column = "AD_CLNT_ID")
+            @Result(property = "clntId" , column = "CLNT_ID")
     })
     String getAdUserMasterFindId(Long mbId, String userName, String clntSubsNo);
 
@@ -233,9 +231,9 @@ public interface AdUserMaster {
     //
 
     @Update(" UPDATE AD_USER_MASTER " +
-            " SET    AD_CLNT_PW = #{nanPw} " +
+            " SET    CLNT_PW = #{nanPw} " +
             " WHERE " +
-            "       AD_MB_ID        = #{mbId}" +
-            " AND   AD_CLNT_ID      = #{userId} " )
+            "       MB_ID        = #{mbId}" +
+            " AND   CLNT_ID      = #{userId} " )
     Long setAdUserMasterFindPw(Long mbId, String nanPw, String userId);
 }
