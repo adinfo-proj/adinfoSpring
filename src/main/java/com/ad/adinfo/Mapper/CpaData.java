@@ -41,6 +41,8 @@ public interface CpaData {
             "       , POSTBACK_YN " +
             "       , POSTBACK_RETRY_CNT " +
             "       , POSTBACK_DTTM " +
+            "       , AD_MEMO " +
+            "       , MK_MEMO " +
             "       , VALUE_DATA " +
             "       , CASE WHEN LENGTH(VALUE01) = 10 THEN CONCAT(  SUBSTR(VALUE01, 1, 3), '-' " +
             "                                                    , SUBSTR(VALUE01, 4, 3), '-' " +
@@ -97,6 +99,8 @@ public interface CpaData {
             @Result(property = "postbackYn" , column = "POSTBACK_YN"),
             @Result(property = "postbackRetryCtn" , column = "POSTBACK_RETRY_CNT"),
             @Result(property = "postbackDttm" , column = "POSTBACK_DTTM"),
+            @Result(property = "adMemo" , column = "AD_MEMO"),
+            @Result(property = "mkMemo" , column = "MK_MEMO"),
             @Result(property = "valueData" , column = "VALUE_DATA"),
             @Result(property = "value01" , column = "VALUE01"),
             @Result(property = "value02" , column = "VALUE02"),
@@ -144,6 +148,8 @@ public interface CpaData {
             "       , POSTBACK_YN " +
             "       , POSTBACK_RETRY_CNT " +
             "       , POSTBACK_DTTM " +
+            "       , AD_MEMO " +
+            "       , MK_MEMO " +
             "       , VALUE_DATA " +
             "       , CASE WHEN LENGTH(VALUE01) = 10 THEN CONCAT(  SUBSTR(VALUE01, 1, 3), '-' " +
             "                                                    , SUBSTR(VALUE01, 4, 3), '-' " +
@@ -214,6 +220,8 @@ public interface CpaData {
             @Result(property = "postbackYn" , column = "POSTBACK_YN"),
             @Result(property = "postbackRetryCnt" , column = "POSTBACK_RETRY_CNT"),
             @Result(property = "postbackDttm" , column = "POSTBACK_DTTM"),
+            @Result(property = "adMemo" , column = "AD_MEMO"),
+            @Result(property = "mkMemo" , column = "MK_MEMO"),
             @Result(property = "valueData" , column = "VALUE_DATA"),
             @Result(property = "value01" , column = "VALUE01"),
             @Result(property = "value02" , column = "VALUE02"),
@@ -226,7 +234,7 @@ public interface CpaData {
             @Result(property = "value09" , column = "VALUE09"),
             @Result(property = "value10" , column = "VALUE10"),
     })
-    List<CPA_DATA> getCpaDataForMbIdCaIdAdId(Long mbId, Long adId, Long caId, Long mkId, String dbKind, String startDt, String finishDt, Long srtPos, Long rowCount);
+    List<Map<String, Object>> getCpaDataForMbIdCaIdAdId(Long mbId, Long adId, Long caId, Long mkId, String dbKind, String startDt, String finishDt, Long srtPos, Long rowCount);
 
     @Select("SELECT " +
             "         COUNT(*) AS ROW_TOTAL_COUNT " +

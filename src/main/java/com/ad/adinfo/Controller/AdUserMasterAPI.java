@@ -70,7 +70,6 @@ public class AdUserMasterAPI {
             System.out.println("2. [" + params.get("emailId").toString() + "] 아이디가 없습니다.");
 
             try {
-                creAdUserMaster.setMbId(20000L);
                 creAdUserMaster.setClntId(params.get("emailId").toString());
                 creAdUserMaster.setClntNm(params.get("userName").toString());
                 creAdUserMaster.setClntPw(params.get("userPass").toString());
@@ -81,7 +80,7 @@ public class AdUserMasterAPI {
                 creAdUserMaster.setAbnDt("29991231");
                 creAdUserMaster.setSrtDt(dateCalc.DateInterval(0));
                 creAdUserMaster.setExpDt("29991231");
-            } catch(Exception e)  {
+            } catch(Exception e) {
                 System.out.println("[" + e.getMessage() + "]");
                 resMap.put("status" , false);
                 resMap.put("message", "시스템 오류로 관리자에게 연락바랍니다.");
@@ -98,6 +97,8 @@ public class AdUserMasterAPI {
                     // 대행사
                     if(params.get("adGradeCd").equals("02")) {
                         // AD_ID 값 신규 생성
+                        creAdUserMaster.setMbId(Long.parseLong(params.get("mbId").toString()));
+
                         adUserMaster.getAdUserMasterMaxAdId(creAdUserMaster.getMbId());
                         creAdUserMaster.setAdId(adUserMaster.getAdUserMasterMaxAdId(creAdUserMaster.getMbId()) + 1);
                     }
@@ -110,6 +111,26 @@ public class AdUserMasterAPI {
                         // PT_ID 값 신규 생성
                         adUserMaster.getAdUserMasterMaxPtId(creAdUserMaster.getMbId());
                         creAdUserMaster.setMkId(adUserMaster.getAdUserMasterMaxPtId(creAdUserMaster.getMbId()) + 1);
+
+                        // PT_CD 값 신규 생성
+                        String ptCd = "";
+
+                        for(int i = 0 ; i < 10; i++) {
+                            ptCd = ptCd + Character.toString(adInfoUtil.rndChar());
+                        }
+                        System.out.println(ptCd);
+                        creAdUserMaster.setMkCd(ptCd);
+                    }
+                    // DB 마스터
+                    else if(params.get("adGradeCd").equals("05")) {
+                        // DB마스터의 경우 MB_ID, AD_ID, MK_ID가 모두 동일함.
+                        // MK_CD값은 신규로 생성해서 사용함은 동일하다.
+                        // MB_ID를 새로 생성한다.
+                        Long lNewMbId = adUserMaster.getAdUserMasterMaxMbId() + 1;
+
+                        creAdUserMaster.setMbId(lNewMbId);
+                        creAdUserMaster.setAdId(lNewMbId);
+                        creAdUserMaster.setMkId(lNewMbId);
 
                         // PT_CD 값 신규 생성
                         String ptCd = "";

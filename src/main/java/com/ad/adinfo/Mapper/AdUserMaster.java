@@ -68,7 +68,7 @@ public interface AdUserMaster {
             @Result(property = "sponserRate" , column = "SPONSER_RATE"),
             @Result(property = "comment" , column = "COMMENT")
     })
-    List<AD_USER_MASTER> getAdUserMaster(String adClntId);
+    AD_USER_MASTER getAdUserMaster(String adClntId);
 
     @Insert("INSERT INTO AD_USER_MASTER " +
             "( " +
@@ -183,6 +183,15 @@ public interface AdUserMaster {
             @Result(property = "gradeCd", column = "GRADE_CD")
     })
     String getAdUserMasterForIdPw(String clntId, String clntPw);
+
+    @Select("SELECT " +
+            "       IFNULL(MAX(MB_ID), 10000) AS MB_ID" +
+            " FROM " +
+            "       AD_USER_MASTER" )
+    @Results({
+            @Result(property = "mbId" , column = "MB_ID")
+    })
+    Long getAdUserMasterMaxMbId();
 
     @Select("SELECT " +
             "       IFNULL(MAX(AD_ID), 10000) AS AD_ID" +

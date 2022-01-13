@@ -109,82 +109,63 @@ public interface DataCenterMapper {
             "AND   EVENT_CD = 'S') B " )
     Double DataCenterBySummaryForClickPer(Long mbId, Long adId, Long caId);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //**************************************************************************************
     // DASHBOARD
     //**************************************************************************************
+    //------------------------------------------------------------------------
+    // 합산 예치금 (대행사 기준)
+    //------------------------------------------------------------------------
+    @Select("SELECT " +
+            "         FORMAT(SUM(AMOUNT), 0) AS AMOUNT" +
+            " FROM " +
+            "       AD_TRANSACTIONAL" +
+            " WHERE " +
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
+            " AND   SUMMARY_CD IN ('00001', '00003', '00005', '00007', '00009') " )
+    String DataCenterBySummaryForDepositToAd(Long mbId, Long adId);
 
-        //------------------------------------------------------------------------
-        // 합산 예치금 (대행사 기준)
-        //------------------------------------------------------------------------
-        @Select("SELECT " +
-                "         FORMAT(SUM(AMOUNT), 0) AS AMOUNT" +
-                " FROM " +
-                "       AD_TRANSACTIONAL" +
-                " WHERE " +
-                "       MB_ID  = ${mbId}" +
-                " AND   AD_ID  = ${adId}" +
-                " AND   SUMMARY_CD IN ('00001', '00003', '00005', '00007', '00009') " )
-        String DataCenterBySummaryForDepositToAd(Long mbId, Long adId);
+    //------------------------------------------------------------------------
+    // 합산 예치금 (캠페인 기준)
+    //------------------------------------------------------------------------
+    @Select("SELECT " +
+            "         FORMAT(SUM(AMOUNT), 0) AS AMOUNT" +
+            " FROM " +
+            "       AD_TRANSACTIONAL" +
+            " WHERE " +
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
+            " AND   CA_ID  = ${caId}" +
+            " AND   SUMMARY_CD IN ('00001', '00003', '00005', '00007', '00009') " )
+    String DataCenterBySummaryForDepositToCa(Long mbId, Long adId, Long caId);
 
-        //------------------------------------------------------------------------
-        // 합산 예치금 (캠페인 기준)
-        //------------------------------------------------------------------------
-        @Select("SELECT " +
-                "         FORMAT(SUM(AMOUNT), 0) AS AMOUNT" +
-                " FROM " +
-                "       AD_TRANSACTIONAL" +
-                " WHERE " +
-                "       MB_ID  = ${mbId}" +
-                " AND   AD_ID  = ${adId}" +
-                " AND   CA_ID  = ${caId}" +
-                " AND   SUMMARY_CD IN ('00001', '00003', '00005', '00007', '00009') " )
-        String DataCenterBySummaryForDepositToCa(Long mbId, Long adId, Long caId);
+    //------------------------------------------------------------------------
+    // 합산 사용가능 충전금 (대행사 기준)
+    //   - ADVT_MEDIA = 'T': 충전가능금액, 'A': CPA캠페인이 사용중인 충전금
+    //------------------------------------------------------------------------
+    @Select("SELECT " +
+            "       FORMAT(SUM(CHARGE_AMT), 0) AS CHARGE_AMT " +
+            " FROM " +
+            "       AD_ADVERT_BALANCE" +
+            " WHERE " +
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
+            " AND   ADVT_MEDIA = #{tp} " )
+    String DataCenterBySummaryForChargeAmtToAd(Long mbId, Long adId, String tp);
 
-        //------------------------------------------------------------------------
-        // 합산 사용가능 충전금 (대행사 기준)
-        //   - ADVT_MEDIA = 'T': 충전가능금액, 'A': CPA캠페인이 사용중인 충전금
-        //------------------------------------------------------------------------
-        @Select("SELECT " +
-                "       FORMAT(SUM(CHARGE_AMT), 0) AS CHARGE_AMT " +
-                " FROM " +
-                "       AD_ADVERT_BALANCE" +
-                " WHERE " +
-                "       MB_ID  = ${mbId}" +
-                " AND   AD_ID  = ${adId}" +
-                " AND   ADVT_MEDIA = #{tp} " )
-        String DataCenterBySummaryForChargeAmtToAd(Long mbId, Long adId, String tp);
-
-        //------------------------------------------------------------------------
-        // 합산 사용가능 충전금 (캠페인 기준)
-        //   - ADVT_MEDIA = 'T': 충전가능금액, 'A': CPA캠페인이 사용중인 충전금
-        //------------------------------------------------------------------------
-        @Select("SELECT " +
-                "       FORMAT(SUM(CHARGE_AMT), 0) AS CHARGE_AMT " +
-                " FROM " +
-                "       AD_ADVERT_BALANCE" +
-                " WHERE " +
-                "       MB_ID  = ${mbId}" +
-                " AND   AD_ID  = ${adId}" +
-                " AND   ADVT_MEDIA = #{tp} " )
-        String DataCenterBySummaryForChargeAmtToCa(Long mbId, Long adId, Long caId, String tp);
-
+    //------------------------------------------------------------------------
+    // 합산 사용가능 충전금 (캠페인 기준)
+    //   - ADVT_MEDIA = 'T': 충전가능금액, 'A': CPA캠페인이 사용중인 충전금
+    //------------------------------------------------------------------------
+    @Select("SELECT " +
+            "       FORMAT(SUM(CHARGE_AMT), 0) AS CHARGE_AMT " +
+            " FROM " +
+            "       AD_ADVERT_BALANCE" +
+            " WHERE " +
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
+            " AND   ADVT_MEDIA = #{tp} " )
+    String DataCenterBySummaryForChargeAmtToCa(Long mbId, Long adId, Long caId, String tp);
 
     //------------------------------------------------------------------------
     // 합산 충전금(광고주기준)

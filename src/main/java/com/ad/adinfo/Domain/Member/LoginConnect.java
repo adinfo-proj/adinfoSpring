@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class LoginConnect {
-    private String  EmailId;
-    private String  EmailPw;
+    private String  clntId;
+    private String  clntPw;
+    private String  siteCode;
 }

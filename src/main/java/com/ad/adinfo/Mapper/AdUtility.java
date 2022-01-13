@@ -1,12 +1,10 @@
 package com.ad.adinfo.Mapper;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
+import com.ad.adinfo.Domain.CAMPAIGN_MASTER;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
-public interface Utility {
+public interface AdUtility {
     @Select("SELECT DATE_FORMAT(DATE_SUB(#{calcDate}, INTERVAL ${calcDay} DAY), '%Y-%m-%d') CALC_DATE FROM DUAL")
     @Results({
             @Result(property = "calcDate" , column = "CALC_DATE")

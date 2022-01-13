@@ -1,6 +1,8 @@
 package com.ad.adinfo.Controller;
 
+import com.ad.adinfo.Domain.CAMPAIGN_MASTER;
 import com.ad.adinfo.Domain.CPA_DATA;
+import com.ad.adinfo.Mapper.CampaignMaster;
 import com.ad.adinfo.Mapper.CpaData;
 import com.ad.adinfo.Mapper.DataCenterMapper;
 import com.ad.adinfo.Service.DateCalc;
@@ -20,6 +22,7 @@ public class DataCenter {
     private final DateCalc              dateCalc;
     private final DataCenterMapper      dataCenterMapper;
     private final CpaData               cpaData;
+    private final CampaignMaster        campaignMaster;
 
     /*------------------------------------------------------------------------------------------------------------------
      * 회원사별 DB 정보 서머리
@@ -112,7 +115,7 @@ public class DataCenter {
         // 캠페인명 조회
         //------------------------------------------------------------------------
         List<Map<String, Object>> objList = dataCenterMapper.DataCenterByLiveGridToMaster(Long.parseLong(rq.getParameter("mbId" )), Long.parseLong(rq.getParameter("adId" )), "00");
-        System.out.println("objList  : [" + objList + "]");
+        //System.out.println("objList  : [" + objList + "]");
 
         for(int i = 0 ; i < objList.size(); i++) {
             Map<String, Object> result = new HashMap<String, Object>();
@@ -174,7 +177,11 @@ public class DataCenter {
     @CrossOrigin
     @RequestMapping(value = "/GetCpaDataForAll", method = RequestMethod.GET)
     //public List<CPA_DATA> GetCampaignNameLst(@RequestPart(value = "dataObj") Map<String, Object> params) throws Exception {
-    public List<CPA_DATA> GetCpaDataForAll(HttpServletRequest params) throws Exception {
+    public ArrayList<List<Map<String, Object>>> GetCpaDataForAll(HttpServletRequest params) throws Exception {
+
+        ArrayList<List<Map<String, Object>>> cpaResult = new ArrayList<>();
+        List<Map<String, Object>> campaignMasterObj = new ArrayList<Map<String, Object>>();
+
         System.out.println("mbId : [" + params.getParameter("mbId") + "]");
         System.out.println("adId : [" + params.getParameter("adId") + "]");
         System.out.println("caId : [" + params.getParameter("caId") + "]");
@@ -187,13 +194,29 @@ public class DataCenter {
         System.out.println("rowCount : [" + params.getParameter("rowCount") + "]");
 
         //------------------------------------------------------------------------
+        // 캠페인 수집정보 목록을 조회한다.
+        //------------------------------------------------------------------------
+        List<Map<String, Object>> askList = new ArrayList<Map<String, Object>>();
+
+        askList = campaignMaster.getCampaignMasterAskList(
+                Long.parseLong(params.getParameter("mbId")),
+                Long.parseLong(params.getParameter("adId")),
+                Long.parseLong(params.getParameter("caId"))
+        );
+
+        cpaResult.add(0, askList);
+
+        campaignMasterObj = campaignMaster.getCampaignMasterForMbAd(Long.parseLong(params.getParameter("mbId")), Long.parseLong(params.getParameter("adId")));
+        //System.out.println("campaignMasterObj SQL : [" + campaignMasterObj + "]");
+
+        //------------------------------------------------------------------------
         // 라이브중인 캠페인
         //------------------------------------------------------------------------
         //ArrayList<Map<String, Object>> liveArr = new ArrayList<Map<String, Object>>();
         //------------------------------------------------------------------------
         // 회원사의 모든 캠페인을 조회한다.
         //------------------------------------------------------------------------
-        List<CPA_DATA> cpaDataArr = cpaData.getCpaDataForMbIdCaIdAdId(
+        List<Map<String, Object>> cpaDataArr = cpaData.getCpaDataForMbIdCaIdAdId(
                                                      Long.parseLong(params.getParameter("mbId").toString())
                                                    , Long.parseLong(params.getParameter("adId").toString())
                                                    , Long.parseLong(params.getParameter("caId").toString())
@@ -204,7 +227,9 @@ public class DataCenter {
                                                    , (Long.parseLong(params.getParameter("curPage").toString()) - 1) * Long.parseLong(params.getParameter("rowCount").toString())
                                                    , Long.parseLong(params.getParameter("rowCount").toString()));
 
-        return cpaDataArr;
+        cpaResult.add(cpaDataArr);
+
+        return cpaResult;
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -242,21 +267,6 @@ public class DataCenter {
                 , params.getParameter("srtDt").toString().replaceAll("-", "")
                 , params.getParameter("endDt").toString().replaceAll("-", ""));
         resultObj.put("rowTotalCount", rowTotalCount);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         return resultObj;
     }
@@ -394,24 +404,35 @@ public class DataCenter {
                     , Long.parseLong(params.getParameter("adId" ).toString())
                     , Long.parseLong(params.getParameter("caId" ).toString()));
         } catch (Exception e) {
+            System.out.println("0.0----------------------------------------");
             System.out.println(e);
+            System.out.println("0.1----------------------------------------");
         }
 
-        if( clickPer <= 0L)
+        System.out.println("1.0----------------------------------------");
+
+
+        if( clickPer == null ) {
+            System.out.println("2.1----------------------------------------");
             returnObj.put("clickPer", 0.00);
-        else
-            returnObj.put("clickPer", clickPer);
+            System.out.println("2.2----------------------------------------");
+        }
+        else {
+            System.out.println("3.1----------------------------------------");
 
+            if( clickPer < 0 ) {
+                returnObj.put("clickPer", 0.00);
+            }
+            else {
+                returnObj.put("clickPer", clickPer);
+            }
 
+            System.out.println("3.2----------------------------------------");
+        }
 
+        System.out.println("4.0----------------------------------------");
 
-
-
-
-
-
-
-        System.out.println("returnObj : [" + returnObj + "]");
+        //System.out.println("returnObj : [" + returnObj + "]");
 
         return returnObj;
     }

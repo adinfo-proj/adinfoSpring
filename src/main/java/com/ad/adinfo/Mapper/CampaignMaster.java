@@ -71,7 +71,7 @@ public interface CampaignMaster {
             "       , AGE_TARGET" +
             " FROM " +
             "       CAMPAIGN_MASTER " +
-            " ORDER BY CA_CA_ID DESC " +
+            " ORDER BY CA_ID DESC " +
             " LIMIT ${count} ")
     @Results({
             @Result(property = "updateDt" , column = "UPDATE_DT"),
@@ -176,7 +176,7 @@ public interface CampaignMaster {
             "       CAMPAIGN_MASTER " +
             " WHERE " +
             "       MB_ID  = ${mbId}" +
-            " AND   CA_ID  = ${caId}")
+            " AND   AD_ID  = ${adId}")
     @Results({
             @Result(property = "updateDt" , column = "UPDATE_DT"),
             @Result(property = "mbId" , column = "MB_ID"),
@@ -226,7 +226,7 @@ public interface CampaignMaster {
             @Result(property = "banWordCond" , column = "BAN_WORD_COND"),
             @Result(property = "ageTarget" , column = "AGE_TARGET")
     })
-    CAMPAIGN_MASTER getCampaignMasterForMbCa(Long mbId, Long caId);
+    List<Map<String, Object>> getCampaignMasterForMbAd(Long mbId, Long adId);
 
     @Insert("INSERT INTO CAMPAIGN_MASTER " +
             "( " +
@@ -347,4 +347,17 @@ public interface CampaignMaster {
             @Result(property = "name" , column = "NAME")
     })
     List<Map<String, Object>> getCampaignMasterNameList(Long mbId, Long adId);
+
+    @Select("SELECT " +
+            "       ASK_LIST " +
+            " FROM " +
+            "       CAMPAIGN_MASTER" +
+            " WHERE " +
+            "       MB_ID      = #{mbId}" +
+            " AND   AD_ID      = #{adId}" +
+            " AND   CA_ID      = #{caId}" )
+    @Results({
+            @Result(property = "askList" , column = "ASK_LIST")
+    })
+    List<Map<String, Object>> getCampaignMasterAskList(Long mbId, Long adId, Long caId);
 }

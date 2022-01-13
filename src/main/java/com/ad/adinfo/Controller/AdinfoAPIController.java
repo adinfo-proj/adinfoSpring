@@ -44,7 +44,7 @@ public class AdinfoAPIController {
     private final AdUserMaster          adUserMaster;
     private final AdInfoUtil            adInfoUtil;
     private final DateCalc              dateCalc;
-    private final Utility               utility;
+    private final AdUtility               utility;
     private final PtUseCampaign         ptUseCampaign;
 
     @Autowired
@@ -192,7 +192,7 @@ public class AdinfoAPIController {
     @RequestMapping(value = "/CampaignAllList", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public List<CAMPAIGN_MASTER> CampaignAllList() {
-        return campaignMaster.getCampaignMasterAll(0L);
+        return campaignMaster.getCampaignMasterAll(10000L);
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -396,87 +396,87 @@ public class AdinfoAPIController {
 
 //        System.out.println("lSrt : [" + String.valueOf(lSrt) + "]");
 
-        List<CPA_DATA> cpaDataList = cpaData.getCpaDataForMbIdCaIdAdId( Long.parseLong(rq.getParameter("mbId"))
-                                                                      , Long.parseLong(rq.getParameter("adId"))
-                                                                      , Long.parseLong(rq.getParameter("caId"))
-                                                                      , Long.parseLong(rq.getParameter("mkId"))
-                                                                      , rq.getParameter("dbKind")
-                                                                      , startDt
-                                                                      , finishDt
-                                                                      , lSrt
-                                                                      , 10L
-                                                                      );
-
-//        System.out.println("cpaDataList : [" + cpaDataList.toString() + "]");
-
-        for(int i = 0 ; i < cpaDataList.size(); i++) {
-            Map<String, Object> result = new HashMap<String, Object>();
-
-            result.put("seqNo"              , cpaDataList.get(i).getSeqNo());
-            result.put("updateDt"           , cpaDataList.get(i).getUpdateDt());
-            result.put("caId"               , cpaDataList.get(i).getCaId());
-            result.put("adId"               , cpaDataList.get(i).getAdId());
-            result.put("ptId"               , cpaDataList.get(i).getMkId());
-            result.put("price"              , cpaDataList.get(i).getPrice());
-            result.put("ptPrice"            , cpaDataList.get(i).getMkPrice());
-            result.put("specPrice"          , cpaDataList.get(i).getSpecPrice());
-            result.put("bonusSupply"        , cpaDataList.get(i).getBonusSupply());
-            result.put("bonusPrice"         , cpaDataList.get(i).getBonusPrice());
-            result.put("sponserId"          , cpaDataList.get(i).getSponserId());
-            result.put("sponserPrice"       , cpaDataList.get(i).getSponserPrice());
-            result.put("beforeAdvtAmt"      , cpaDataList.get(i).getBeforeAdvtAmt());
-            result.put("afterAdvtAmt"       , cpaDataList.get(i).getAfterAdvtAmt());
-            result.put("insDt"              , cpaDataList.get(i).getInsDt());
-            result.put("insTm"              , cpaDataList.get(i).getInsTm());
-            result.put("confirmYn"          , cpaDataList.get(i).getConfirmTp());
-            result.put("confirmDt"          , cpaDataList.get(i).getConfirmDt());
-            result.put("confirmTm"          , cpaDataList.get(i).getConfirmTm());
-            result.put("cnclMemo"           , cpaDataList.get(i).getCnclMemo());
-            result.put("dupRegIpYn"         , cpaDataList.get(i).getDupRegIpYn());
-            result.put("regIp"              , cpaDataList.get(i).getRegIp());
-            result.put("url"                , cpaDataList.get(i).getUrl());
-            result.put("urlAgent"           , cpaDataList.get(i).getUrlAgent());
-            result.put("urlReferer"         , cpaDataList.get(i).getUrlReferer());
-            result.put("allMobileDupYn"     , cpaDataList.get(i).getAllMobileDupYn());
-            result.put("thisMobileDupYn"    , cpaDataList.get(i).getThisMobileDupYn());
-            result.put("valueData"          , cpaDataList.get(i).getValueData());
-
-            if(cpaDataList.get(i).getConfirmTp().equals("N")) {
-                result.put("value01", "⨳⨳⨳-⨳⨳⨳⨳-⨳⨳⨳⨳");
-                result.put("value02", "⨳⨳⨳");
-                result.put("value03", "⨳⨳⨳⨳⨳");
-                result.put("value04", "⨳⨳⨳⨳⨳");
-                result.put("value05", "⨳⨳⨳⨳⨳");
-                result.put("value06", "⨳⨳⨳⨳⨳");
-                result.put("value07", "⨳⨳⨳⨳⨳");
-                result.put("value08", "⨳⨳⨳⨳⨳");
-                result.put("value09", "⨳⨳⨳⨳⨳");
-                result.put("value10", "⨳⨳⨳⨳⨳");
-                result.put("value11", "⨳⨳⨳⨳⨳");
-                result.put("value12", "⨳⨳⨳⨳⨳");
-                result.put("value13", "⨳⨳⨳⨳⨳");
-                result.put("value14", "⨳⨳⨳⨳⨳");
-                result.put("value15", "⨳⨳⨳⨳⨳");
-                result.put("value16", "⨳⨳⨳⨳⨳");
-                result.put("value17", "⨳⨳⨳⨳⨳");
-                result.put("value18", "⨳⨳⨳⨳⨳");
-                result.put("value19", "⨳⨳⨳⨳⨳");
-                result.put("value20", "⨳⨳⨳⨳⨳");
-            } else {
-                result.put("value01", cpaDataList.get(i).getValue01());
-                result.put("value02", cpaDataList.get(i).getValue02());
-                result.put("value03", cpaDataList.get(i).getValue03());
-                result.put("value04", cpaDataList.get(i).getValue04());
-                result.put("value05", cpaDataList.get(i).getValue05());
-                result.put("value06", cpaDataList.get(i).getValue06());
-                result.put("value07", cpaDataList.get(i).getValue07());
-                result.put("value08", cpaDataList.get(i).getValue08());
-                result.put("value09", cpaDataList.get(i).getValue09());
-                result.put("value10", cpaDataList.get(i).getValue10());
-            }
-
-            cpaResult.add(result);
-        }
+//        List<CPA_DATA> cpaDataList = cpaData.getCpaDataForMbIdCaIdAdId( Long.parseLong(rq.getParameter("mbId"))
+//                                                                      , Long.parseLong(rq.getParameter("adId"))
+//                                                                      , Long.parseLong(rq.getParameter("caId"))
+//                                                                      , Long.parseLong(rq.getParameter("mkId"))
+//                                                                      , rq.getParameter("dbKind")
+//                                                                      , startDt
+//                                                                      , finishDt
+//                                                                      , lSrt
+//                                                                      , 10L
+//                                                                      );
+//
+////        System.out.println("cpaDataList : [" + cpaDataList.toString() + "]");
+//
+//        for(int i = 0 ; i < cpaDataList.size(); i++) {
+//            Map<String, Object> result = new HashMap<String, Object>();
+//
+//            result.put("seqNo"              , cpaDataList.get(i).getSeqNo());
+//            result.put("updateDt"           , cpaDataList.get(i).getUpdateDt());
+//            result.put("caId"               , cpaDataList.get(i).getCaId());
+//            result.put("adId"               , cpaDataList.get(i).getAdId());
+//            result.put("ptId"               , cpaDataList.get(i).getMkId());
+//            result.put("price"              , cpaDataList.get(i).getPrice());
+//            result.put("ptPrice"            , cpaDataList.get(i).getMkPrice());
+//            result.put("specPrice"          , cpaDataList.get(i).getSpecPrice());
+//            result.put("bonusSupply"        , cpaDataList.get(i).getBonusSupply());
+//            result.put("bonusPrice"         , cpaDataList.get(i).getBonusPrice());
+//            result.put("sponserId"          , cpaDataList.get(i).getSponserId());
+//            result.put("sponserPrice"       , cpaDataList.get(i).getSponserPrice());
+//            result.put("beforeAdvtAmt"      , cpaDataList.get(i).getBeforeAdvtAmt());
+//            result.put("afterAdvtAmt"       , cpaDataList.get(i).getAfterAdvtAmt());
+//            result.put("insDt"              , cpaDataList.get(i).getInsDt());
+//            result.put("insTm"              , cpaDataList.get(i).getInsTm());
+//            result.put("confirmYn"          , cpaDataList.get(i).getConfirmTp());
+//            result.put("confirmDt"          , cpaDataList.get(i).getConfirmDt());
+//            result.put("confirmTm"          , cpaDataList.get(i).getConfirmTm());
+//            result.put("cnclMemo"           , cpaDataList.get(i).getCnclMemo());
+//            result.put("dupRegIpYn"         , cpaDataList.get(i).getDupRegIpYn());
+//            result.put("regIp"              , cpaDataList.get(i).getRegIp());
+//            result.put("url"                , cpaDataList.get(i).getUrl());
+//            result.put("urlAgent"           , cpaDataList.get(i).getUrlAgent());
+//            result.put("urlReferer"         , cpaDataList.get(i).getUrlReferer());
+//            result.put("allMobileDupYn"     , cpaDataList.get(i).getAllMobileDupYn());
+//            result.put("thisMobileDupYn"    , cpaDataList.get(i).getThisMobileDupYn());
+//            result.put("valueData"          , cpaDataList.get(i).getValueData());
+//
+//            if(cpaDataList.get(i).getConfirmTp().equals("N")) {
+//                result.put("value01", "⨳⨳⨳-⨳⨳⨳⨳-⨳⨳⨳⨳");
+//                result.put("value02", "⨳⨳⨳");
+//                result.put("value03", "⨳⨳⨳⨳⨳");
+//                result.put("value04", "⨳⨳⨳⨳⨳");
+//                result.put("value05", "⨳⨳⨳⨳⨳");
+//                result.put("value06", "⨳⨳⨳⨳⨳");
+//                result.put("value07", "⨳⨳⨳⨳⨳");
+//                result.put("value08", "⨳⨳⨳⨳⨳");
+//                result.put("value09", "⨳⨳⨳⨳⨳");
+//                result.put("value10", "⨳⨳⨳⨳⨳");
+//                result.put("value11", "⨳⨳⨳⨳⨳");
+//                result.put("value12", "⨳⨳⨳⨳⨳");
+//                result.put("value13", "⨳⨳⨳⨳⨳");
+//                result.put("value14", "⨳⨳⨳⨳⨳");
+//                result.put("value15", "⨳⨳⨳⨳⨳");
+//                result.put("value16", "⨳⨳⨳⨳⨳");
+//                result.put("value17", "⨳⨳⨳⨳⨳");
+//                result.put("value18", "⨳⨳⨳⨳⨳");
+//                result.put("value19", "⨳⨳⨳⨳⨳");
+//                result.put("value20", "⨳⨳⨳⨳⨳");
+//            } else {
+//                result.put("value01", cpaDataList.get(i).getValue01());
+//                result.put("value02", cpaDataList.get(i).getValue02());
+//                result.put("value03", cpaDataList.get(i).getValue03());
+//                result.put("value04", cpaDataList.get(i).getValue04());
+//                result.put("value05", cpaDataList.get(i).getValue05());
+//                result.put("value06", cpaDataList.get(i).getValue06());
+//                result.put("value07", cpaDataList.get(i).getValue07());
+//                result.put("value08", cpaDataList.get(i).getValue08());
+//                result.put("value09", cpaDataList.get(i).getValue09());
+//                result.put("value10", cpaDataList.get(i).getValue10());
+//            }
+//
+//            cpaResult.add(result);
+//        }
 
         allObj.put("count", cpaResult.size());
         allObj.put("data", cpaResult);
@@ -565,14 +565,16 @@ public class AdinfoAPIController {
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public Map<String, Object> login(@RequestBody LoginConnect loginConnect ) throws Exception {
         Map<String, Object> resMap = new HashMap<>();
+        AD_USER_MASTER  adUserMasterMember;
+
         HttpStatus status = null;
 
-        System.out.println("req.getEmailId : [" + loginConnect.getEmailId() + "]");
+        System.out.println("req.getClntId : [" + loginConnect.getClntId() + "]");
 
         //-------------------------------------------------------------------
         // 수신된 아이디와 패스워드로 DB를 조회하여 확인한다.
         //-------------------------------------------------------------------
-        String sqlAdGrade = adUserMaster.getAdUserMasterForId(loginConnect.getEmailId());
+        String sqlAdGrade = adUserMaster.getAdUserMasterForId(loginConnect.getClntId());
 
         System.out.println("sqlAdGrade : [" + sqlAdGrade + "]");
 
@@ -583,7 +585,7 @@ public class AdinfoAPIController {
             resMap.put("gradeCd", "ZZ");
             status = HttpStatus.ACCEPTED;
         } else {
-            sqlAdGrade = adUserMaster.getAdUserMasterForIdPw(loginConnect.getEmailId(), loginConnect.getEmailPw());
+            sqlAdGrade = adUserMaster.getAdUserMasterForIdPw(loginConnect.getClntId(), loginConnect.getClntPw());
 
             System.out.println("gradeCd 2 : [" + sqlAdGrade + "]");
 
@@ -595,22 +597,29 @@ public class AdinfoAPIController {
                 status = HttpStatus.ACCEPTED;
             }
             else {
-
                 System.out.println("gradeCd 3 : [" + sqlAdGrade + "]");
 
                 resMap.put("gradeCd", sqlAdGrade);
 
                 try {
                     TokenResponse loginInfo = new TokenResponse();
-
-                    loginInfo.setEmailId(loginConnect.getEmailId());
-
+                    loginInfo.setEmailId(loginConnect.getClntId());
                     String token = jwtService.create(loginInfo);
 
                     //System.out.println("token : [" + token + "]");
 
+                    // 회원정보를 조회하여 MB_ID, AD_ID, MK_ID 정보를 조회한다.
+                    adUserMasterMember = adUserMaster.getAdUserMaster(loginConnect.getClntId());
+
                     resMap.put("status", "0");
-                    resMap.put("emailId", loginConnect.getEmailId());
+                    resMap.put("clntId", adUserMasterMember.getClntId());
+                    resMap.put("mbId"  , adUserMasterMember.getMbId());
+                    resMap.put("adId"  , adUserMasterMember.getAdId());
+                    resMap.put("mkId"  , adUserMasterMember.getMkId());
+                    resMap.put("mkCd"  , adUserMasterMember.getMkCd());
+                    resMap.put("clntNm", adUserMasterMember.getClntNm());
+                    resMap.put("nickNm", adUserMasterMember.getNickNm());
+
                     resMap.put("authToken", token);
                     status = HttpStatus.ACCEPTED;
                 } catch (RuntimeException e) {

@@ -33,9 +33,9 @@ public class AdInfoUtil {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     public Long AdClntIdToAdId(String adClntId) {
-        List<AD_USER_MASTER> adUserMasterSql;
+        AD_USER_MASTER adUserMasterSql;
         adUserMasterSql = adUserMaster.getAdUserMaster(adClntId);
-        return adUserMasterSql.get(0).getAdId();
+        return adUserMasterSql.getAdId();
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -52,9 +52,9 @@ public class AdInfoUtil {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     public Long AdClntIdToPtId(String adClntId) {
-        List<AD_USER_MASTER> adUserMasterSql;
+        AD_USER_MASTER adUserMasterSql;
         adUserMasterSql = adUserMaster.getAdUserMaster(adClntId);
-        return adUserMasterSql.get(0).getMkId();
+        return adUserMasterSql.getMkId();
     }
 
     /*------------------------------------------------------------------------------------------------------------------
