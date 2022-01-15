@@ -8,11 +8,15 @@ import com.ad.adinfo.Service.AdInfoUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,7 +25,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class CampaignManage {
-
     private final CampaignMaster    campaignMaster;
     private final AdAdvertBalance   adAdvertBalanceMapper;
     private final AdInfoUtil        adInfoUtil;
@@ -45,7 +48,7 @@ public class CampaignManage {
     public Map<String, Object> insCampaignMaster(
             @RequestHeader Map<String, Object> rHeader,
             @RequestParam(value = "upFile", required = false) MultipartFile upFile,
-            @RequestPart(value = "dataObj") Map<String, Object> params) throws Exception {
+            @RequestPart (value = "dataObj") Map<String, Object> params) throws Exception {
         CAMPAIGN_MASTER     cpaCampaignMaster   = new CAMPAIGN_MASTER();
         AD_ADVERT_BALANCE   adAdvertBalance     = new AD_ADVERT_BALANCE();
 
@@ -66,7 +69,7 @@ public class CampaignManage {
             return resultMap;
         }
 
-        String srcFullName      = "";
+        String srcFullName = "";
 
         try {
             //---------------------------------------------------------------------------------------------------------
@@ -355,5 +358,59 @@ System.out.println("Step 08");
         resultMap.put("resultMessage", "캠페인 등록이 정상적으로 처리되었습니다.");
 
         return resultMap;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 캠페인명 리스트
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2021.12.22
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] CAMPAIGN_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetCampaignNameLst", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Map<String, Object>> GetCampaignNameLst(HttpServletRequest rq) throws Exception {
+//        List<Map<String, Object>> resultObj = new ArrayList<Map<String, Object>>();
+
+        System.out.println("mbId : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId : [" + rq.getParameter("adId") + "]");
+
+        return campaignMaster.getCampaignMasterNameList(Long.parseLong(rq.getParameter("mbId")), Long.parseLong(rq.getParameter("adId")));
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 랜딩페이지 리스트
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2021.12.22
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] CAMPAIGN_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetLandingNameLst", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Map<String, Object>> GetLandingNameLst(HttpServletRequest rq) throws Exception {
+        System.out.println("GetLandingNameLst----------------------");
+        System.out.println("mbId : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId : [" + rq.getParameter("adId") + "]");
+        System.out.println("caId : [" + rq.getParameter("caId") + "]");
+
+        return campaignMaster.getLandingNameList(
+                  Long.parseLong(rq.getParameter("mbId"))
+                , Long.parseLong(rq.getParameter("adId"))
+                , Long.parseLong(rq.getParameter("caId"))
+        );
     }
 }

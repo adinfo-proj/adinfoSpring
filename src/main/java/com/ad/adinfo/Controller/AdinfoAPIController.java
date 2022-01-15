@@ -988,28 +988,5 @@ public class AdinfoAPIController {
         return returnObj;
     }
 
-    /*------------------------------------------------------------------------------------------------------------------
-     * 캠페인명 리스트
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2021.12.22
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R] CAMPAIGN_MASTER
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "GetCampaignNameLst", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public List<Map<String, Object>> GetCampaignNameLst(HttpServletRequest rq) throws Exception {
-//        List<Map<String, Object>> resultObj = new ArrayList<Map<String, Object>>();
 
-        System.out.println("mbId : [" + rq.getParameter("mbId") + "]");
-        System.out.println("adId : [" + rq.getParameter("adId") + "]");
-
-        return campaignMaster.getCampaignMasterNameList(Long.parseLong(rq.getParameter("mbId")), Long.parseLong(rq.getParameter("adId")));
-    }
 }

@@ -349,6 +349,28 @@ public interface CampaignMaster {
     List<Map<String, Object>> getCampaignMasterNameList(Long mbId, Long adId);
 
     @Select("SELECT " +
+            "         MB_ID" +
+            "       , AD_ID" +
+            "       , CA_ID" +
+            "       , PG_ID" +
+            "       , NAME" +
+            " FROM " +
+            "       LANDING_PAGE" +
+            " WHERE " +
+            "       MB_ID      = #{mbId}" +
+            " AND   AD_ID      = #{adId}" +
+            " AND   CA_ID      = #{caId}"
+    )
+    @Results({
+            @Result(property = "mbId" , column = "MB_ID"),
+            @Result(property = "adId" , column = "AD_ID"),
+            @Result(property = "caId" , column = "CA_ID"),
+            @Result(property = "pgId" , column = "PG_ID"),
+            @Result(property = "name" , column = "NAME")
+    })
+    List<Map<String, Object>> getLandingNameList(Long mbId, Long adId, Long caId);
+
+    @Select("SELECT " +
             "       ASK_LIST " +
             " FROM " +
             "       CAMPAIGN_MASTER" +
