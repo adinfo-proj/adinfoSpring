@@ -68,6 +68,8 @@ public class CampaignManage {
             return resultMap;
         }
 
+
+
         String srcFullName = "";
 
         try {
