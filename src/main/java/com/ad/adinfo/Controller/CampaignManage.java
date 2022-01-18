@@ -43,7 +43,6 @@ public class CampaignManage {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    //@Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/newcampaign", method = RequestMethod.POST)
     public Map<String, Object> insCampaignMaster(
             @RequestHeader Map<String, Object> rHeader,

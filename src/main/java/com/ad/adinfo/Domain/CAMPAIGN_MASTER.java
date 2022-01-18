@@ -20,6 +20,7 @@ public class CAMPAIGN_MASTER {
     private String  purpose;
     private Long    price;
     private Long    promotionPrice;
+    private Long    marketerPrice;
     private String  snsYn;
     private String  formYn;
     private String  potenYn;

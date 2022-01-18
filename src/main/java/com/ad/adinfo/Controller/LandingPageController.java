@@ -110,6 +110,7 @@ public class LandingPageController {
 
                 headTag += "\n" + textArr.get(textCount);
 
+
                 textCount++;
             }
             else if( contentArr.get(i).equals("03")) {

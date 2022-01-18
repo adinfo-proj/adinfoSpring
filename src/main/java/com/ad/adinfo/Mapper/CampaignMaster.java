@@ -38,6 +38,7 @@ public interface CampaignMaster {
             "       , PURPOSE" +
             "       , PRICE" +
             "       , PROMOTION_PRICE" +
+            "       , MARKETER_PRICE" +
             "       , SNS_YN" +
             "       , FORM_YN" +
             "       , POTEN_YN" +
@@ -90,6 +91,7 @@ public interface CampaignMaster {
             @Result(property = "purpose" , column = "PURPOSE"),
             @Result(property = "price" , column = "PRICE"),
             @Result(property = "promotionPrice" , column = "PROMOTION_PRICE"),
+            @Result(property = "marketerPrice" , column = "MARKETER_PRICE"),
             @Result(property = "snsYn" , column = "SNS_YN"),
             @Result(property = "formYn" , column = "FORM_YN"),
             @Result(property = "potenYn" , column = "POTEN_YN"),
@@ -141,6 +143,7 @@ public interface CampaignMaster {
             "       , PURPOSE" +
             "       , PRICE" +
             "       , PROMOTION_PRICE" +
+            "       , MARKETER_PRICE" +
             "       , SNS_YN" +
             "       , FORM_YN" +
             "       , POTEN_YN" +
@@ -194,6 +197,7 @@ public interface CampaignMaster {
             @Result(property = "purpose" , column = "PURPOSE"),
             @Result(property = "price" , column = "PRICE"),
             @Result(property = "promotionPrice" , column = "PROMOTION_PRICE"),
+            @Result(property = "marketerPrice" , column = "MARKETER_PRICE"),
             @Result(property = "snsYn" , column = "SNS_YN"),
             @Result(property = "formYn" , column = "FORM_YN"),
             @Result(property = "potenYn" , column = "POTEN_YN"),
@@ -246,6 +250,7 @@ public interface CampaignMaster {
             "       , PURPOSE " +
             "       , PRICE " +
             "       , PROMOTION_PRICE " +
+            "       , MARKETER_PRICE " +
             "       , SNS_YN " +
             "       , FORM_YN " +
             "       , POTEN_YN " +
@@ -295,6 +300,7 @@ public interface CampaignMaster {
             "       , #{campaignMaster.purpose}" +
             "       , #{campaignMaster.price}" +
             "       , #{campaignMaster.promotionPrice}" +
+            "       , #{campaignMaster.marketerPrice}" +
             "       , #{campaignMaster.snsYn}" +
             "       , #{campaignMaster.formYn}" +
             "       , #{campaignMaster.potenYn}" +
