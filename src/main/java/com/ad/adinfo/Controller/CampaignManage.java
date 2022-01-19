@@ -10,15 +10,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @CrossOrigin
 @RestController
@@ -26,7 +26,6 @@ import java.util.UUID;
 @Slf4j
 public class CampaignManage {
     private final CampaignMaster    campaignMaster;
-    private final AdAdvertBalance   adAdvertBalanceMapper;
     private final AdInfoUtil        adInfoUtil;
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -44,128 +43,92 @@ public class CampaignManage {
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
     @RequestMapping(value = "/newcampaign", method = RequestMethod.POST)
+    @ResponseStatus(value = HttpStatus.OK)
     public Map<String, Object> insCampaignMaster(
+            NativeWebRequest nativeWebRequest,
             @RequestHeader Map<String, Object> rHeader,
             @RequestParam(value = "upFile", required = false) MultipartFile upFile,
             @RequestPart (value = "dataObj") Map<String, Object> params) throws Exception {
-        CAMPAIGN_MASTER     cpaCampaignMaster   = new CAMPAIGN_MASTER();
-        AD_ADVERT_BALANCE   adAdvertBalance     = new AD_ADVERT_BALANCE();
+        //---------------------------------------------------------------------------------------------------------
+        // 변수 설정 영역 Start
+        //---------------------------------------------------------------------------------------------------------
+        Long newCaId                            = 0L;
+        CAMPAIGN_MASTER     cpaCampaignMaster   = new CAMPAIGN_MASTER();            //
+        Map<String, Object> resultMap           = new HashMap<String, Object>();    //
 
-        Map<String, Object> resultMap = null;
+        //---------------------------------------------------------------------------------------------------------
+        // 비지니스 로직 Start
+        //---------------------------------------------------------------------------------------------------------
+        HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
 
-        UUID uuid                = UUID.randomUUID();
-        Long newCaId             = 0L;
-
-        System.out.println("rHeader   : [" + rHeader + "]");
-        System.out.println("res       : [" + params + "]");
-
-        try {
-            System.out.println("res   : [" + upFile.toString() + "]");
-        } catch (Exception e) {
-            System.out.println("adAdvertBalanceMapper.insAdAdvertBalance Fail : [" + e + "]");
-            resultMap.put("result", "fail");
-            resultMap.put("resultMessage", "캠페인 배너가 등록되지 않았습니다.");
-            return resultMap;
+        String clientIp = request.getHeader("X-Forwarded-For");
+        if (StringUtils.isEmpty(clientIp)|| "unknown".equalsIgnoreCase(clientIp)) {
+            //Proxy 서버인 경우
+            clientIp = request.getHeader("Proxy-Client-IP");
+        }
+        if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+            //Weblogic 서버인 경우
+            clientIp = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+            clientIp = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+            clientIp = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+            clientIp = request.getRemoteAddr();
         }
 
-
-
-        String srcFullName = "";
+        System.out.println("헤더        : [" + rHeader + "]");
+        System.out.println("입력 파라메터 : [" + params + "]");
 
         try {
-            //---------------------------------------------------------------------------------------------------------
-            // 업로드한 파일을 서버 폴더에 저장한다.
-            //---------------------------------------------------------------------------------------------------------
-            if (!upFile.isEmpty()) {
-                String ImgExtention = FilenameUtils.getExtension(upFile.getOriginalFilename());
-
-                //-------------------------------------------------------------------
-                // 업로드되는 파일이 있는 경우 파일을 저장한다.
-                //   - 파일명이 중복되는 경우가 분명 발생하므로 UUID를 통해 임의 파일명을 만든다.
-                //-------------------------------------------------------------------
-                // 디렉토리 + 임의값 + .확장자
-                srcFullName = "/WebFile/MB_001/banner/" + uuid + "." + ImgExtention;
-                upFile.transferTo(new File(srcFullName));
-            }
-
-            System.out.println("srcFullName         : [" + srcFullName + "]");
-
-            System.out.println("rq mbId             : [" + params.get("mbId") + "]");
-            System.out.println("rq operId           : [" + params.get("operId") + "]");
-
-            System.out.println("rq adSrtDt          : [" + params.get("adSrtDt") + "]");
-            System.out.println("rq adSrtTm          : [" + params.get("adSrtTm") + "]");
-            System.out.println("rq adEndDt          : [" + params.get("adEndDt") + "]");
-            System.out.println("rq adEndTm          : [" + params.get("adEndTm") + "]");
-
-            System.out.println("rq adPurpose        : [" + params.get("adPurpose") + "]");
-
-            System.out.println("rq adTopKind        : [" + params.get("adTopKind") + "]");
-            System.out.println("rq adMiddleKind     : [" + params.get("adMiddleKind") + "]");
-
-            System.out.println("rq adName           : [" + params.get("adName") + "]");
-            System.out.println("rq adComment        : [" + params.get("adComment") + "]");
-            System.out.println("rq adUsp            : [" + params.get("adUsp") + "]");
-
-            System.out.println("rq adPrice          : [" + params.get("adPrice") + "]");
-            System.out.println("rq adPromotionPrice : [" + params.get("adPromotionPrice") + "]");
-            System.out.println("rq adMinQty         : [" + params.get("adMinQty") + "]");
-            System.out.println("rq dayLimit         : [" + params.get("dayLimit") + "]");
-
-            System.out.println("rq approval         : [" + params.get("approval") + "]");
-            System.out.println("rq ageTarget        : [" + params.get("ageTarget") + "]");
-            System.out.println("rq ageTargetFrom    : [" + params.get("ageTargetFrom") + "]");
-            System.out.println("rq ageTargetTo      : [" + params.get("ageTargetTo") + "]");
-
-            System.out.println("rq reqWordCond      : [" + params.get("reqWordCond") + "]");
-            System.out.println("rq banChannelCond   : [" + params.get("banChannelCond") + "]");
-            System.out.println("rq banExChannel     : [" + params.get("banExChannelCond") + "]");
-            System.out.println("rq banImageCond     : [" + params.get("banImageCond") + "]");
-            System.out.println("rq banWordCond      : [" + params.get("banWordCond") + "]");
-            System.out.println("rq nullifyCond      : [" + params.get("nullifyCond") + "]");
-            System.out.println("rq cancelCond       : [" + params.get("cancelCond") + "]");
-            System.out.println("rq smsYn            : [" + params.get("smsYn") + "]");
-            System.out.println("rq smsNo            : [" + params.get("smsNo") + "]");
-            System.out.println("rq autoConfirm      : [" + params.get("autoConfirm") + "]");
+            System.out.println("gradeCd        : [" + params.get("gradeCd") + "]");
+            System.out.println("mbId           : [" + params.get("mbId") + "]");
+            System.out.println("adId           : [" + params.get("adId") + "]");
+            System.out.println("clntId         : [" + params.get("clntId") + "]");
+            System.out.println("adPurpose      : [" + params.get("adPurpose") + "]");
+            System.out.println("adTopKind      : [" + params.get("adTopKind") + "]");
+            System.out.println("adMiddleKind   : [" + params.get("adMiddleKind") + "]");
+            System.out.println("adName         : [" + params.get("adName") + "]");
+            System.out.println("adComment      : [" + params.get("adComment") + "]");
+            System.out.println("adPrice        : [" + params.get("adPrice") + "]");
+            System.out.println("adMaketerPrice : [" + params.get("adMaketerPrice") + "]");
+            System.out.println("smsYn          : [" + params.get("smsYn") + "]");
+            System.out.println("smsNo          : [" + params.get("smsNo") + "]");
 
             //-------------------------------------------------------------------
             // DB생성을 위해 변수를 대입한다.
+            //   - DB마스터는 회원사ID와 대행사ID가 모두 같다.
             //-------------------------------------------------------------------
-            // 회원사 ID
             cpaCampaignMaster.setMbId(Long.parseLong(params.get("mbId").toString()));
+            cpaCampaignMaster.setAdId(Long.parseLong(params.get("adId").toString()));
 
-            // 로그인 아이디로 광고주ID를 조회한다.
-            //Integer adId = adInfoUtil.AdClntIdToAdId(rq.get("clntId"));
-            cpaCampaignMaster.setAdId(adInfoUtil.AdClntIdToAdId(params.get("operId").toString()));
-            System.out.println(cpaCampaignMaster.getAdId());
+            // 로그인 아이디로 ID값을 조회한다.
+            cpaCampaignMaster.setAdId(adInfoUtil.AdClntIdToAdId(params.get("clntId").toString()));
 
             // 캠페인 아이디는 Seq로 자동 증가한다. (1,000부터 시작)
             //   - MB_ID와 AD_ID 기준으로 CA_ID번호를 산출한다.
             try {
                 newCaId = campaignMaster.getCampaignMasterMaxCaId(cpaCampaignMaster.getMbId(), cpaCampaignMaster.getAdId());
                 System.out.println("Max CA_ID 1 : [" + newCaId + "]");
-                newCaId = (newCaId == null) ? 1000L : newCaId + 1L;
+                newCaId = (newCaId == null) ? 10000L : newCaId + 1L;
             } catch (Exception e) {
                 System.out.println("campaignMaster.getCampaignMasterMaxCaId Fail : [" + e + "]");
             }
-
             cpaCampaignMaster.setCaId(newCaId);
 
-            System.out.println("Step 01");
             // 작업자 ID
-            cpaCampaignMaster.setOperId(params.get("operId").toString());
+            cpaCampaignMaster.setOperId(params.get("clntId").toString());
 
-            // 캠페인 시작일자
+            // 캠페인 시작 일자/시간
             cpaCampaignMaster.setSrtDt(params.get("adSrtDt").toString().replaceAll("-", ""));
-
-            // 캠페인 시작시간
             cpaCampaignMaster.setSrtTm(params.get("adSrtTm").toString().replaceAll(":", ""));
 
-            // 캠페인 종료일자
-            cpaCampaignMaster.setEndDt(params.get("adEndDt").toString().replaceAll("-", ""));
-            System.out.println("Step 02");
-            // 캠페인 종료시간
-            cpaCampaignMaster.setEndTm(params.get("adEndTm").toString().replaceAll(":", ""));
+            // 캠페인 종료 일자/시간
+            cpaCampaignMaster.setEndDt("29991231");
+            cpaCampaignMaster.setEndTm("235959");
 
             // 캠페인 종류(COMMON_CODE:AD_KIND)
             // 캠페인 목적(COMMON_CODE:CAMPAIGN_PURPOSE)
@@ -173,26 +136,43 @@ public class CampaignManage {
 
             // 광고 지역(전국/서울/경기/강원/충남/충북/전북/전남/경북/경남/제주/기타)
             cpaCampaignMaster.setCampaignArea("00");
-            System.out.println("Step 03");
-            // 광고 지역이 기타인 경우 입력값
-            //cpaCampaignMaster.setCampaignAreaEtc(campaignAreaEtc);
 
             // 캠페인 상태(COMMON_CODE:CAMPAIGN_STATUS)
-            cpaCampaignMaster.setStatus("01");
+            cpaCampaignMaster.setStatus(params.get("status").toString());
+
+            // 캠페인명
+            Long camNameCount = 0L;
+            try {
+                camNameCount = campaignMaster.getCampaignMasterByName(
+                          Long.parseLong(params.get("mbId").toString())
+                        , Long.parseLong(params.get("adId").toString())
+                        , params.get("adName").toString());
+
+                System.out.println(camNameCount);
+
+                if(camNameCount > 0) {
+                    resultMap.put("result", "failure");
+                    resultMap.put("resultMessage", "이미 등록한 캠페인명이 있습니다.");
+
+                    return resultMap;
+                }
+            } catch (Exception e) {
+                System.out.println("campaignMaster.getCampaignMasterByName Fail : [" + e + "]");
+            }
 
             // 캠페인명
             cpaCampaignMaster.setName(params.get("adName").toString());
 
             // 캠페인 광고구분(COMMON_CODE:CAMPAIGN_TP)
-            cpaCampaignMaster.setTp("A");
+            cpaCampaignMaster.setTp("D");
 
             // 광고 대분류(COMMON_CODE:CAMPAIGN_TOP_GROUP)
             cpaCampaignMaster.setTopKind(params.get("adTopKind").toString());
 
             // 광고 중분류(COMMON_CODE:CAMPAIGN_MIDDLE_GROUP)
             cpaCampaignMaster.setMiddleKind(params.get("adMiddleKind").toString());
-            System.out.println("Step 04");
 
+            // 캠페인 목적(COMMON_CODE:CAMPAIGN_PURPOSE)
             cpaCampaignMaster.setPurpose(params.get("adPurpose").toString());
 
             // 광고주 단가
@@ -201,118 +181,36 @@ public class CampaignManage {
             else
                 cpaCampaignMaster.setPrice(Long.parseLong(params.get("adPrice").toString().replaceAll(",", "")));
 
-            // 광고주 프로모션 가격
-            if ((params.get("adPromotionPrice") == null) || params.get("adPromotionPrice").equals(""))
-                cpaCampaignMaster.setPromotionPrice(0L);
+            // 마케터 단가
+            if ((params.get("adMaketerPrice") == null) || params.get("adMaketerPrice").equals(""))
+                cpaCampaignMaster.setMarketerPrice(0L);
             else
-                cpaCampaignMaster.setPromotionPrice(Long.parseLong(params.get("adPromotionPrice").toString().replaceAll(",", "")));
+                cpaCampaignMaster.setMarketerPrice(Long.parseLong(params.get("adMaketerPrice").toString().replaceAll(",", "")));
 
-            // 파트너별 일별 DB 접수 제한 건수
-            if ((params.get("dayLimit") == null) || params.get("dayLimit").equals(""))
-                cpaCampaignMaster.setDayLimit(0L);
-            else
-                cpaCampaignMaster.setDayLimit(Long.parseLong(params.get("dayLimit").toString()));
-
-            // 등    록자 IP
-//    cpaCampaignMaster.setRegIp((String)rq.get("regIp"));
-            System.out.println("Step 05");
-
+            // 등록자 IP
+            cpaCampaignMaster.setRegIp(clientIp);
 
             // 캠페인 상세설명
             cpaCampaignMaster.setComment(params.get("adComment").toString());
 
-            // 캠페인 특징
-            cpaCampaignMaster.setUsp(params.get("adUsp").toString());
-
-            // 대행사의 경우 원광고주 사용자ID(실광고주가 캠페인 현황을 보기 위한 참조ID)
-//            cpaCampaignMaster.setReferId(rHeader.get("referer").toString());
-
             // 고객이 정보입력 항목
             //cpaCampaignMaster.setAskList(askList);
-
-            // 캠페인 필수 문구
-            cpaCampaignMaster.setReqWordCond(params.get("reqWordCond").toString());
-
-            // 캠페인 제외 문구 요청
-            //    cpaCampaignMaster.setExceptMeant(exceptMeant);
-
-            // 캠페인 DB 취소 조건
-            cpaCampaignMaster.setCnclData(params.get("cancelCond").toString());
 
             // 캠페인 DB 등록시 SMS 수신여부
             if ((params.get("smsYn") == null) || params.get("smsYn").equals(""))
                 cpaCampaignMaster.setSmsYn("N");
-            else
+            else {
                 cpaCampaignMaster.setSmsYn(params.get("smsYn").toString());
 
-            // SMS 수신받을 휴대폰번호
-            cpaCampaignMaster.setSmsNo(params.get("smsNo").toString().replaceAll("-", ""));
-            System.out.println("Step 06");
-            // 랜딩페이지 상단 창 제목
-            //    cpaCampaignMaster.setLandingPageTitle((String)rq.get("landingPageTitle"));
-
-            // 광고 의뢰시 참조할 자사 랜딩페이지
-            //    cpaCampaignMaster.setLandingUrl((String)rq.get("landingUrl"));
-            //
-            // 배너 경로/파일명
-            cpaCampaignMaster.setBannerPath(srcFullName);
-            System.out.println("Step 06-1");
-            // 자동 확정 일수
-            if ((params.get("autoConfirm") == null) || params.get("autoConfirm").equals(""))
-                cpaCampaignMaster.setAutoConfirm(7L);
-            else
-                cpaCampaignMaster.setAutoConfirm(Long.parseLong(params.get("autoConfirm").toString()));
-
-
-            System.out.println("Step 06-2");
-
-            // 기본승인률
-            if ((params.get("approval") == null) || params.get("approval").equals(""))
-                cpaCampaignMaster.setApproval(50.00);
-            else
-                cpaCampaignMaster.setApproval(Double.parseDouble(params.get("approval").toString()));
-
-            System.out.println("Step 07");
-
-            // 무효 조건
-            if (params.get("nullifyCond") != null)
-                cpaCampaignMaster.setNullifyCond(params.get("nullifyCond").toString());
-
-            // 취소 조건
-            if (params.get("cancelCond") != null)
-                cpaCampaignMaster.setCancelCond(params.get("cancelCond").toString());
-
-            // 선호 채널
-            if (params.get("banExChannelCond") != null)
-                cpaCampaignMaster.setBanExChannelCond(params.get("banExChannelCond").toString());
-
-            // 금지 채널
-            if (params.get("banChannelCond") != null)
-                cpaCampaignMaster.setBanChannelCond(params.get("banChannelCond").toString());
-
-            // 금지 이미지
-            if (params.get("banImageCond") != null)
-                cpaCampaignMaster.setBanImageCond(params.get("banImageCond").toString());
-
-            // 금지 단어
-            if (params.get("banWordCond") != null)
-                cpaCampaignMaster.setBanWordCond(params.get("banWordCond").toString());
-
-            // 연령제한
-            if ((params.get("ageTarget") == null) || params.get("ageTarget").equals("")) {
-                cpaCampaignMaster.setAgeTarget("");
-            } else {
-                if (params.get("ageTarget").equals("N"))
-                    cpaCampaignMaster.setAgeTarget("");
-                else
-                    cpaCampaignMaster.setAgeTarget(params.get("ageTargetFrom").toString() + "|" + params.get("ageTargetTo").toString());
+                // SMS 수신받을 휴대폰번호
+                cpaCampaignMaster.setSmsNo(params.get("smsNo").toString().replaceAll("-", ""));
             }
         } catch (Exception e) {
             System.out.println("campaignMaster.insCampaignMaster Fail : [" + e + "]");
         }
 
         System.out.println("Parsing Data : [" + cpaCampaignMaster + "]");
-System.out.println("Step 08");
+
         //-------------------------------------------------------------------
         // 캠페인 마스터에 데이터를 생성한다.
         //-------------------------------------------------------------------
@@ -320,43 +218,100 @@ System.out.println("Step 08");
             campaignMaster.insCampaignMaster(cpaCampaignMaster);
         } catch (Exception e) {
             System.out.println("campaignMaster.insCampaignMaster Fail : [" + e + "]");
+
+            resultMap.put("result", "failure");
+            resultMap.put("resultMessage", "캠페인 등록이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+
+            return resultMap;
         }
 
-        //-------------------------------------------------------------------
-        // 광고주 충전금 마스터 (AD_ADVERT_BALANCE) 테이블에 해당 캠페인의 충전금액 항목을 생성한다.
-        //-------------------------------------------------------------------
-        adAdvertBalance.setMbId(cpaCampaignMaster.getMbId());
-        adAdvertBalance.setAdId(cpaCampaignMaster.getAdId());
-        adAdvertBalance.setCaId(cpaCampaignMaster.getCaId());
-        adAdvertBalance.setAdvtMedia("A");
-        adAdvertBalance.setChargeAmt(0.00);
-        adAdvertBalance.setBonusAmt(0.00);
-        adAdvertBalance.setSupportAmt(0.00);
-        adAdvertBalance.setBeforeChargeAmt(0.00);
-        adAdvertBalance.setZeroAmtSmsYn("N");
-
-        System.out.println("getSmsYn : [" + cpaCampaignMaster.getSmsYn() + "]");
-
-        if ((params.get("smsYn") == null) || (params.get("smsYn").equals("")))
-            adAdvertBalance.setSmsSendYn("N");
-        else
-            adAdvertBalance.setSmsSendYn(params.get("smsYn").toString());
-
-        adAdvertBalance.setZeroAmtSmsYn("N");
-
-        try {
-            adAdvertBalanceMapper.insAdAdvertBalance(adAdvertBalance);
-        } catch (Exception e) {
-            System.out.println("adAdvertBalanceMapper.insAdAdvertBalance Fail : [" + e + "]");
-        }
+        System.out.println("campaignMaster.insCampaignMaster Success");
 
         //-------------------------------------------------------------------
         // SEQ로 생성된 캠페인 아이디를 리턴한다.
         //-------------------------------------------------------------------
-
-        //return cpaCampaignMaster.getCaId();
         resultMap.put("result", "success");
         resultMap.put("resultMessage", "캠페인 등록이 정상적으로 처리되었습니다.");
+
+        return resultMap;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 신규 캠페인 등록
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2021.07.13
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C] CPA_CAMPAIGN_MASTER
+     *         [R] AD_USER_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "/upcampaign", method = RequestMethod.POST)
+    @ResponseStatus(value = HttpStatus.OK)
+    public Map<String, Object> insCampaignMaster(
+            NativeWebRequest nativeWebRequest,
+            @RequestPart (value = "dataObj") CAMPAIGN_MASTER upCpaCampaignMaster) throws Exception {
+        //---------------------------------------------------------------------------------------------------------
+        // 변수 설정 영역 Start
+        //---------------------------------------------------------------------------------------------------------
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        CAMPAIGN_MASTER orgCpaCampaignMaster = new CAMPAIGN_MASTER();
+
+        try {
+            //---------------------------------------------------------------------------------------------------------
+            // 처리자의 아이피를 변경한다.
+            //---------------------------------------------------------------------------------------------------------
+            HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
+
+            String clientIp = request.getHeader("X-Forwarded-For");
+            if (StringUtils.isEmpty(clientIp)|| "unknown".equalsIgnoreCase(clientIp)) {
+                //Proxy 서버인 경우
+                clientIp = request.getHeader("Proxy-Client-IP");
+            }
+            if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                //Weblogic 서버인 경우
+                clientIp = request.getHeader("WL-Proxy-Client-IP");
+            }
+            if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                clientIp = request.getHeader("HTTP_CLIENT_IP");
+            }
+            if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                clientIp = request.getHeader("HTTP_X_FORWARDED_FOR");
+            }
+            if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                clientIp = request.getRemoteAddr();
+            }
+
+            //---------------------------------------------------------------------------------------------------------
+            // 이전 정보를 히스토리에 생성한다.
+            //---------------------------------------------------------------------------------------------------------
+            orgCpaCampaignMaster = (CAMPAIGN_MASTER)campaignMaster.getCampaignMasterForMbAdCa(
+                    upCpaCampaignMaster.getMbId()
+                    , upCpaCampaignMaster.getAdId()
+                    , upCpaCampaignMaster.getCaId() );
+
+            campaignMaster.insCampaignMasterHistory(orgCpaCampaignMaster);
+
+            upCpaCampaignMaster.setRegIp(clientIp);
+            Long ret = campaignMaster.upCampaignMaster(upCpaCampaignMaster);
+            if(ret <= 0) {
+                resultMap.put("result", "failure");
+                resultMap.put("resultMessage", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+            }
+            else {
+                resultMap.put("result", "success");
+                resultMap.put("resultMessage", "캠페인 변경이 정상적으로 처리되었습니다.");
+            }
+        } catch(Exception e) {
+            System.out.println("upcampaign Fail : [" + e + "]");
+
+            resultMap.put("result", "failure");
+            resultMap.put("resultMessage", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+        }
 
         return resultMap;
     }
@@ -387,7 +342,7 @@ System.out.println("Step 08");
     }
 
     /*------------------------------------------------------------------------------------------------------------------
-     * 랜딩페이지 리스트
+     * 캠페인 리스트 (상태값으로 조회)
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2021.12.22
      * 작성자 : 박형준
@@ -400,15 +355,53 @@ System.out.println("Step 08");
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @RequestMapping(value = "GetLandingNameLst", method = RequestMethod.GET)
+    @RequestMapping(value = "GetCampaignForMbAdStatus", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public List<Map<String, Object>> GetLandingNameLst(HttpServletRequest rq) throws Exception {
+    public List<Map<String, Object>> GetCampaignMasterForMbAdStatus(HttpServletRequest rq) throws Exception {
         System.out.println("GetLandingNameLst----------------------");
-        System.out.println("mbId : [" + rq.getParameter("mbId") + "]");
-        System.out.println("adId : [" + rq.getParameter("adId") + "]");
-        System.out.println("caId : [" + rq.getParameter("caId") + "]");
+        System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId   : [" + rq.getParameter("adId") + "]");
+        System.out.println("status : [" + rq.getParameter("status") + "]");
 
-        return campaignMaster.getLandingNameList(
+        String      status = "";
+
+        if(rq.getParameter("status").toString().equals("00")) {
+            status = "%%";
+        }
+        else {
+            status = rq.getParameter("status").toString();
+        }
+
+        return campaignMaster.getCampaignMasterForMbAdStatus(
+                  Long.parseLong(rq.getParameter("mbId"))
+                , Long.parseLong(rq.getParameter("adId"))
+                , status
+        );
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 캠페인 리스트 (캠페인번호로 조회)
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2021.12.22
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] CAMPAIGN_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetCampaignForMbAdCa", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public Map<String, Object> GetCampaignForMbAdCa(HttpServletRequest rq) throws Exception {
+        System.out.println("GetLandingNameLst----------------------");
+        System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId   : [" + rq.getParameter("adId") + "]");
+        System.out.println("caId   : [" + rq.getParameter("caId") + "]");
+
+        return campaignMaster.getCampaignMasterForMbAdCa(
                   Long.parseLong(rq.getParameter("mbId"))
                 , Long.parseLong(rq.getParameter("adId"))
                 , Long.parseLong(rq.getParameter("caId"))
