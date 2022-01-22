@@ -354,19 +354,19 @@ public interface CampaignMaster {
             "       , TOP_KIND" +
             "       , MIDDLE_KIND" +
             "       , PURPOSE" +
-            "       , FORMAT(PRICE, 0) PRICE" +
-            "       , FORMAT(PROMOTION_PRICE, 0) PROMOTION_PRICE" +
-            "       , FORMAT(MARKETER_PRICE, 0) MARKETER_PRICE" +
+            "       , PRICE" +
+            "       , PROMOTION_PRICE" +
+            "       , MARKETER_PRICE" +
             "       , SNS_YN" +
             "       , FORM_YN" +
             "       , POTEN_YN" +
             "       , EXTERN_DATA_YN" +
             "       , DAY_LIMIT" +
             "       , REG_IP" +
-            "       , CONCAT( SUBSTRING(SRT_DT, 1, 4), '-', SUBSTRING(SRT_DT, 5, 2), '-', SUBSTRING(SRT_DT, 7, 2)) SRT_DT " +
-            "       , CONCAT( SUBSTRING(SRT_TM, 1, 2), ':', SUBSTRING(SRT_TM, 3, 2), ':', SUBSTRING(SRT_TM, 5, 2)) SRT_TM " +
-            "       , CONCAT( SUBSTRING(END_DT, 1, 4), '-', SUBSTRING(END_DT, 5, 2), '-', SUBSTRING(END_DT, 7, 2)) END_DT " +
-            "       , CONCAT( SUBSTRING(END_TM, 1, 2), ':', SUBSTRING(END_TM, 3, 2), ':', SUBSTRING(END_TM, 5, 2)) END_TM " +
+            "       , SRT_DT" +
+            "       , SRT_TM" +
+            "       , END_DT" +
+            "       , END_TM" +
             "       , COMMENT" +
             "       , USP" +
             "       , REFER_ID" +
@@ -444,7 +444,7 @@ public interface CampaignMaster {
             @Result(property = "banWordCond" , column = "BAN_WORD_COND"),
             @Result(property = "ageTarget" , column = "AGE_TARGET")
     })
-    Map<String, Object> getCampaignMasterForMbAdCa(Long mbId, Long adId, Long caId);
+    CAMPAIGN_MASTER getCampaignMasterForMbAdCa(Long mbId, Long adId, Long caId);
 
     @Insert("INSERT INTO CAMPAIGN_MASTER " +
             "( " +
@@ -653,7 +653,7 @@ public interface CampaignMaster {
             "       , #{campaignMaster.banWordCond}" +
             "       , #{campaignMaster.ageTarget}" +
             ")" )
-    @Options(useGeneratedKeys = true, keyProperty = "seqNo")
+    @Options(useGeneratedKeys = true, keyProperty = "caId")
     Long insCampaignMasterHistory(@Param("campaignMaster") CAMPAIGN_MASTER campaignMaster);
 
     @Update("UPDATE " +
@@ -708,9 +708,9 @@ public interface CampaignMaster {
             "       , BAN_WORD_COND       = #{campaignMaster.banWordCond}" +
             "       , AGE_TARGET          = #{campaignMaster.ageTarget}" +
             " WHERE " +
-            "       MB_ID      = #{mbId}" +
-            " AND   AD_ID      = #{adId}" +
-            " AND   CA_ID      = #{caId}" )
+            "       MB_ID      = #{campaignMaster.mbId}" +
+            " AND   AD_ID      = #{campaignMaster.adId}" +
+            " AND   CA_ID      = #{campaignMaster.caId}" )
     @Options(useGeneratedKeys = true, keyProperty = "caId")
     Long upCampaignMaster(@Param("campaignMaster") CAMPAIGN_MASTER campaignMaster);
 

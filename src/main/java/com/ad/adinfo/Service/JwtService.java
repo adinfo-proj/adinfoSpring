@@ -22,7 +22,7 @@ public class JwtService {
 
         builder.setHeaderParam("typ", "JWT");
         builder.setSubject("access_token")
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 10 * 10))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 10)) // ((1000) 1초) 60초) 1분) 60분) 24시) 10일)
                 .claim("emailId", tokenResponse);
         builder.signWith(SignatureAlgorithm.HS256, salt.getBytes());
 

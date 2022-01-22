@@ -261,6 +261,8 @@ public class CampaignManage {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         CAMPAIGN_MASTER orgCpaCampaignMaster = new CAMPAIGN_MASTER();
 
+        System.out.println("upCpaCampaignMaster : " + upCpaCampaignMaster);
+
         try {
             //---------------------------------------------------------------------------------------------------------
             // 처리자의 아이피를 변경한다.
@@ -289,10 +291,20 @@ public class CampaignManage {
             //---------------------------------------------------------------------------------------------------------
             // 이전 정보를 히스토리에 생성한다.
             //---------------------------------------------------------------------------------------------------------
-            orgCpaCampaignMaster = (CAMPAIGN_MASTER)campaignMaster.getCampaignMasterForMbAdCa(
+            orgCpaCampaignMaster = campaignMaster.getCampaignMasterForMbAdCa(
                     upCpaCampaignMaster.getMbId()
                     , upCpaCampaignMaster.getAdId()
                     , upCpaCampaignMaster.getCaId() );
+
+            orgCpaCampaignMaster.setSrtDt(orgCpaCampaignMaster.getSrtDt().replaceAll("-", ""));
+            orgCpaCampaignMaster.setSrtTm(orgCpaCampaignMaster.getSrtTm().replaceAll(":", ""));
+
+            upCpaCampaignMaster.setSrtDt(upCpaCampaignMaster.getSrtDt().toString().replaceAll("-", ""));
+            upCpaCampaignMaster.setEndDt(upCpaCampaignMaster.getEndDt().toString().replaceAll("-", ""));
+
+            upCpaCampaignMaster.setSrtTm(upCpaCampaignMaster.getSrtTm().toString().replaceAll(":", ""));
+            upCpaCampaignMaster.setEndTm(upCpaCampaignMaster.getEndTm().toString().replaceAll(":", ""));
+
 
             campaignMaster.insCampaignMasterHistory(orgCpaCampaignMaster);
 
@@ -395,7 +407,7 @@ public class CampaignManage {
     @CrossOrigin
     @RequestMapping(value = "GetCampaignForMbAdCa", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public Map<String, Object> GetCampaignForMbAdCa(HttpServletRequest rq) throws Exception {
+    public CAMPAIGN_MASTER GetCampaignForMbAdCa(HttpServletRequest rq) throws Exception {
         System.out.println("GetLandingNameLst----------------------");
         System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
         System.out.println("adId   : [" + rq.getParameter("adId") + "]");
