@@ -3,7 +3,7 @@ package com.ad.adinfo.Domain;
 import lombok.Data;
 
 @Data
-public class LANDING_PAGE {
+public class TB_LANDING_PAGE {
     private     Long        SeqNo;
     private     String      updateDt;
 
@@ -13,6 +13,7 @@ public class LANDING_PAGE {
     private     Long        caId;
     private     Long        pgId;
 
+    private     String      useTp;
     private     String      name;
     private     String      regClntId;
     private     String      regIp;

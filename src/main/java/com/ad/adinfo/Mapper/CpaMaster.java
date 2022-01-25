@@ -193,7 +193,6 @@ public interface CpaMaster {
             "       , #{cpaMaster.caSmsYn}" +
             "       , #{cpaMaster.caSms}" +
             "       , #{cpaMaster.caRefUrl}" +
-            "       , #{cpaMaster.caBannerPath}" +
             "       , #{cpaMaster.caAutoConfirm}" +
             ")")
     @Options(useGeneratedKeys = true, keyProperty = "caCaId")
