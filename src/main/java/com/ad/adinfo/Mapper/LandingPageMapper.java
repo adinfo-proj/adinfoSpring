@@ -1,8 +1,10 @@
 package com.ad.adinfo.Mapper;
 
-import com.ad.adinfo.Domain.NOTIFY_BOARD;
 import com.ad.adinfo.Domain.TB_LANDING_PAGE;
 import org.apache.ibatis.annotations.*;
+
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface LandingPageMapper {
@@ -17,6 +19,9 @@ public interface LandingPageMapper {
             "     , PG_ID " +
             "     , USE_TP " +
             "     , NAME " +
+            "     , AD_NAME " +
+            "     , URL " +
+            "     , ASK_LIST " +
             "     , REG_CLNT_ID " +
             "     , REG_IP " +
             "     , TYPE01 " +
@@ -59,7 +64,12 @@ public interface LandingPageMapper {
             "     , #{landingPage.caId} " +
             "     , #{landingPage.pgId} " +
             "     , #{landingPage.useTp} " +
+
             "     , #{landingPage.name} " +
+            "     , #{landingPage.adName} " +
+            "     , #{landingPage.url} " +
+            "     , #{landingPage.askList} " +
+
             "     , #{landingPage.regClntId} " +
             "     , #{landingPage.regIp} " +
 
@@ -127,4 +137,92 @@ public interface LandingPageMapper {
             @Result(property = "count" , column = "COUNT")
     })
     Long selLandingPageDupName(Long mbId, Long adId, Long mkId, Long caId, String name);
+
+    @Select("SELECT " +
+            "        COUNT(*) AS COUNT " +
+            "FROM " +
+            "        LANDING_PAGE " +
+            "WHERE " +
+            "      URL = #{url} " )
+    @Results({
+            @Result(property = "count" , column = "COUNT")
+    })
+    Long selLandingPageDupUrl(String url);
+
+    @Select("SELECT " +
+            "         PG_ID " +
+            "       , NAME " +
+            " FROM " +
+            "       LANDING_PAGE" +
+            " WHERE " +
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
+            " AND   MK_ID  = ${mkId}" +
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
+            " AND   USE_TP = #{useTp}" +
+            " ORDER BY CA_ID ASC")
+    @Results({
+            @Result(property = "pgId" , column = "PG_ID"),
+            @Result(property = "name" , column = "NAME")
+    })
+    List<Map<String, Object>> GetLandingListForMbAdCaCode(Long mbId, Long adId, Long mkId, Long caId, String useTp);
+
+    @Select("SELECT " +
+            "         SEQ_NO " +
+            "       , MB_ID " +
+            "       , AD_ID " +
+            "       , MK_ID " +
+            "       , CA_ID " +
+            "       , PG_ID " +
+            "       , USE_TP " +
+            "       , NAME " +
+            "       , (SELECT NAME     FROM CAMPAIGN_MASTER WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) AD_NAME" +
+            "       , URL " +
+            "       , (SELECT ASK_LIST FROM CAMPAIGN_MASTER WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) ASK_LIST" +
+            "       , (SELECT COUNT(*) FROM CPA_DATA WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) CREATE_COUNT" +
+            " FROM " +
+            "       LANDING_PAGE A" +
+            " WHERE " +
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
+            " AND   MK_ID  = ${mkId}" +
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
+            " AND   USE_TP = #{useTp}" +
+            " ORDER BY SEQ_NO DESC" +
+            " LIMIT #{srtPos}, #{rowCount}"
+    )
+    @Results({
+            @Result(property = "seqNo", column = "SEQ_NO"),
+            @Result(property = "updateDt", column = "UPDATE_DT"),
+            @Result(property = "mbId", column = "MB_ID"),
+            @Result(property = "adId", column = "AD_ID"),
+            @Result(property = "mkId", column = "MK_ID"),
+            @Result(property = "caId", column = "CA_ID"),
+            @Result(property = "pgId", column = "PG_ID"),
+            @Result(property = "useTp", column = "USE_TP"),
+            @Result(property = "name", column = "NAME"),
+            @Result(property = "adName", column = "AD_NAME"),
+            @Result(property = "url", column = "URL"),
+            @Result(property = "askList", column = "ASK_LIST"),
+            @Result(property = "regClntId", column = "REG_CLNT_ID"),
+            @Result(property = "regIp", column = "REG_IP"),
+            @Result(property = "createCount", column = "CREATE_COUNT")
+    })
+    List<Map<String, Object>> GetLandingListForMbAdCa(Long mbId, Long adId, Long mkId, Long caId, String useTp, Long srtPos, Long rowCount);
+
+    @Select("SELECT " +
+            "         COUNT(*) AS COUNT " +
+            " FROM " +
+            "       LANDING_PAGE A" +
+            " WHERE " +
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
+            " AND   MK_ID  = ${mkId}" +
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
+            " AND   USE_TP = #{useTp}" +
+            " ORDER BY CA_ID DESC" )
+    @Results({
+            @Result(property = "count", column = "COUNT")
+    })
+    List<Map<String, Object>> GetLandingListForMbAdCaRowCount(Long mbId, Long adId, Long mkId, Long caId, String useTp);
 }

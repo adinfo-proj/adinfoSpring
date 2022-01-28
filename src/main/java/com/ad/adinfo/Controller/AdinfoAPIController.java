@@ -37,7 +37,7 @@ import java.util.*;
 @Slf4j
 public class AdinfoAPIController {
 
-    private final CampaignMaster        campaignMaster;
+    private final CampaignMasterMapper campaignMaster;
     private final CpaMaster             cpaCampaign;
     private final CpaData               cpaData;
     private final AdAdvertBalance       adAdvertBalance;
@@ -771,38 +771,6 @@ public class AdinfoAPIController {
         System.out.println("tp : [" + rq.getParameter("adId") + "]");
         return cpaCampaign.GetCampaignStatusCount(Long.parseLong(rq.getParameter("adId")));
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /*------------------------------------------------------------------------------------------------------------------
      * 대쉬보드 / 라이브 캠페인 / 금액 및 수량확인

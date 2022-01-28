@@ -15,6 +15,10 @@ public class TB_LANDING_PAGE {
 
     private     String      useTp;
     private     String      name;
+    private     String      adName;
+    private     String      url;
+    private     String      askList;
+
     private     String      regClntId;
     private     String      regIp;
 

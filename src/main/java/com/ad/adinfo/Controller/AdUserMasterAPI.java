@@ -35,7 +35,7 @@ public class AdUserMasterAPI {
 
 
         for(int i = 0 ; i < 10; i++) {
-            ptId = ptId + Character.toString(adInfoUtil.rndChar());
+            ptId = ptId + Character.toString(adInfoUtil.RandamChar());
         }
         System.out.println(ptId);
         return "";
@@ -116,7 +116,7 @@ public class AdUserMasterAPI {
                         String ptCd = "";
 
                         for(int i = 0 ; i < 10; i++) {
-                            ptCd = ptCd + Character.toString(adInfoUtil.rndChar());
+                            ptCd = ptCd + Character.toString(adInfoUtil.RandamChar());
                         }
                         System.out.println(ptCd);
                         creAdUserMaster.setMkCd(ptCd);
@@ -136,7 +136,7 @@ public class AdUserMasterAPI {
                         String ptCd = "";
 
                         for(int i = 0 ; i < 10; i++) {
-                            ptCd = ptCd + Character.toString(adInfoUtil.rndChar());
+                            ptCd = ptCd + Character.toString(adInfoUtil.RandamChar());
                         }
                         System.out.println(ptCd);
                         creAdUserMaster.setMkCd(ptCd);
@@ -244,7 +244,7 @@ public class AdUserMasterAPI {
         String nanPw = "";
 
         for(int i = 0 ; i < 10; i++) {
-            nanPw = nanPw + Character.toString(adInfoUtil.rndChar());
+            nanPw = nanPw + Character.toString(adInfoUtil.RandamChar());
         }
         System.out.println(nanPw);
 

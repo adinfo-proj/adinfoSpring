@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper
-public interface CampaignMaster {
+public interface CampaignMasterMapper {
     @Select("SELECT " +
             "       MAX(CA_ID) AS CA_ID" +
             " FROM " +
@@ -286,7 +286,8 @@ public interface CampaignMaster {
             " WHERE " +
             "       MB_ID  = ${mbId}" +
             " AND   AD_ID  = ${adId}" +
-            " AND   STATUS LIKE #{status}" )
+            " AND   STATUS LIKE #{status}" +
+            " ORDER BY CA_ID DESC")
     @Results({
             @Result(property = "updateDt" , column = "UPDATE_DT"),
             @Result(property = "mbId" , column = "MB_ID"),
@@ -779,4 +780,77 @@ public interface CampaignMaster {
             @Result(property = "count" , column = "COUNT")
     })
     Long getCampaignMasterByName(Long mbId, Long adId, String name);
+
+    @Select("SELECT " +
+            "       NAME " +
+            " FROM " +
+            "       CAMPAIGN_MASTER" +
+            " WHERE " +
+            "       MB_ID      = #{mbId}" +
+            " AND   AD_ID      = #{adId}" +
+            " AND   CA_ID      = #{caId}" )
+    @Results({
+            @Result(property = "name" , column = "NAME")
+    })
+    String getCampaignMasterByMbAdCa(Long mbId, Long adId, Long caId);
+
+    @Select("SELECT " +
+            "         UPDATE_DT" +
+            "       , MB_ID" +
+            "       , AD_ID" +
+            "       , CA_ID" +
+            "       , OPER_ID" +
+            "       , CAMPAIGN_KIND" +
+            "       , CAMPAIGN_AREA" +
+            "       , CAMPAIGN_AREA_ETC" +
+            "       , STATUS" +
+            "       , NAME" +
+            "       , TP" +
+            "       , TOP_KIND" +
+            "       , MIDDLE_KIND" +
+            "       , PURPOSE" +
+            "       , FORMAT(PRICE, 0) PRICE" +
+            "       , FORMAT(MARKETER_PRICE, 0) MARKETER_PRICE" +
+            "       , REG_IP" +
+            "       , CONCAT( SUBSTRING(SRT_DT, 1, 4), '-', SUBSTRING(SRT_DT, 5, 2), '-', SUBSTRING(SRT_DT, 7, 2)) SRT_DT " +
+            "       , COMMENT" +
+            "       , REFER_ID" +
+            "       , SMS_YN" +
+            "       , SMS_NO" +
+            "       , (SELECT COUNT(*) FROM CPA_PAGE_USING_COUNT WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) VIEW_COUNT" +
+            "       , (SELECT COUNT(*) FROM CPA_DATA             WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) CREATE_COUNT" +
+            " FROM " +
+            "       CAMPAIGN_MASTER A" +
+            " WHERE " +
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
+            " AND   STATUS LIKE #{status}" +
+            " ORDER BY CA_ID DESC")
+    @Results({
+            @Result(property = "updateDt" , column = "UPDATE_DT"),
+            @Result(property = "mbId" , column = "MB_ID"),
+            @Result(property = "adId" , column = "AD_ID"),
+            @Result(property = "caId" , column = "CA_ID"),
+            @Result(property = "operId" , column = "OPER_ID"),
+            @Result(property = "campaignKind" , column = "CAMPAIGN_KIND"),
+            @Result(property = "campaignArea" , column = "CAMPAIGN_AREA"),
+            @Result(property = "campaignAreaEtc" , column = "CAMPAIGN_AREA_ETC"),
+            @Result(property = "status" , column = "STATUS"),
+            @Result(property = "name" , column = "NAME"),
+            @Result(property = "tp" , column = "TP"),
+            @Result(property = "topKind" , column = "TOP_KIND"),
+            @Result(property = "middleKind" , column = "MIDDLE_KIND"),
+            @Result(property = "purpose" , column = "PURPOSE"),
+            @Result(property = "price" , column = "PRICE"),
+            @Result(property = "marketerPrice" , column = "MARKETER_PRICE"),
+            @Result(property = "regIp" , column = "REG_IP"),
+            @Result(property = "srtDt" , column = "SRT_DT"),
+            @Result(property = "comment" , column = "COMMENT"),
+            @Result(property = "referId" , column = "REFER_ID"),
+            @Result(property = "smsYn" , column = "SMS_YN"),
+            @Result(property = "smsNo" , column = "SMS_NO"),
+            @Result(property = "viewCount" , column = "VIEW_COUNT"),
+            @Result(property = "createCount" , column = "CREATE_COUNT")
+    })
+    List<Map<String, Object>> getCampaignMasterForMbAdStatus_ViewCount(Long mbId, Long adId, String status);
 }

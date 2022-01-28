@@ -123,6 +123,7 @@ public interface CpaData {
             "       , CA_ID " +
             "       , MK_ID " +
             "       , CA_NAME " +
+            "       , (SELECT NAME FROM LANDING_PAGE WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID AND PG_ID = A.PG_ID) PG_NAME" +
             "       , FORMAT(PRICE, 0) AS PRICE " +
             "       , FORMAT(MK_PRICE, 0) AS MK_PRICE " +
             "       , FORMAT(SPEC_PRICE, 0) AS SPEC_PRICE " +
@@ -169,14 +170,14 @@ public interface CpaData {
             "       , VALUE09 " +
             "       , VALUE10 " +
             " FROM " +
-            "       CPA_DATA " +
+            "       CPA_DATA A " +
             " WHERE " +
             "       MB_ID  = #{mbId} " +
             " AND   AD_ID  = #{adId} " +
             " AND   CA_ID  = #{caId} " +
-
             " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
             "                ELSE #{mkId}          END " +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
             " AND   CONFIRM_TP IN (CASE WHEN #{dbKind} = '대기DB' THEN 'N' " +
             "                           WHEN #{dbKind} = '접수DB' THEN 'R' " +
             "                           WHEN #{dbKind} = '확정DB' THEN 'Y' " +
@@ -194,7 +195,9 @@ public interface CpaData {
             @Result(property = "adId" , column = "AD_ID"),
             @Result(property = "caId" , column = "CA_ID"),
             @Result(property = "mkId" , column = "MK_ID"),
+            @Result(property = "pgId" , column = "PG_ID"),
             @Result(property = "caName" , column = "CA_NAME"),
+            @Result(property = "pgName" , column = "PG_NAME"),
             @Result(property = "price" , column = "PRICE"),
             @Result(property = "mkPrice" , column = "MK_PRICE"),
             @Result(property = "specPrice" , column = "SPEC_PRICE"),
@@ -234,7 +237,7 @@ public interface CpaData {
             @Result(property = "value09" , column = "VALUE09"),
             @Result(property = "value10" , column = "VALUE10"),
     })
-    List<Map<String, Object>> getCpaDataForMbIdCaIdAdId(Long mbId, Long adId, Long caId, Long mkId, String dbKind, String startDt, String finishDt, Long srtPos, Long rowCount);
+    List<Map<String, Object>> getCpaDataForMbIdCaIdAdId(Long mbId, Long adId, Long caId, Long mkId, Long pgId, String dbKind, String startDt, String finishDt, Long srtPos, Long rowCount);
 
     @Select("SELECT " +
             "         COUNT(*) AS ROW_TOTAL_COUNT " +
@@ -246,11 +249,19 @@ public interface CpaData {
             " AND   CA_ID  = #{caId} " +
             " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
             "                ELSE      #{mkId}     END " +
-            " AND    INS_DT BETWEEN #{startDt} AND #{finishDt} " )
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " AND   CONFIRM_TP IN (CASE WHEN #{dbKind} = '대기DB' THEN 'N' " +
+            "                           WHEN #{dbKind} = '접수DB' THEN 'R' " +
+            "                           WHEN #{dbKind} = '확정DB' THEN 'Y' " +
+            "                           WHEN #{dbKind} = '취소DB' THEN 'C' " +
+            "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' " +
+            "                           ELSE CONFIRM_TP " +
+            "                      END) " +
+            " AND    INS_DT BETWEEN #{startDt} AND #{finishDt}" )
     @Results({
             @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT")
     })
-    Long getCpaDataForMbIdCaIdAdIdRowTotalCount(Long mbId, Long adId, Long caId, Long mkId, String dbKind, String startDt, String finishDt);
+    List<Map<String, Object>> getCpaDataForMbIdCaIdAdIdRowTotalCount(Long mbId, Long adId, Long caId, Long mkId, Long pgId, String dbKind, String startDt, String finishDt, Long srtPos, Long rowCount);
 
     @Select("SELECT " +
             "       COUNT(*) COUNT " +

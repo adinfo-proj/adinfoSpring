@@ -1,22 +1,18 @@
 package com.ad.adinfo.Controller;
 
-import com.ad.adinfo.Domain.AD_ADVERT_BALANCE;
 import com.ad.adinfo.Domain.CAMPAIGN_MASTER;
-import com.ad.adinfo.Mapper.AdAdvertBalance;
-import com.ad.adinfo.Mapper.CampaignMaster;
+import com.ad.adinfo.Mapper.CampaignMasterMapper;
+import com.ad.adinfo.Mapper.DataCenterMapper;
 import com.ad.adinfo.Service.AdInfoUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 
 import java.util.*;
 
@@ -25,8 +21,9 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class CampaignManage {
-    private final CampaignMaster    campaignMaster;
+    private final CampaignMasterMapper campaignMaster;
     private final AdInfoUtil        adInfoUtil;
+    private final DataCenterMapper  dataCenterMapper;
 
     /*------------------------------------------------------------------------------------------------------------------
      * 신규 캠페인 등록
@@ -370,13 +367,19 @@ public class CampaignManage {
     @RequestMapping(value = "GetCampaignForMbAdStatus", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public List<Map<String, Object>> GetCampaignMasterForMbAdStatus(HttpServletRequest rq) throws Exception {
-        System.out.println("GetLandingNameLst----------------------");
+        String      status = "";
+
+        List<Map<String, Object>> resultObj = new ArrayList<Map<String, Object>>();
+
+        System.out.println("GetCampaignForMbAdStatus----------------------");
+
         System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
         System.out.println("adId   : [" + rq.getParameter("adId") + "]");
         System.out.println("status : [" + rq.getParameter("status") + "]");
 
-        String      status = "";
-
+        //---------------------------------------------------------------------------------------------------------
+        // 캠페인 목록을 조회한다.
+        //---------------------------------------------------------------------------------------------------------
         if(rq.getParameter("status").toString().equals("00")) {
             status = "%%";
         }
@@ -384,7 +387,7 @@ public class CampaignManage {
             status = rq.getParameter("status").toString();
         }
 
-        return campaignMaster.getCampaignMasterForMbAdStatus(
+        return campaignMaster.getCampaignMasterForMbAdStatus_ViewCount(
                   Long.parseLong(rq.getParameter("mbId"))
                 , Long.parseLong(rq.getParameter("adId"))
                 , status

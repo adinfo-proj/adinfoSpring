@@ -1,108 +1,29 @@
 package com.ad.adinfo.Controller;
 
-import com.ad.adinfo.Domain.NOTIFY_BOARD;
-import com.ad.adinfo.Domain.INPROVE_BOARD;
-import com.ad.adinfo.Domain.ASK_BOARD;
+import com.ad.adinfo.Domain.NOTICE_BOARD;
 
-import com.ad.adinfo.Mapper.NotifyBoardMapper;
-import com.ad.adinfo.Mapper.AskBoardMapper;
-import com.ad.adinfo.Mapper.InproveBoardMapper;
+import com.ad.adinfo.Mapper.NoticeBoardMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class BoardContentsController {
-    private final NotifyBoardMapper     notifyBoardMapper;
-    private final AskBoardMapper        askBoardMapper;
-    private final InproveBoardMapper    inproveBoardMapper;
+    private final NoticeBoardMapper     noticeBoardMapper;
 
     /*------------------------------------------------------------------------------------------------------------------
-     * 공지사항 목록 조회
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2022.01.21
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R] NOTIFY_BOARD
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/notify/titlelist", method = RequestMethod.GET)
-    public List<Map<String, Object>> notify_titlelist(HttpServletRequest rq) throws Exception {
-        return notifyBoardMapper.getNotifyTitleList(
-                  Long.parseLong(rq.getParameter("seqNo"))
-                , (Long.parseLong(rq.getParameter("curPage").toString()) - 1) * Long.parseLong(rq.getParameter("rowCount").toString())
-                , Long.parseLong(rq.getParameter("rowCount")));
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     * 공지사항 내용 조회
+     * 게시판 내용 등록
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2022.01.22
      * 작성자 : 박형준
      *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R] NOTIFY_BOARD
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/notify/contents", method = RequestMethod.GET)
-    public ArrayList<List<Map<String, Object>>> notify_contents(HttpServletRequest rq) throws Exception {
-        ArrayList<List<Map<String, Object>>> notifyResult = new ArrayList<>();
-
-        //---------------------------------------------------------------------------------------------------------
-        // 조회건수를 1증가시킨다.
-        //---------------------------------------------------------------------------------------------------------
-        notifyBoardMapper.updNotifyContentsReadCount(Long.parseLong(rq.getParameter("seqNo")));
-
-        //---------------------------------------------------------------------------------------------------------
-        // 현재글 정보를 조회한다.
-        //---------------------------------------------------------------------------------------------------------
-        List<Map<String, Object>> currentList = new ArrayList<Map<String, Object>>();
-        currentList =  notifyBoardMapper.getNotifyContents(Long.parseLong(rq.getParameter("seqNo")));
-
-        notifyResult.add(0, currentList);
-
-        //---------------------------------------------------------------------------------------------------------
-        // 이전글 정보를 조회한다.
-        //---------------------------------------------------------------------------------------------------------
-        List<Map<String, Object>> beforeList = new ArrayList<Map<String, Object>>();
-        beforeList = notifyBoardMapper.getNotifyTitleListBefore(Long.parseLong(rq.getParameter("seqNo")));
-        notifyResult.add(1, beforeList);
-
-        //---------------------------------------------------------------------------------------------------------
-        // 다음글 정보를 조회한다.
-        //---------------------------------------------------------------------------------------------------------
-        List<Map<String, Object>> afterList = new ArrayList<Map<String, Object>>();
-        afterList = notifyBoardMapper.getNotifyTitleListAfter(Long.parseLong(rq.getParameter("seqNo")));
-        notifyResult.add(2, afterList);
-
-        return notifyResult;
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     * 공지사항 내용 등록
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2022.01.22
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C] NOTIFY_BOARD
+     * 테이블 : [C] NOTICE_BOARD
      *         [R]
      *         [U]
      *         [D]
@@ -110,187 +31,200 @@ public class BoardContentsController {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @RequestMapping(value = "/notify/create", method = RequestMethod.GET)
-    public Long notify_create(HttpServletRequest rq) throws Exception {
-        NOTIFY_BOARD notifyBoard = new NOTIFY_BOARD();
+    @RequestMapping(value = "/notice/create", method = RequestMethod.GET)
+    public Long notice_create(HttpServletRequest rq) throws Exception {
+        NOTICE_BOARD noticeBoard = new NOTICE_BOARD();
 
-        notifyBoard.setClntId  (rq.getParameter("clntId"));
-        notifyBoard.setUseTp   (rq.getParameter("useTp"));
-        notifyBoard.setHead    (rq.getParameter("head"));
-        notifyBoard.setTitle   (rq.getParameter("title"));
-        notifyBoard.setContents(rq.getParameter("contents"));
+        //---------------------------------------------------------------------------------------------------------
+        // Max BodySeqNo를 조회한다.
+        //---------------------------------------------------------------------------------------------------------
+        Long lMaxBodySeqNo = noticeBoardMapper.getNoticeMaxBodySeqNo(
+                rq.getParameter("groupTp")
+        );
 
-        Long lCreateCount = notifyBoardMapper.insNotifyCreate(notifyBoard);
+        //---------------------------------------------------------------------------------------------------------
+        // DB를 생성한다.
+        //   - 본문은 COMMENT_SEQ_NO 값이 0으로 고정한다.
+        //---------------------------------------------------------------------------------------------------------
+        noticeBoard.setBodySeqNo   (lMaxBodySeqNo);
+        noticeBoard.setCommentSeqNo(0L);
+        noticeBoard.setClntId      (rq.getParameter("clntId"));
+        noticeBoard.setGroupTp     (rq.getParameter("groupTp"));
+        noticeBoard.setUseTp       ("R");
+        noticeBoard.setBodyTp      ("M");
+        noticeBoard.setHead        (rq.getParameter("head"));
+        noticeBoard.setTitle       (rq.getParameter("title"));
+        noticeBoard.setContents    (rq.getParameter("contents"));
+
+        Long lCreateCount = noticeBoardMapper.insNoticeCreate(noticeBoard);
         System.out.println("공지사항이 "+ lCreateCount +"건 등록되었습니다.");
 
-        return notifyBoard.getSeqNo();
+        return noticeBoard.getBodySeqNo();
     }
 
     /*------------------------------------------------------------------------------------------------------------------
-     * 공지사항 내용 삭제
+     * 게시판 내용 변경
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.01.25
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R]
+     *         [U] NOTICE_BOARD
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "/notice/update", method = RequestMethod.GET)
+    public Long notice_update(HttpServletRequest rq) throws Exception {
+        NOTICE_BOARD noticeBoard = new NOTICE_BOARD();
+
+        noticeBoard.setBodySeqNo(Long.parseLong(rq.getParameter("seqNo")));
+        noticeBoard.setClntId   (rq.getParameter("clntId"));
+        noticeBoard.setUseTp    (rq.getParameter("useTp"));
+        noticeBoard.setHead     (rq.getParameter("head"));
+        noticeBoard.setTitle    (rq.getParameter("title"));
+        noticeBoard.setContents (rq.getParameter("contents"));
+        noticeBoard.setGroupTp  (rq.getParameter("groupTp"));
+
+        System.out.println("공지사항이 변경 쓰따뚜~");
+        Long lCreateCount = noticeBoardMapper.updNoticeCreate(noticeBoard);
+        System.out.println("공지사항이 "+ lCreateCount +"건 변경되었습니다.");
+
+        return noticeBoard.getBodySeqNo();
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 게시판 내용 삭제
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2022.01.22
      * 작성자 : 박형준
      *------------------------------------------------------------------------------------------------------------------
      * 테이블 : [C]
      *         [R]
-     *         [U] NOTIFY_BOARD
+     *         [U] NOTICE_BOARD
      *         [D]
      *------------------------------------------------------------------------------------------------------------------
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @RequestMapping(value = "/notify/delete", method = RequestMethod.GET)
-    public boolean notify_delete(HttpServletRequest rq) throws Exception {
-        Long lReturn = notifyBoardMapper.delNotifyContents(Long.parseLong(rq.getParameter("seqNo")));
+    @RequestMapping(value = "/notice/delete", method = RequestMethod.GET)
+    public boolean notice_delete(HttpServletRequest rq) throws Exception {
+        Long lReturn = noticeBoardMapper.delNoticeContents(
+                Long.parseLong(rq.getParameter("seqNo"))
+                , rq.getParameter("groupTp"));
         return (lReturn > 0) ? true : false;
     }
 
     /*------------------------------------------------------------------------------------------------------------------
-     *  공지사항 DB 페이지 건수 조회
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2022.01.24
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R] CPA_DATA
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/GetNotifyForAllPageCount", method = RequestMethod.GET)
-    public Map<String, Object> GetNotifyForAllPageCount(HttpServletRequest params) throws Exception {
-        Map<String, Object> resultObj = new HashMap<String, Object>();
-
-        System.out.println("useTp : [" + params.getParameter("useTp") + "]");
-
-        Long rowTotalCount = notifyBoardMapper.getNotifyRowTotalCount(params.getParameter("useTp"));
-        resultObj.put("rowTotalCount", rowTotalCount);
-
-        return resultObj;
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     * 문의하기 목록 조회
+     * 게시판 목록 조회
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2022.01.21
      * 작성자 : 박형준
      *------------------------------------------------------------------------------------------------------------------
      * 테이블 : [C]
-     *         [R] ASK_BOARD
+     *         [R] NOTICE_BOARD
      *         [U]
      *         [D]
      *------------------------------------------------------------------------------------------------------------------
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @RequestMapping(value = "/ask/titlelist", method = RequestMethod.GET)
-    public List<Map<String, Object>> ask_titlelist(HttpServletRequest rq) throws Exception {
-        return askBoardMapper.getAskTitleList(
-                Long.parseLong(rq.getParameter("seqNo"))
+    @RequestMapping(value = "/notice/titlelist", method = RequestMethod.GET)
+    public ArrayList<List<Map<String, Object>>> notice_titlelist(HttpServletRequest rq) throws Exception {
+        ArrayList<List<Map<String, Object>>> noticeResult = new ArrayList<>();
+
+        List<Map<String, Object>> currentCount = noticeBoardMapper.getNoticeRowTotalCount(
+                  rq.getParameter("useTp")
+                , rq.getParameter("groupTp")
+        );
+        noticeResult.add(0, currentCount);
+
+        System.out.println("lCount : " + currentCount.toString());
+
+        List<Map<String, Object>> currentList = noticeBoardMapper.getNoticeTitleList(
+                  Long.parseLong(rq.getParameter("seqNo"))
+                , rq.getParameter("groupTp")
+                , rq.getParameter("useTp")
                 , (Long.parseLong(rq.getParameter("curPage").toString()) - 1) * Long.parseLong(rq.getParameter("rowCount").toString())
                 , Long.parseLong(rq.getParameter("rowCount")));
+        noticeResult.add(1, currentList);
+
+        return noticeResult;
     }
 
     /*------------------------------------------------------------------------------------------------------------------
-     * 문의하기 내용 조회
+     * 게시판 내용 조회
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2022.01.22
      * 작성자 : 박형준
      *------------------------------------------------------------------------------------------------------------------
      * 테이블 : [C]
-     *         [R] ASK_BOARD
+     *         [R] NOTICE_BOARD
      *         [U]
      *         [D]
      *------------------------------------------------------------------------------------------------------------------
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @RequestMapping(value = "/ask/contents", method = RequestMethod.GET)
-    public ArrayList<List<Map<String, Object>>> ask_contents(HttpServletRequest rq) throws Exception {
-        ArrayList<List<Map<String, Object>>> askResult = new ArrayList<>();
+    @RequestMapping(value = "/notice/contents", method = RequestMethod.GET)
+    public ArrayList<List<Map<String, Object>>> notice_contents(HttpServletRequest rq) throws Exception {
+        ArrayList<List<Map<String, Object>>> noticeResult = new ArrayList<>();
 
         //---------------------------------------------------------------------------------------------------------
         // 조회건수를 1증가시킨다.
         //---------------------------------------------------------------------------------------------------------
-        askBoardMapper.updAskContentsReadCount(Long.parseLong(rq.getParameter("seqNo")));
+        if( rq.getParameter("dataOnly").equals("N")) {
+            Long lbodySeqNo = noticeBoardMapper.updNoticeContentsReadCount(
+                    Long.parseLong(rq.getParameter("seqNo"))
+                    , rq.getParameter("groupTp")
+            );
+        }
 
         //---------------------------------------------------------------------------------------------------------
         // 현재글 정보를 조회한다.
         //---------------------------------------------------------------------------------------------------------
         List<Map<String, Object>> currentList = new ArrayList<Map<String, Object>>();
-        currentList =  askBoardMapper.getAskContents(Long.parseLong(rq.getParameter("seqNo")));
+        currentList =  noticeBoardMapper.getNoticeContents(
+                  Long.parseLong(rq.getParameter("seqNo"))
+                , rq.getParameter("groupTp")
+                , rq.getParameter("useTp")
+        );
+        noticeResult.add(0, currentList);
 
-        askResult.add(0, currentList);
-
-        //---------------------------------------------------------------------------------------------------------
-        // 이전글 정보를 조회한다.
-        //---------------------------------------------------------------------------------------------------------
         List<Map<String, Object>> beforeList = new ArrayList<Map<String, Object>>();
-        beforeList = askBoardMapper.getAskTitleListBefore(Long.parseLong(rq.getParameter("seqNo")));
-        askResult.add(1, beforeList);
+        if( rq.getParameter("dataOnly").equals("N")) {
+            //---------------------------------------------------------------------------------------------------------
+            // 이전글 정보를 조회한다.
+            //---------------------------------------------------------------------------------------------------------
+            beforeList = noticeBoardMapper.getNoticeTitleListBefore(
+                    Long.parseLong(rq.getParameter("seqNo"))
+                    , rq.getParameter("groupTp")
+                    , rq.getParameter("useTp")
+            );
+        }
+        noticeResult.add(1, beforeList);
 
-        //---------------------------------------------------------------------------------------------------------
-        // 다음글 정보를 조회한다.
-        //---------------------------------------------------------------------------------------------------------
         List<Map<String, Object>> afterList = new ArrayList<Map<String, Object>>();
-        afterList = askBoardMapper.getAskTitleListAfter(Long.parseLong(rq.getParameter("seqNo")));
-        askResult.add(2, afterList);
+        if( rq.getParameter("dataOnly").equals("N")) {
+            //---------------------------------------------------------------------------------------------------------
+            // 다음글 정보를 조회한다.
+            //---------------------------------------------------------------------------------------------------------
+            afterList = noticeBoardMapper.getNoticeTitleListAfter(
+                    Long.parseLong(rq.getParameter("seqNo"))
+                    , rq.getParameter("groupTp")
+                    , rq.getParameter("useTp")
+            );
+        }
 
-        return askResult;
+        noticeResult.add(2, afterList);
+
+        return noticeResult;
     }
 
     /*------------------------------------------------------------------------------------------------------------------
-     * 문의하기 내용 등록
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2022.01.22
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C] ASK_BOARD
-     *         [R]
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/ask/create", method = RequestMethod.GET)
-    public Long ask_create(HttpServletRequest rq) throws Exception {
-        ASK_BOARD askBoard = new ASK_BOARD();
-
-        askBoard.setClntId  (rq.getParameter("clntId"));
-        askBoard.setUseTp   (rq.getParameter("useTp"));
-        askBoard.setHead    (rq.getParameter("head"));
-        askBoard.setTitle   (rq.getParameter("title"));
-        askBoard.setContents(rq.getParameter("contents"));
-
-        return askBoardMapper.insAskCreate(askBoard);
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     * 문의하기 내용 삭제
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2022.01.22
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R]
-     *         [U] ASK_BOARD
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/ask/delete", method = RequestMethod.GET)
-    public boolean ask_delete(HttpServletRequest rq) throws Exception {
-        Long lReturn = askBoardMapper.delAskContents(Long.parseLong(rq.getParameter("seqNo")));
-        return (lReturn > 0) ? true : false;
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     *  문의하기 DB 페이지 건수 조회
+     *  게시판 DB 페이지 건수 조회
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2022.01.24
      * 작성자 : 박형준
@@ -303,156 +237,15 @@ public class BoardContentsController {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @RequestMapping(value = "/GetAskForAllPageCount", method = RequestMethod.GET)
-    public Map<String, Object> GetAskForAllPageCount(HttpServletRequest params) throws Exception {
+    @RequestMapping(value = "/GetNoticeForAllPageCount", method = RequestMethod.GET)
+    public Map<String, Object> GetNoticeForAllPageCount(HttpServletRequest rq) throws Exception {
         Map<String, Object> resultObj = new HashMap<String, Object>();
 
-        System.out.println("useTp : [" + params.getParameter("useTp") + "]");
+        System.out.println("useTp : [" + rq.getParameter("useTp") + "]");
 
-        Long rowTotalCount = askBoardMapper.getAskRowTotalCount(params.getParameter("useTp"));
-        resultObj.put("rowTotalCount", rowTotalCount);
-
-        return resultObj;
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     * 개선요청하기 목록 조회
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2022.01.21
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R] INPROVE_BOARD
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/inprove/titlelist", method = RequestMethod.GET)
-    public List<Map<String, Object>> inprove_titlelist(HttpServletRequest rq) throws Exception {
-        return inproveBoardMapper.getInproveTitleList(
-                Long.parseLong(rq.getParameter("seqNo"))
-                , (Long.parseLong(rq.getParameter("curPage").toString()) - 1) * Long.parseLong(rq.getParameter("rowCount").toString())
-                , Long.parseLong(rq.getParameter("rowCount")));
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     * 개선요청하기 내용 조회
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2022.01.22
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R] INPROVE_BOARD
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/inprove/contents", method = RequestMethod.GET)
-    public ArrayList<List<Map<String, Object>>> inprove_contents(HttpServletRequest rq) throws Exception {
-        ArrayList<List<Map<String, Object>>> inproveResult = new ArrayList<>();
-
-        //---------------------------------------------------------------------------------------------------------
-        // 조회건수를 1증가시킨다.
-        //---------------------------------------------------------------------------------------------------------
-        inproveBoardMapper.updInproveContentsReadCount(Long.parseLong(rq.getParameter("seqNo")));
-
-        //---------------------------------------------------------------------------------------------------------
-        // 현재글 정보를 조회한다.
-        //---------------------------------------------------------------------------------------------------------
-        List<Map<String, Object>> currentList = new ArrayList<Map<String, Object>>();
-        currentList =  inproveBoardMapper.getInproveContents(Long.parseLong(rq.getParameter("seqNo")));
-
-        inproveResult.add(0, currentList);
-
-        //---------------------------------------------------------------------------------------------------------
-        // 이전글 정보를 조회한다.
-        //---------------------------------------------------------------------------------------------------------
-        List<Map<String, Object>> beforeList = new ArrayList<Map<String, Object>>();
-        beforeList = inproveBoardMapper.getInproveTitleListBefore(Long.parseLong(rq.getParameter("seqNo")));
-        inproveResult.add(1, beforeList);
-
-        //---------------------------------------------------------------------------------------------------------
-        // 다음글 정보를 조회한다.
-        //---------------------------------------------------------------------------------------------------------
-        List<Map<String, Object>> afterList = new ArrayList<Map<String, Object>>();
-        afterList = inproveBoardMapper.getInproveTitleListAfter(Long.parseLong(rq.getParameter("seqNo")));
-        inproveResult.add(2, afterList);
-
-        return inproveResult;
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     * 개선요청하기 내용 등록
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2022.01.22
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C] INPROVE_BOARD
-     *         [R]
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/inprove/create", method = RequestMethod.GET)
-    public Long inprove_create(HttpServletRequest rq) throws Exception {
-        INPROVE_BOARD askBoard = new INPROVE_BOARD();
-
-        askBoard.setClntId  (rq.getParameter("clntId"));
-        askBoard.setUseTp   (rq.getParameter("useTp"));
-        askBoard.setHead    (rq.getParameter("head"));
-        askBoard.setTitle   (rq.getParameter("title"));
-        askBoard.setContents(rq.getParameter("contents"));
-
-        return inproveBoardMapper.insInproveCreate(askBoard);
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     * 개선요청하기 내용 삭제
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2022.01.22
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R]
-     *         [U] INPROVE_BOARD
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/inprove/delete", method = RequestMethod.GET)
-    public boolean inprove_delete(HttpServletRequest rq) throws Exception {
-        Long lReturn = inproveBoardMapper.delInproveContents(Long.parseLong(rq.getParameter("seqNo")));
-        return (lReturn > 0) ? true : false;
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------
-     *  개선요청하기 DB 페이지 건수 조회
-     *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2022.01.24
-     * 작성자 : 박형준
-     *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C]
-     *         [R] CPA_DATA
-     *         [U]
-     *         [D]
-     *------------------------------------------------------------------------------------------------------------------
-     * 코멘트 : 없음.
-     -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "/GetInproveForAllPageCount", method = RequestMethod.GET)
-    public Map<String, Object> GetInproveForAllPageCount(HttpServletRequest params) throws Exception {
-        Map<String, Object> resultObj = new HashMap<String, Object>();
-
-        System.out.println("useTp : [" + params.getParameter("useTp") + "]");
-
-        Long rowTotalCount = inproveBoardMapper.getInproveRowTotalCount(params.getParameter("useTp"));
+        List<Map<String, Object>> rowTotalCount = noticeBoardMapper.getNoticeRowTotalCount(
+                rq.getParameter("useTp")
+              , rq.getParameter("groupTp"));
         resultObj.put("rowTotalCount", rowTotalCount);
 
         return resultObj;

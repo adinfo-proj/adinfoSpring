@@ -1,10 +1,14 @@
 package com.ad.adinfo.Controller;
 
+import com.ad.adinfo.Domain.CAMPAIGN_MASTER;
 import com.ad.adinfo.Domain.TB_LANDING_PAGE;
+import com.ad.adinfo.Mapper.CampaignMasterMapper;
 import com.ad.adinfo.Mapper.LandingPageMapper;
+import com.ad.adinfo.Service.AdInfoUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -22,7 +26,9 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class LandingPageController {
+    private final AdInfoUtil  adInfoUtil;
     private final LandingPageMapper landingPageMapper;
+    private final CampaignMasterMapper campaignMasterMapper;
 
     /*------------------------------------------------------------------------------------------------------------------
      * 신규 랜딩페이지 등록
@@ -49,8 +55,7 @@ public class LandingPageController {
         Map<String, Object> resultObj = new HashMap<String, Object>();
 
         System.out.println("------------------ newlandingpage Start ----------------------------------");
-
-        System.out.println("params : [" + params.toString() + "]");
+        System.out.println("입력값 : [" + params.toString() + "]");
 
         TB_LANDING_PAGE tbLandingPage = new TB_LANDING_PAGE();
 
@@ -59,375 +64,650 @@ public class LandingPageController {
         ArrayList   formArr     = new ArrayList();
         ArrayList   inputArr    = new ArrayList();
 
-        Integer contentCount = 0;
-        Integer imgCount     = 0;
-        Integer textCount    = 0;
-        Integer formCount    = 0;
+        Integer     imgCount    = 0;
+        Integer     textCount   = 0;
+        Integer     formCount   = 0;
+
+        String      randChar    = "";
 
         contentArr  = (ArrayList)params.get("formType");
         textArr     = (ArrayList)params.get("textData");
         formArr     = (ArrayList)params.get("formData");
 
-        Map<String, Object> inputFormArr = new HashMap<String, Object>();
-        if( formArr.isEmpty() == false ) {
-            inputFormArr = (Map<String, Object>)formArr.get(0);
-            inputArr     = (ArrayList)inputFormArr.get("inputBox");
-        }
-
-        //---------------------------------------------------------------------------------------------------------
-        // 랜딩페이지 테이블 저장용 버퍼
-        //---------------------------------------------------------------------------------------------------------
-        tbLandingPage.setMbId(Long.parseLong(params.get("mbId").toString()));
-        tbLandingPage.setAdId(Long.parseLong(params.get("adId").toString()));
-        tbLandingPage.setMkId(Long.parseLong(params.get("mkId").toString()));
-        tbLandingPage.setCaId(Long.parseLong(params.get("caId").toString()));
-
-        //---------------------------------------------------------------------------------------------------------
-        // pgId는 최종 정보로 처리하고 최초이면 10,000번부터 시작하자!
-        //---------------------------------------------------------------------------------------------------------
-        Long lNewPgId = landingPageMapper.selLandingPageMaxCaId(
-                  Long.parseLong(params.get("mbId").toString())
-                , Long.parseLong(params.get("adId").toString())
-                , Long.parseLong(params.get("mkId").toString())
-                , Long.parseLong(params.get("caId").toString()) );
-        tbLandingPage.setPgId(lNewPgId + 1);
-        tbLandingPage.setUseTp("0");
-
-        //---------------------------------------------------------------------------------------------------------
-        // 동일한 랜딩페이지명이 있으면 등록이 불가하다.
-        //---------------------------------------------------------------------------------------------------------
-        Long lDupCount = landingPageMapper.selLandingPageDupName(
-                  Long.parseLong(params.get("mbId").toString())
-                , Long.parseLong(params.get("adId").toString())
-                , Long.parseLong(params.get("mkId").toString())
-                , Long.parseLong(params.get("caId").toString())
-                ,                params.get("landingNm").toString());
-
-        if( lDupCount > 0) {
-            resultObj.put("status", "failuer");
-            resultObj.put("comment", "동일한 랜딩페이지명이 존재합니다.");
-            return resultObj;
-        }
-        else {
-            tbLandingPage.setName(params.get("landingNm").toString());
-            System.out.println("------------------ Step 04");
-        }
-
-
-        //---------------------------------------------------------------------------------------------------------
-        // 비지니스 로직 Start
-        //---------------------------------------------------------------------------------------------------------
-        HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
-
-        String clientIp = request.getHeader("X-Forwarded-For");
-        if (StringUtils.isEmpty(clientIp)|| "unknown".equalsIgnoreCase(clientIp)) {
-            //Proxy 서버인 경우
-            clientIp = request.getHeader("Proxy-Client-IP");
-        }
-        if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
-            //Weblogic 서버인 경우
-            clientIp = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
-            clientIp = request.getHeader("HTTP_CLIENT_IP");
-        }
-        if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
-            clientIp = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
-            clientIp = request.getRemoteAddr();
-        }
-
-        tbLandingPage.setRegClntId(params.get("clntId").toString());
-        tbLandingPage.setRegIp(clientIp);
-
-        System.out.println("params       : [" + params + "]");
-        //System.out.println("upFile       : [" + upFile.get(0).getSize() + "]");
-
-        //---------------------------------------------------------------------------------------------------------
-        // php 파일을 생성한다.
-        //   - 생성규칙 : "http://landing.dbmaster.co.kr/mb_id/caid/pg_id?....
-        //---------------------------------------------------------------------------------------------------------
-        String      indexPath = "";
-        String      indexFullFileName = "";
-        String      phpTag    = "";
-
-        // Directory Create
-        indexPath = "/WebFile/ad"
-                  + "/" + params.get("mbId")
-                  + "/" + params.get("adId")
-                  + "/" + params.get("caId");
-
-        // Main Directory
-        Path    mainPath = Paths.get(indexPath);
-        Files.createDirectories(mainPath);
-
-        // Image Directory
-        Path    imgPath = Paths.get(indexPath + "/img");
-
-        System.out.println("imgPath : " + imgPath.toString());
-        Files.createDirectories(imgPath);
-
-        indexFullFileName = indexPath + "/index.php";
-
-        OutputStream file = new FileOutputStream(indexFullFileName);
-
-        //---------------------------------------------------------------------------------------------------------
-        // PHP 기본 추가
-        //---------------------------------------------------------------------------------------------------------
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("/ad/top_php.php"), "UTF-8"));
-
-        String strBuf;
-        Integer     nRows = 1;
-        while ((strBuf = reader.readLine()) != null) {
-            phpTag += strBuf + "\n";
-
-            if(nRows == 84)
-                phpTag += params.get("landingNm") + "\n";
-
-            nRows++;
-        }
-        reader.close();
-
-        phpTag += "  <div class='landPrev'>";
-
-        //---------------------------------------------------------------------------------------------------------
-        // 헤더 추가
-        //---------------------------------------------------------------------------------------------------------
-        for(int i = 0 ; i < contentArr.size(); i++) {
-            switch(i) {
-                case 0 : tbLandingPage.setType01(contentArr.get(i).toString()); break;
-                case 1 : tbLandingPage.setType02(contentArr.get(i).toString()); break;
-                case 2 : tbLandingPage.setType03(contentArr.get(i).toString()); break;
-                case 3 : tbLandingPage.setType04(contentArr.get(i).toString()); break;
-                case 4 : tbLandingPage.setType05(contentArr.get(i).toString()); break;
-                case 5 : tbLandingPage.setType06(contentArr.get(i).toString()); break;
-                case 6 : tbLandingPage.setType07(contentArr.get(i).toString()); break;
-                case 7 : tbLandingPage.setType08(contentArr.get(i).toString()); break;
-                case 8 : tbLandingPage.setType09(contentArr.get(i).toString()); break;
-                case 9 : tbLandingPage.setType10(contentArr.get(i).toString()); break;
+        try {
+            Map<String, Object> inputFormArr = new HashMap<String, Object>();
+            if( formArr.isEmpty() == false ) {
+                inputFormArr = (Map<String, Object>)formArr.get(0);
+                inputArr     = (ArrayList)inputFormArr.get("inputBox");
             }
 
-            //-------------------------------------------------------------------
-            // 이미지 추가
-            //-------------------------------------------------------------------
-            if( contentArr.get(i).equals("01")) {
+            //---------------------------------------------------------------------------------------------------------
+            // 랜딩페이지 테이블 저장용 버퍼
+            //---------------------------------------------------------------------------------------------------------
+            tbLandingPage.setMbId(Long.parseLong(params.get("mbId").toString()));
+            tbLandingPage.setAdId(Long.parseLong(params.get("adId").toString()));
+            tbLandingPage.setMkId(Long.parseLong(params.get("mkId").toString()));
+            tbLandingPage.setCaId(Long.parseLong(params.get("caId").toString()));
 
-                System.out.println("upFile       : [" + upFile.get(imgCount).getOriginalFilename() + "]");
+            //---------------------------------------------------------------------------------------------------------
+            // pgId는 최종 정보로 처리하고 최초이면 10,000번부터 시작하자!
+            //---------------------------------------------------------------------------------------------------------
+            Long lNewPgId = landingPageMapper.selLandingPageMaxCaId(
+                      Long.parseLong(params.get("mbId").toString())
+                    , Long.parseLong(params.get("adId").toString())
+                    , Long.parseLong(params.get("mkId").toString())
+                    , Long.parseLong(params.get("caId").toString()) ) + 1;
+            tbLandingPage.setPgId(lNewPgId);
+            tbLandingPage.setUseTp("R");
 
-//                UUID uuid                = UUID.randomUUID();
-                String ImgExtention = FilenameUtils.getExtension(upFile.get(imgCount).getOriginalFilename());
-//
-//                //-------------------------------------------------------------------
-//                // 업로드되는 파일이 있는 경우 파일을 저장한다.
-//                //   - 파일명이 중복되는 경우가 분명 발생하므로 UUID를 통해 임의 파일명을 만든다.
-//                //-------------------------------------------------------------------
-//                // 디렉토리 + 임의값 + .확장자
-                //String srcFullName = "D:/WebFile/MB_001/banner/" + upFile.get(imgCount).getOriginalFilename() + "." + ImgExtention;
-                String srcFullName = indexPath + "/img/" + upFile.get(imgCount).getOriginalFilename();
+            //---------------------------------------------------------------------------------------------------------
+            // 동일한 랜딩페이지명이 있으면 등록이 불가하다.
+            //---------------------------------------------------------------------------------------------------------
+            Long lDupCount = landingPageMapper.selLandingPageDupName(
+                      Long.parseLong(params.get("mbId").toString())
+                    , Long.parseLong(params.get("adId").toString())
+                    , Long.parseLong(params.get("mkId").toString())
+                    , Long.parseLong(params.get("caId").toString())
+                    ,                params.get("landingNm").toString());
 
-                upFile.get(imgCount).transferTo(new File(srcFullName));
+            if( lDupCount > 0) {
+                resultObj.put("status", "failuer");
+                resultObj.put("comment", "동일한 랜딩페이지명이 존재합니다.");
+                return resultObj;
+            }
+            else {
+                tbLandingPage.setName(params.get("landingNm").toString());
+            }
 
-                phpTag += "\n    <div>";
-                phpTag += "\n      <img src='" + "./img/"+ upFile.get(imgCount).getOriginalFilename() + "'></img>";
-                phpTag += "\n    </div>";
-                phpTag += "\n";
+            //---------------------------------------------------------------------------------------------------------
+            // 캠페인명을 조회한다.
+            //---------------------------------------------------------------------------------------------------------
+            String adName = campaignMasterMapper.getCampaignMasterByMbAdCa(
+                      Long.parseLong(params.get("mbId").toString())
+                    , Long.parseLong(params.get("adId").toString())
+                    , Long.parseLong(params.get("caId").toString())
+            );
 
+            System.out.println("------------------ Step F");
+
+            if( adName.isEmpty() || (adName == null) ) {
+                resultObj.put("status", "failuer");
+                resultObj.put("comment", "등록된 캠페인정보가 없습니다.");
+                return resultObj;
+            }
+            else {
+                tbLandingPage.setAdName(adName);
+            }
+
+            //---------------------------------------------------------------------------------------------------------
+            // 비지니스 로직 Start
+            //---------------------------------------------------------------------------------------------------------
+            HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
+
+            String clientIp = request.getHeader("X-Forwarded-For");
+            if (StringUtils.isEmpty(clientIp)|| "unknown".equalsIgnoreCase(clientIp)) {
+                //Proxy 서버인 경우
+                clientIp = request.getHeader("Proxy-Client-IP");
+            }
+            if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                //Weblogic 서버인 경우
+                clientIp = request.getHeader("WL-Proxy-Client-IP");
+            }
+            if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                clientIp = request.getHeader("HTTP_CLIENT_IP");
+            }
+            if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                clientIp = request.getHeader("HTTP_X_FORWARDED_FOR");
+            }
+            if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                clientIp = request.getRemoteAddr();
+            }
+
+            tbLandingPage.setRegClntId(params.get("clntId").toString());
+            tbLandingPage.setRegIp(clientIp);
+
+            //System.out.println("upFile       : [" + upFile.get(0).getSize() + "]");
+
+            //---------------------------------------------------------------------------------------------------------
+            // URL주소를 생성 후 사용가능한지 확인한다.
+            //---------------------------------------------------------------------------------------------------------
+            Long        dupUrl = 0L;
+            do {
+                randChar = "";
+                Random random = new Random();
+                randChar = random.ints(58,123)
+                        .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                        .limit(10)
+                        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                        .toString();
+                System.out.println("------------------ Step 055 : " + randChar);
+
+                dupUrl = landingPageMapper.selLandingPageDupUrl(randChar);
+            } while(dupUrl > 0);
+
+            tbLandingPage.setUrl(randChar);
+
+            //---------------------------------------------------------------------------------------------------------
+            // php 파일을 생성한다.
+            //   - 생성규칙 : "http://landing.dbmaster.co.kr/mb_id/caid/pg_id?....
+            //---------------------------------------------------------------------------------------------------------
+            String      indexPath = "";
+            String      indexFullFileName = "";
+            String      phpTag    = "";
+
+            // Directory Create
+            // RandamChar() 함수로 생성한다.
+            indexPath = "/WebFile/ad/" + randChar;
+            System.out.println("indexPath : " + indexPath);
+
+            // Main Directory
+            Path    mainPath = Paths.get(indexPath);
+            Files.createDirectories(mainPath);
+
+            // Image Directory
+            Path    imgPath = Paths.get(indexPath + "/img");
+            Files.createDirectories(imgPath);
+            System.out.println("imgPath : " + imgPath.toString());
+
+            // CSS/JS/icomoon Directory Copy
+            File    orgFolder = new File("/ad/DecoFile");
+            File    trgFolder = new File(indexPath);
+            adInfoUtil.FolderCopy(orgFolder, trgFolder);
+
+            indexFullFileName = indexPath + "/index.php";
+
+            OutputStream file = new FileOutputStream(indexFullFileName);
+
+            //---------------------------------------------------------------------------------------------------------
+            // PHP 기본 추가
+            //---------------------------------------------------------------------------------------------------------
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("/ad/top_php.php"), "UTF-8"));
+
+            String strBuf;
+            Integer     nRows = 1;
+            while ((strBuf = reader.readLine()) != null) {
+                phpTag += strBuf + "\n";
+
+                if(nRows == 13) {
+                    phpTag += "$pgUrl = " + randChar + ";\n";
+                    phpTag += "$mbId   = " + params.get("mbId") + ";\n";
+                    phpTag += "$adId   = " + params.get("mbId") + ";\n";
+                    phpTag += "$mkId   = " + params.get("mbId") + ";\n";
+                    phpTag += "$caId   = " + params.get("caId") + ";\n";
+                    phpTag += "$pgId   = " + lNewPgId + ";\n";
+                }
+
+                nRows++;
+            }
+            reader.close();
+
+            //---------------------------------------------------------------------------------------------------------
+            // 헤더안에 valid function 추가
+            //---------------------------------------------------------------------------------------------------------
+            phpTag += "    <script type='text/javascript'>\n";
+            phpTag += "      function chk_validate(e) {\n";
+            phpTag += "        if(e.agree01.checked == false) {\n";
+            phpTag += "          alert('개인정보 수집에 동의해주세요')\n";
+            phpTag += "          e.agree01.focus();\n";
+            phpTag += "          return false;\n";
+            phpTag += "        }\n";
+            phpTag += "        if(e.value1.value == '') {\n";
+            phpTag += "          alert('이름을 입력해주세요');\n";
+            phpTag += "          e.value1.focus();\n";
+            phpTag += "          return false;\n";
+            phpTag += "        }\n";
+            phpTag += "        if(e.value2.value == '') {\n";
+            phpTag += "          alert('연락처를 입력해주세요');\n";
+            phpTag += "          e.value2.focus();\n";
+            phpTag += "          return false;\n";
+            phpTag += "        }\n";
+
+            //---------------------------------------------------------------------------------------------------------
+            // 헤더 추가
+            //---------------------------------------------------------------------------------------------------------
+            for(int j = 0 ; j < inputArr.size() ; j++) {
+                Map<String, Object> arrGab = new HashMap<String, Object>();
+                arrGab = (Map<String, Object>)inputArr.get(j);
+
+                //-------------------------------------------------------------------
+                // valid 체크를 위한 문자열을 만든다.
+                //-------------------------------------------------------------------
+                String nameValue = "value"  + (j + 3);
+
+                //-------------------------------------------------------------------
+                // 입력항목 추가만 되어있고 입력정보가 없는 경우
+                //-------------------------------------------------------------------
+                if(arrGab.get("values") == null) {
+                    System.out.println("arrGab : NULL");
+                    continue;
+                }
+                //-------------------------------------------------------------------
+                // 텍스트 박스
+                //-------------------------------------------------------------------
+                if(arrGab.get("values").equals("textForm")) {
+                    String   textNames = arrGab.get("names").toString();
+
+                    phpTag += "        if(e." + nameValue + ".value == '') {\n";
+                    phpTag += "          alert('" + textNames + " 정보를 입력해 주세요.');\n";
+                    phpTag += "          e." +  nameValue + ".focus();\n";
+                    phpTag += "          return false;\n";
+                    phpTag += "        }\n";
+
+                }
+                //-------------------------------------------------------------------
+                // 라디오 박스
+                //-------------------------------------------------------------------
+                //else if(arrGab.get("values").equals("radioForm")) {
+                //    String[] strArr    = arrGab.get("lab").toString().split(",");
+                //    String   formNames = arrGab.get("names").toString();
+                //
+                //    phpTag += "\n        <div class='formInput'>";
+                //    phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                //
+                //    for(int k = 0 ; k < strArr.length; k++) {
+                //        phpTag += "\n          <input type='radio' name='" + nameValue + "' id='" + strArr[k] + "'>";
+                //        phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
+                //    }
+                //    phpTag += "\n        </div>";
+                //}
+                //-------------------------------------------------------------------
+                // 체크 박스
+                //-------------------------------------------------------------------
+                //else if(arrGab.get("values").equals("checkForm")) {
+                //    String[] strArr    = arrGab.get("lab").toString().split(",");
+                //    String   formNames = arrGab.get("names").toString();
+                //
+                //    phpTag += "\n        <div class='formInput'>";
+                //    phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                //
+                //    for(int k = 0 ; k < strArr.length; k++) {
+                //        phpTag += "\n          <input type='checkbox' name='" + nameValue + "' id='" + strArr[k] + "'>";
+                //        phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
+                //    }
+                //    phpTag += "\n        </div>";
+                //}
+                //-------------------------------------------------------------------
+                // 셀렉트 박스
+                //-------------------------------------------------------------------
+                //else { // if(arrGab.get("values").equals("selForm")) {
+                //    String[] strArr    = arrGab.get("lab").toString().split(",");
+                //    String   formNames = arrGab.get("names").toString();
+                //
+                //    phpTag += "\n        <div class='formInput'>";
+                //    phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                //    phpTag += "\n          <select name='" + nameValue + "'>";
+                //
+                //    for(int k = 0 ; k < strArr.length; k++) {
+                //        phpTag += "\n          <option value='" + strArr[k] + "'>" + strArr[k] + "</option>";
+                //    }
+                //    phpTag += "\n          </select>";
+                //    phpTag += "\n        </div>";
+                //}
+            }
+
+            phpTag += "        if(confirm('상담을 신청하시겠습니까?') == false) {\n";
+            phpTag += "          return false;\n";
+            phpTag += "        }\n";
+            phpTag += "        e.action = './submit.php';\n";
+            phpTag += "      }\n";
+            phpTag += "    </script>\n";
+            phpTag += "\n  <title>" + params.get("landingNm") + "</title>";
+            phpTag += "\n</head>";
+            phpTag += "\n<body>";
+            phpTag += "\n  <div class='landPrev'>";
+
+            //---------------------------------------------------------------------------------------------------------
+            // 헤더안에 valid function 추가
+            //---------------------------------------------------------------------------------------------------------
+
+            //---------------------------------------------------------------------------------------------------------
+            // 헤더 추가
+            //---------------------------------------------------------------------------------------------------------
+            for(int i = 0 ; i < contentArr.size(); i++) {
                 switch(i) {
-                    case 0 : tbLandingPage.setValue01(srcFullName); break;
-                    case 1 : tbLandingPage.setValue02(srcFullName); break;
-                    case 2 : tbLandingPage.setValue03(srcFullName); break;
-                    case 3 : tbLandingPage.setValue04(srcFullName); break;
-                    case 4 : tbLandingPage.setValue05(srcFullName); break;
-                    case 5 : tbLandingPage.setValue06(srcFullName); break;
-                    case 6 : tbLandingPage.setValue07(srcFullName); break;
-                    case 7 : tbLandingPage.setValue08(srcFullName); break;
-                    case 8 : tbLandingPage.setValue09(srcFullName); break;
-                    case 9 : tbLandingPage.setValue10(srcFullName); break;
+                    case 0 : tbLandingPage.setType01(contentArr.get(i).toString()); break;
+                    case 1 : tbLandingPage.setType02(contentArr.get(i).toString()); break;
+                    case 2 : tbLandingPage.setType03(contentArr.get(i).toString()); break;
+                    case 3 : tbLandingPage.setType04(contentArr.get(i).toString()); break;
+                    case 4 : tbLandingPage.setType05(contentArr.get(i).toString()); break;
+                    case 5 : tbLandingPage.setType06(contentArr.get(i).toString()); break;
+                    case 6 : tbLandingPage.setType07(contentArr.get(i).toString()); break;
+                    case 7 : tbLandingPage.setType08(contentArr.get(i).toString()); break;
+                    case 8 : tbLandingPage.setType09(contentArr.get(i).toString()); break;
+                    case 9 : tbLandingPage.setType10(contentArr.get(i).toString()); break;
                 }
 
-                imgCount++;
-            }
-            //-------------------------------------------------------------------
-            // 텍스트 추가
-            //-------------------------------------------------------------------
-            else if( contentArr.get(i).equals("02")) {
-                System.out.println("text.get       : [" + textArr.get(textCount) + "]");
-                phpTag += "\n    <div>";
-                phpTag += "\n      " + textArr.get(textCount).toString();
-                phpTag += "\n    </div>";
-                phpTag += "\n";
+                //-------------------------------------------------------------------
+                // 이미지 추가
+                //-------------------------------------------------------------------
+                if( contentArr.get(i).equals("01")) {
 
-                switch(i) {
-                    case 0 : tbLandingPage.setValue01(textArr.get(textCount).toString()); break;
-                    case 1 : tbLandingPage.setValue02(textArr.get(textCount).toString()); break;
-                    case 2 : tbLandingPage.setValue03(textArr.get(textCount).toString()); break;
-                    case 3 : tbLandingPage.setValue04(textArr.get(textCount).toString()); break;
-                    case 4 : tbLandingPage.setValue05(textArr.get(textCount).toString()); break;
-                    case 5 : tbLandingPage.setValue06(textArr.get(textCount).toString()); break;
-                    case 6 : tbLandingPage.setValue07(textArr.get(textCount).toString()); break;
-                    case 7 : tbLandingPage.setValue08(textArr.get(textCount).toString()); break;
-                    case 8 : tbLandingPage.setValue09(textArr.get(textCount).toString()); break;
-                    case 9 : tbLandingPage.setValue10(textArr.get(textCount).toString()); break;
+                    System.out.println("upFile       : [" + upFile.get(imgCount).getOriginalFilename() + "]");
+
+    //                UUID uuid                = UUID.randomUUID();
+                    String ImgExtention = FilenameUtils.getExtension(upFile.get(imgCount).getOriginalFilename());
+    //
+    //                //-------------------------------------------------------------------
+    //                // 업로드되는 파일이 있는 경우 파일을 저장한다.
+    //                //   - 파일명이 중복되는 경우가 분명 발생하므로 UUID를 통해 임의 파일명을 만든다.
+    //                //-------------------------------------------------------------------
+    //                // 디렉토리 + 임의값 + .확장자
+                    //String srcFullName = "D:/WebFile/MB_001/banner/" + upFile.get(imgCount).getOriginalFilename() + "." + ImgExtention;
+                    String srcFullName = indexPath + "/img/" + upFile.get(imgCount).getOriginalFilename();
+
+                    upFile.get(imgCount).transferTo(new File(srcFullName));
+
+                    phpTag += "\n    <div>";
+                    phpTag += "\n      <img src='" + "./img/"+ upFile.get(imgCount).getOriginalFilename() + "'></img>";
+                    phpTag += "\n    </div>";
+                    phpTag += "\n";
+
+                    switch(i) {
+                        case 0 : tbLandingPage.setValue01(srcFullName); break;
+                        case 1 : tbLandingPage.setValue02(srcFullName); break;
+                        case 2 : tbLandingPage.setValue03(srcFullName); break;
+                        case 3 : tbLandingPage.setValue04(srcFullName); break;
+                        case 4 : tbLandingPage.setValue05(srcFullName); break;
+                        case 5 : tbLandingPage.setValue06(srcFullName); break;
+                        case 6 : tbLandingPage.setValue07(srcFullName); break;
+                        case 7 : tbLandingPage.setValue08(srcFullName); break;
+                        case 8 : tbLandingPage.setValue09(srcFullName); break;
+                        case 9 : tbLandingPage.setValue10(srcFullName); break;
+                    }
+
+                    imgCount++;
                 }
+                //-------------------------------------------------------------------
+                // 텍스트 추가
+                //-------------------------------------------------------------------
+                else if( contentArr.get(i).equals("02")) {
+                    System.out.println("text.get       : [" + textArr.get(textCount) + "]");
+                    phpTag += "\n    <div>";
+                    phpTag += "\n      " + textArr.get(textCount).toString();
+                    phpTag += "\n    </div>";
+                    phpTag += "\n";
 
-                textCount++;
-            }
-            //-------------------------------------------------------------------
-            // 폼 추가
-            //-------------------------------------------------------------------
-            else if( contentArr.get(i).equals("03")) {
-                Map<String, Object> resultMap = new HashMap<String, Object>();
-                resultMap    = (Map<String, Object>)formArr.get(formCount);
-
-                phpTag += "\n    <div class='formPrev'>";
-                phpTag += "\n      <div class='priBox'>";
-                phpTag += "\n        <h6>" + resultMap.get("priNm") + "</h6>";
-                phpTag += "\n        <div>" + resultMap.get("priCon") + "</div>";
-                phpTag += "\n        <button>확인</button>";
-                phpTag += "\n      </div>";
-                phpTag += "\n      <form method='post'>";
-                phpTag += "\n        <input type='hidden' name='mbId' value='<?php echo $mbId?>'>";
-                phpTag += "\n        <input type='hidden' name='adId' value='<?php echo $adId?>'>";
-                phpTag += "\n        <input type='hidden' name='caId' value='<?php echo $caId?>'>";
-                phpTag += "\n        <input type='hidden' name='mkId' value='<?php echo $mkId?>'>";
-                phpTag += "\n        <input type='hidden' name='pgId' value='<?php echo $pgId?>'>";
-                phpTag += "\n        <input type='text' name='value01' placeholder='이름을 입력하세요.'>";
-                phpTag += "\n        <input type='text' name='value02' placeholder='연락처 '-'없이 입력해주세요.'>";
-                phpTag += "\n";
-
-                for(int j = 0 ; j < inputArr.size() ; j++) {
-                    Map<String, Object> arrGab = new HashMap<String, Object>();
-                    arrGab = (Map<String, Object>)inputArr.get(j);
-
-                    //System.out.println("arrGab : " + arrGab.toString());
-
-                    //-------------------------------------------------------------------
-                    // html 테그중 name을 설정하기 위해 문자열을 만든다.
-                    //-------------------------------------------------------------------
-                    String namevalue = "";
-                    if(j == 9) {
-                        namevalue = "value"  + (j + 3);
-                    }
-                    else {
-                        namevalue = "value0" + (j + 3);
+                    switch(i) {
+                        case 0 : tbLandingPage.setValue01(textArr.get(textCount).toString()); break;
+                        case 1 : tbLandingPage.setValue02(textArr.get(textCount).toString()); break;
+                        case 2 : tbLandingPage.setValue03(textArr.get(textCount).toString()); break;
+                        case 3 : tbLandingPage.setValue04(textArr.get(textCount).toString()); break;
+                        case 4 : tbLandingPage.setValue05(textArr.get(textCount).toString()); break;
+                        case 5 : tbLandingPage.setValue06(textArr.get(textCount).toString()); break;
+                        case 6 : tbLandingPage.setValue07(textArr.get(textCount).toString()); break;
+                        case 7 : tbLandingPage.setValue08(textArr.get(textCount).toString()); break;
+                        case 8 : tbLandingPage.setValue09(textArr.get(textCount).toString()); break;
+                        case 9 : tbLandingPage.setValue10(textArr.get(textCount).toString()); break;
                     }
 
-                    //-------------------------------------------------------------------
-                    // 입력항목 추가만 되어있고 입력정보가 없는 경우
-                    //-------------------------------------------------------------------
-                    if(arrGab.get("values") == null) {
-                        System.out.println("arrGab : NULL");
-                        continue;
-                    }
-                    //-------------------------------------------------------------------
-                    // 텍스트 박스
-                    //-------------------------------------------------------------------
-                    if(arrGab.get("values").equals("textForm")) {
-                        phpTag += "\n        <input type='text' name='" + namevalue + "' placeholder='" + arrGab.get("names") + "'>";
-                    }
-                    //-------------------------------------------------------------------
-                    // 라디오 박스
-                    //-------------------------------------------------------------------
-                    else if(arrGab.get("values").equals("radioForm")) {
-                        String[] strArr    = arrGab.get("lab").toString().split(",");
-                        String   formNames = arrGab.get("names").toString();
+                    textCount++;
+                }
+                //-------------------------------------------------------------------
+                // 폼 추가
+                //-------------------------------------------------------------------
+                else if( contentArr.get(i).equals("03")) {
+                    Map<String, Object> resultMap = new HashMap<String, Object>();
+                    resultMap    = (Map<String, Object>)formArr.get(formCount);
+                    phpTag += "\n    <div class='formPrev'>";
+                    phpTag += "\n      <form method='post' onsubmit='return chk_validate(this)'>";
+                    phpTag += "\n        <input type='hidden' name='mbId'          value='<?php echo $mbId?>'>";
+                    phpTag += "\n        <input type='hidden' name='adId'          value='<?php echo $adId?>'>";
+                    phpTag += "\n        <input type='hidden' name='caId'          value='<?php echo $caId?>'>";
+                    phpTag += "\n        <input type='hidden' name='mkId'          value='<?php echo $mkId?>'>";
+                    phpTag += "\n        <input type='hidden' name='pgId'          value='<?php echo $pgId?>'>";
+                    phpTag += "\n        <input type='hidden' name='httpReferer'   value='<?php echo $_SERVER['HTTP_REFERER']?>'>";
+                    phpTag += "\n        <input type='hidden' name='remoteAddr'    value='<?php echo $_SERVER['REMOTE_ADDR']?>'>";
+                    phpTag += "\n        <input type='hidden' name='serverName'    value='<?php echo $_SERVER['SERVER_NAME']?>'>";
+                    phpTag += "\n        <input type='hidden' name='requestUri'    value='<?php echo $_SERVER['REQUEST_URI']?>'>";
+                    phpTag += "\n        <input type='hidden' name='httpUserAgent' value='<?php echo $_SERVER['HTTP_USER_AGENT']?>'>";
+                    phpTag += "\n        <input type='text'   name='value1' placeholder='이름을 입력하세요.'>";
+                    phpTag += "\n        <input type='text'   name='value2' placeholder='연락처 (구분없이 입력해주세요)'>";
+                    phpTag += "\n";
 
-                        phpTag += "\n        <div class='formInput'>";
-                        phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                    for(int j = 0 ; j < inputArr.size() ; j++) {
+                        Map<String, Object> arrGab = new HashMap<String, Object>();
+                        arrGab = (Map<String, Object>)inputArr.get(j);
 
-                        for(int k = 0 ; k < strArr.length; k++) {
-                            phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArr[k] + "'>";
-                            phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
+                        //System.out.println("arrGab : " + arrGab.toString());
+
+                        //-------------------------------------------------------------------
+                        // html 테그중 name을 설정하기 위해 문자열을 만든다.
+                        //-------------------------------------------------------------------
+                        String namevalue = "value"  + (j + 3);
+
+                        //-------------------------------------------------------------------
+                        // 입력항목 추가만 되어있고 입력정보가 없는 경우
+                        //-------------------------------------------------------------------
+                        if(arrGab.get("values") == null) {
+                            System.out.println("arrGab : NULL");
+                            continue;
                         }
-                        phpTag += "\n        </div>";
-                    }
-                    //-------------------------------------------------------------------
-                    // 체크 박스
-                    //-------------------------------------------------------------------
-                    else if(arrGab.get("values").equals("checkForm")) {
-                        String[] strArr    = arrGab.get("lab").toString().split(",");
-                        String   formNames = arrGab.get("names").toString();
+                        //-------------------------------------------------------------------
+                        // 텍스트 박스
+                        //-------------------------------------------------------------------
+                        if(arrGab.get("values").equals("textForm")) {
+                            phpTag += "\n        <input type='text'   name='" + namevalue + "' placeholder='" + arrGab.get("names") + "'>";
 
-                        phpTag += "\n        <div class='formInput'>";
-                        phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
-
-                        for(int k = 0 ; k < strArr.length; k++) {
-                            phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArr[k] + "'>";
-                            phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
+                            switch(i) {
+                                case 0 : tbLandingPage.setPage01(arrGab.get("names").toString()); break;
+                                case 1 : tbLandingPage.setPage02(arrGab.get("names").toString()); break;
+                                case 2 : tbLandingPage.setPage03(arrGab.get("names").toString()); break;
+                                case 3 : tbLandingPage.setPage04(arrGab.get("names").toString()); break;
+                                case 4 : tbLandingPage.setPage05(arrGab.get("names").toString()); break;
+                                case 5 : tbLandingPage.setPage06(arrGab.get("names").toString()); break;
+                                case 6 : tbLandingPage.setPage07(arrGab.get("names").toString()); break;
+                                case 7 : tbLandingPage.setPage08(arrGab.get("names").toString()); break;
+                                case 8 : tbLandingPage.setPage09(arrGab.get("names").toString()); break;
+                                case 9 : tbLandingPage.setPage10(arrGab.get("names").toString()); break;
+                            }
                         }
-                        phpTag += "\n        </div>";
-                    }
-                    //-------------------------------------------------------------------
-                    // 셀렉트 박스
-                    //-------------------------------------------------------------------
-                    else { // if(arrGab.get("values").equals("selForm")) {
-                        String[] strArr    = arrGab.get("lab").toString().split(",");
-                        String   formNames = arrGab.get("names").toString();
+                        //-------------------------------------------------------------------
+                        // 라디오 박스
+                        //-------------------------------------------------------------------
+                        else if(arrGab.get("values").equals("radioForm")) {
+                            String[] strArr    = arrGab.get("lab").toString().split(",");
+                            String   formNames = arrGab.get("names").toString();
 
-                        phpTag += "\n        <div class='formInput'>";
-                        phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
-                        phpTag += "\n          <select name='" + namevalue + "'>";
+                            phpTag += "\n        <div class='formInput'>";
+                            phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
 
-                        for(int k = 0 ; k < strArr.length; k++) {
-                            phpTag += "\n          <option value='" + strArr[k] + "'>" + strArr[k] + "</option>";
+                            for(int k = 0 ; k < strArr.length; k++) {
+                                phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArr[k] + "'>";
+                                phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
+                            }
+                            phpTag += "\n        </div>";
                         }
-                        phpTag += "\n          </select>";
-                        phpTag += "\n        </div>";
+                        //-------------------------------------------------------------------
+                        // 체크 박스
+                        //-------------------------------------------------------------------
+                        else if(arrGab.get("values").equals("checkForm")) {
+                            String[] strArr    = arrGab.get("lab").toString().split(",");
+                            String   formNames = arrGab.get("names").toString();
+
+                            phpTag += "\n        <div class='formInput'>";
+                            phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+
+                            for(int k = 0 ; k < strArr.length; k++) {
+                                phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArr[k] + "'>";
+                                phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
+                            }
+                            phpTag += "\n        </div>";
+                        }
+                        //-------------------------------------------------------------------
+                        // 셀렉트 박스
+                        //-------------------------------------------------------------------
+                        else { // if(arrGab.get("values").equals("selForm")) {
+                            String[] strArr    = arrGab.get("lab").toString().split(",");
+                            String   formNames = arrGab.get("names").toString();
+
+                            phpTag += "\n        <div class='formInput'>";
+                            phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                            phpTag += "\n          <select name='" + namevalue + "'>";
+
+                            for(int k = 0 ; k < strArr.length; k++) {
+                                phpTag += "\n          <option value='" + strArr[k] + "'>" + strArr[k] + "</option>";
+                            }
+                            phpTag += "\n          </select>";
+                            phpTag += "\n        </div>";
+                        }
                     }
+
+                    phpTag += "\n        <input type='checkbox' name='agree01' id='agree01'>";
+                    phpTag += "\n        <label for='agree01'>개인정보 수집 동의 <span>[보러가기]</span></label>";
+
+                    phpTag += "\n        <div class='centerBox'>";
+                    phpTag += "\n          <button style='background: " + resultMap.get("btnColor").toString() + "; ";
+                    phpTag += "border-radius: " + resultMap.get("btmShape").toString() +  ";'>";
+                    phpTag += resultMap.get("btnNm") + "</button>";
+                    phpTag += "\n        </div>";
+                    phpTag += "\n      </form>";
+
+                    phpTag += "\n      <div class='priBox'>";
+                    phpTag += "\n        <h6>" + resultMap.get("priNm") + "</h6>";
+                    phpTag += "\n        <div>" + resultMap.get("priCon") + "</div>";
+                    phpTag += "\n        <button>확인</button>";
+                    phpTag += "\n      </div>";
+                    phpTag += "\n    </div>";
+
+                    formCount++;
                 }
-
-                phpTag += "\n        <input type='checkbox' name='agree01' id='agree01'>";
-                phpTag += "\n        <label for='agree01'>개인정보 수집 동의 <span>[보러가기]</span></label>";
-
-                phpTag += "\n        <div class='centerBox'>";
-                phpTag += "\n          <button style='background: " + resultMap.get("btnColor").toString() + "; ";
-                phpTag += "border-radius: " + resultMap.get("btmShape").toString() +  ";'>";
-                phpTag += resultMap.get("btnNm") + "</button>";
-                phpTag += "\n        </div>";
-                phpTag += "\n      </form>";
-                phpTag += "\n    </div>";
-
-                switch(i) {
-                    case 0 : tbLandingPage.setPage01("aass"); break;
-                    case 1 : tbLandingPage.setPage02("aass"); break;
-                    case 2 : tbLandingPage.setPage03("aass"); break;
-                    case 3 : tbLandingPage.setPage04("aass"); break;
-                    case 4 : tbLandingPage.setPage05("aass"); break;
-                    case 5 : tbLandingPage.setPage06("aass"); break;
-                    case 6 : tbLandingPage.setPage07("aass"); break;
-                    case 7 : tbLandingPage.setPage08("aass"); break;
-                    case 8 : tbLandingPage.setPage09("aass"); break;
-                    case 9 : tbLandingPage.setPage10("aass"); break;
-                }
-
-                formCount++;
             }
+
+            //-------------------------------------------------------------------
+            // 푸터 추가
+            //-------------------------------------------------------------------
+            phpTag += "\n    <div class='bgColor'></div>";
+            phpTag += "\n  </body>";
+            phpTag += "\n</div>";
+            phpTag += "\n</html>";
+
+            //-------------------------------------------------------------------
+            // 최종 저장
+            //-------------------------------------------------------------------
+            byte[] by=phpTag.getBytes();
+            file.write(by);
+            file.close();
+
+            System.out.println("------------------ newlandingpage Create Finish ---------------------------------");
+
+            System.out.println("------------------ newlandingpage DB Start ---------------------------------");
+            landingPageMapper.insLandingPage(tbLandingPage);
+
+            System.out.println("------------------ newlandingpage DB Finish ---------------------------------");
+        } catch (Exception e) {
+            System.out.println(e);
         }
-
-        //-------------------------------------------------------------------
-        // 푸터 추가
-        //-------------------------------------------------------------------
-        phpTag += "\n    <div class='bgColor'></div>";
-        phpTag += "\n  </body>";
-        phpTag += "\n</html>";
-
-        //-------------------------------------------------------------------
-        // 최종 저장
-        //-------------------------------------------------------------------
-        byte[] by=phpTag.getBytes();
-        file.write(by);
-        file.close();
-
-        System.out.println("------------------ newlandingpage Create Finish ---------------------------------");
-
-        System.out.println("------------------ newlandingpage DB Start ---------------------------------");
-        landingPageMapper.insLandingPage(tbLandingPage);
-
-        System.out.println("------------------ newlandingpage DB Finish ---------------------------------");
 
         resultObj.put("status", "success");
         resultObj.put("comment", "신규 랜딩페이지가 생성되었습니다.");
+
+        resultObj.put("landingUrl", "http://dbfactory.kr/dbm/" + randChar);
+
+
         return resultObj;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 랜딩페이지 리스트 (캠페인별 조회 - 이름과 id만 전달)
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.01.24
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] LANDING_PAGE
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetLandingListForMbAdCaCode", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Map<String, Object>> GetLandingListForMbAdCaCode(HttpServletRequest rq) throws Exception {
+        System.out.println("GetLandingListForMbAdCaCode----------------------");
+
+        System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId   : [" + rq.getParameter("adId") + "]");
+        System.out.println("mkId   : [" + rq.getParameter("mkId") + "]");
+        System.out.println("caId   : [" + rq.getParameter("caId") + "]");
+
+        //---------------------------------------------------------------------------------------------------------
+        // 랜딩페이지 목록을 조회한다.
+        //---------------------------------------------------------------------------------------------------------
+        if(rq.getParameter("caId").equals("-1")) {
+            return landingPageMapper.GetLandingListForMbAdCaCode(
+                      Long.parseLong(rq.getParameter("mbId"))
+                    , Long.parseLong(rq.getParameter("adId"))
+                    , Long.parseLong(rq.getParameter("mkId"))
+                    , Long.parseLong(rq.getParameter("caId"))
+                    , rq.getParameter("useTp")
+            );
+        }
+        else {
+            return landingPageMapper.GetLandingListForMbAdCaCode(
+                      Long.parseLong(rq.getParameter("mbId"))
+                    , Long.parseLong(rq.getParameter("adId"))
+                    , Long.parseLong(rq.getParameter("mkId"))
+                    , Long.parseLong(rq.getParameter("caId"))
+                    , rq.getParameter("useTp")
+            );
+        }
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 랜딩페이지 리스트 (캠페인별 조회 - 데이터포함)
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.01.24
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] LANDING_PAGE
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetLandingListForMbAdCa", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public ArrayList<List<Map<String, Object>>> GetLandingListForMbAdCa(HttpServletRequest rq) throws Exception {
+        ArrayList<List<Map<String, Object>>> cpaResult = new ArrayList<>();
+
+        System.out.println("GetLandingListForMbAdCa----------------------");
+
+        System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId   : [" + rq.getParameter("adId") + "]");
+        System.out.println("mkId   : [" + rq.getParameter("mkId") + "]");
+        System.out.println("caId   : [" + rq.getParameter("caId") + "]");
+
+        //---------------------------------------------------------------------------------------------------------
+        // 랜딩페이지 목록을 조회한다.
+        //---------------------------------------------------------------------------------------------------------
+        List<Map<String, Object>> landingObj = new ArrayList<Map<String, Object>>();
+
+        landingObj = landingPageMapper.GetLandingListForMbAdCa(
+                      Long.parseLong(rq.getParameter("mbId"))
+                    , Long.parseLong(rq.getParameter("adId"))
+                    , Long.parseLong(rq.getParameter("mkId"))
+                    , Long.parseLong(rq.getParameter("caId"))
+                    , rq.getParameter("useTp")
+                    , (Long.parseLong(rq.getParameter("curPage").toString()) - 1) * Long.parseLong(rq.getParameter("rowCount").toString())
+                    , Long.parseLong(rq.getParameter("rowCount"))
+        );
+
+        cpaResult.add(0, landingObj);
+
+        List<Map<String, Object>> landingCountObj = new ArrayList<Map<String, Object>>();
+        landingCountObj = landingPageMapper.GetLandingListForMbAdCaRowCount(
+                Long.parseLong(rq.getParameter("mbId"))
+                , Long.parseLong(rq.getParameter("adId"))
+                , Long.parseLong(rq.getParameter("mkId"))
+                , Long.parseLong(rq.getParameter("caId"))
+                , rq.getParameter("useTp")
+        );
+
+        cpaResult.add(1, landingCountObj);
+
+        return cpaResult;
     }
 }
