@@ -33,7 +33,6 @@ public class AdUserMasterAPI {
         String ptId = "";
         //adInfoUtil.sendSms();
 
-
         for(int i = 0 ; i < 10; i++) {
             ptId = ptId + Character.toString(adInfoUtil.RandamChar());
         }

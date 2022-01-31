@@ -131,6 +131,20 @@ public interface LandingPageMapper {
             "      MB_ID      = ${mbId} " +
             "AND   AD_ID      = ${adId} " +
             "AND   MK_ID      = ${mkId} " +
+            "AND   CA_ID      = ${caId} " )
+    @Results({
+            @Result(property = "count" , column = "COUNT")
+    })
+    Long selLandingMbTotalCount(Long mbId, Long adId, Long mkId, Long caId);
+
+    @Select("SELECT " +
+            "        COUNT(*) AS COUNT " +
+            "FROM " +
+            "        LANDING_PAGE " +
+            "WHERE " +
+            "      MB_ID      = ${mbId} " +
+            "AND   AD_ID      = ${adId} " +
+            "AND   MK_ID      = ${mkId} " +
             "AND   CA_ID      = ${caId} " +
             "AND   NAME       = #{name} " )
     @Results({

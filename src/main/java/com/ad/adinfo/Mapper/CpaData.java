@@ -185,7 +185,7 @@ public interface CpaData {
             "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' " +
             "                           ELSE CONFIRM_TP " +
             "                      END) " +
-            " AND    INS_DT BETWEEN #{startDt} AND #{finishDt} " +
+            " AND   INS_DT BETWEEN #{startDt} AND #{finishDt} " +
             " ORDER BY SEQ_NO DESC " +
             " LIMIT #{srtPos}, #{rowCount}" )
     @Results({
@@ -240,7 +240,46 @@ public interface CpaData {
     List<Map<String, Object>> getCpaDataForMbIdCaIdAdId(Long mbId, Long adId, Long caId, Long mkId, Long pgId, String dbKind, String startDt, String finishDt, Long srtPos, Long rowCount);
 
     @Select("SELECT " +
-            "         COUNT(*) AS ROW_TOTAL_COUNT " +
+            "         COUNT(*)        AS ROW_TOTAL_COUNT " +
+            "       , FORMAT(SUM(PRICE), 0)    AS PRICE " +
+            "       , FORMAT(SUM(MK_PRICE), 0) AS MK_PRICE " +
+            " FROM " +
+            "       CPA_DATA " +
+            " WHERE " +
+            "       MB_ID  = #{mbId} " +
+            " AND   AD_ID  = #{adId} " +
+            " AND   CA_ID  = #{caId} " +
+            " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
+            "                ELSE      #{mkId}     END " +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " AND   INS_DT BETWEEN #{startDt} AND #{finishDt}" )
+    @Results({
+            @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT"),
+            @Result(property = "price" , column = "PRICE"),
+            @Result(property = "mkPrice" , column = "MK_PRICE")
+    })
+    List<Map<String, Object>> getCpaDataForMbIdCaIdAdIdCount(Long mbId, Long adId, Long caId, Long mkId, Long pgId, String startDt, String finishDt);
+
+    @Select("SELECT " +
+            "       COUNT(*) AS ROW_TOTAL_COUNT " +
+            " FROM " +
+            "       CPA_PAGE_USING_COUNT " +
+            " WHERE " +
+            "       MB_ID  = #{mbId} " +
+            " AND   AD_ID  = #{adId} " +
+            " AND   CA_ID  = #{caId} " +
+            " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
+            "                ELSE      #{mkId}     END " +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " AND   EVENT_CD = 'M' " +
+            " AND   CRE_DT BETWEEN #{startDt} AND #{finishDt}" )
+    @Results({
+            @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT")
+    })
+    Long getCpaPageUsingCountForMbIdCaIdAdIdRowTotalCount(Long mbId, Long adId, Long caId, Long mkId, Long pgId, String startDt, String finishDt);
+
+    @Select("SELECT " +
+            "       COUNT(*) AS ROW_TOTAL_COUNT " +
             " FROM " +
             "       CPA_DATA " +
             " WHERE " +
@@ -257,7 +296,7 @@ public interface CpaData {
             "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' " +
             "                           ELSE CONFIRM_TP " +
             "                      END) " +
-            " AND    INS_DT BETWEEN #{startDt} AND #{finishDt}" )
+            " AND   INS_DT BETWEEN #{startDt} AND #{finishDt}" )
     @Results({
             @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT")
     })
@@ -274,12 +313,12 @@ public interface CpaData {
             " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
             " ELSE                     #{mkId}     END " +
             " AND   CONFIRM_TP IN (CASE WHEN #{dbKind} = '대기DB' THEN 'N' " +
-                    "                           WHEN #{dbKind} = '접수DB' THEN 'R' " +
-                    "                           WHEN #{dbKind} = '확정DB' THEN 'Y' " +
-                    "                           WHEN #{dbKind} = '취소DB' THEN 'C' " +
-                    "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' " +
-                    "                           ELSE CONFIRM_TP " +
-                    "                      END) " +
+            "                           WHEN #{dbKind} = '접수DB' THEN 'R' " +
+            "                           WHEN #{dbKind} = '확정DB' THEN 'Y' " +
+            "                           WHEN #{dbKind} = '취소DB' THEN 'C' " +
+            "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' " +
+            "                           ELSE CONFIRM_TP " +
+            "                      END) " +
             "AND    INS_DT BETWEEN #{startDt} AND #{finishDt} " )
     @Results({
             @Result(property = "count" , column = "COUNT")

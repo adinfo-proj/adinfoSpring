@@ -3,6 +3,7 @@ package com.ad.adinfo.Controller;
 import com.ad.adinfo.Mapper.CampaignMasterMapper;
 import com.ad.adinfo.Mapper.CpaData;
 import com.ad.adinfo.Mapper.DataCenterMapper;
+import com.ad.adinfo.Mapper.LandingPageMapper;
 import com.ad.adinfo.Service.DateCalc;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,8 @@ public class DataCenter {
     private final DateCalc              dateCalc;
     private final DataCenterMapper      dataCenterMapper;
     private final CpaData               cpaData;
-    private final CampaignMasterMapper campaignMaster;
+    private final CampaignMasterMapper  campaignMaster;
+    private final LandingPageMapper     landingPageMapper;
 
     /*------------------------------------------------------------------------------------------------------------------
      * 회원사별 DB 정보 서머리
@@ -177,22 +179,24 @@ public class DataCenter {
     //public List<CPA_DATA> GetCampaignNameLst(@RequestPart(value = "dataObj") Map<String, Object> params) throws Exception {
     public ArrayList<List<Map<String, Object>>> GetCpaDataForAll(HttpServletRequest params) throws Exception {
         ArrayList<List<Map<String, Object>>> cpaResult = new ArrayList<>();
-        List<Map<String, Object>> campaignMasterObj = new ArrayList<Map<String, Object>>();
+        //List<Map<String, Object>> campaignMasterObj = new ArrayList<Map<String, Object>>();
+        //Map<String, Object> result = new HashMap<String, Object>();
 
         System.out.println("mbId     : [" + params.getParameter("mbId") + "]");
         System.out.println("adId     : [" + params.getParameter("adId") + "]");
         System.out.println("caId     : [" + params.getParameter("caId") + "]");
-        System.out.println("mkId     : [" + params.getParameter("ptId") + "]");
+        System.out.println("mkId     : [" + params.getParameter("mkId") + "]");
+        System.out.println("pgId     : [" + params.getParameter("pgId") + "]");
         System.out.println("srtDt    : [" + params.getParameter("srtDt") + "]");
         System.out.println("endDt    : [" + params.getParameter("endDt") + "]");
         System.out.println("curPage  : [" + params.getParameter("curPage") + "]");
         System.out.println("rowCount : [" + params.getParameter("rowCount") + "]");
 
         //------------------------------------------------------------------------
-        // 조회된 데이터의 건수
+        // 조회된 수집데이터의 총 건수 (페이지 처리용)
         //------------------------------------------------------------------------
         List<Map<String, Object>> rowTotalCount = cpaData.getCpaDataForMbIdCaIdAdIdRowTotalCount(
-                  Long.parseLong(params.getParameter("mbId").toString())
+                Long.parseLong(params.getParameter("mbId").toString())
                 , Long.parseLong(params.getParameter("adId").toString())
                 , Long.parseLong(params.getParameter("caId").toString())
                 , Long.parseLong(params.getParameter("mkId").toString())
@@ -235,43 +239,90 @@ public class DataCenter {
     }
 
     /*------------------------------------------------------------------------------------------------------------------
-     *  캠페인별 DB 페이지 건수 조회
+     *  캠페인별 DB 합산 정보 조회
      *------------------------------------------------------------------------------------------------------------------
-     * 작성일 : 2021.12.24
+     * 작성일 : 2022.01.31
      * 작성자 : 박형준
      *------------------------------------------------------------------------------------------------------------------
      * 테이블 : [C]
-     *         [R] CPA_DATA
+     *         [R] CPA_DATA, CPA_PAGE_USING_COUNT
      *         [U]
      *         [D]
      *------------------------------------------------------------------------------------------------------------------
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
-//    @CrossOrigin
-//    @RequestMapping(value = "/GetCpaDataForAllPageCount", method = RequestMethod.GET)
-//    //public List<CPA_DATA> GetCampaignNameLst(@RequestPart(value = "dataObj") Map<String, Object> params) throws Exception {
-//    public Map<String, Object> GetCpaDataForAllPageCount(HttpServletRequest params) throws Exception {
-//        Map<String, Object> resultObj = new HashMap<String, Object>();
-//
-//        System.out.println("mbId : [" + params.getParameter("mbId") + "]");
-//        System.out.println("adId : [" + params.getParameter("adId") + "]");
-//        System.out.println("caId : [" + params.getParameter("caId") + "]");
-//
-//        System.out.println("curPage  : [" + params.getParameter("curPage") + "]");
-//        System.out.println("rowCount : [" + params.getParameter("rowCount") + "]");
-//
-//        List<Map<String, Object>> rowTotalCount = cpaData.getCpaDataForMbIdCaIdAdIdRowTotalCount(
-//                  Long.parseLong(params.getParameter("mbId").toString())
-//                , Long.parseLong(params.getParameter("adId").toString())
-//                , Long.parseLong(params.getParameter("caId").toString())
-//                , 0L
-//                , "00"
-//                , params.getParameter("srtDt").toString().replaceAll("-", "")
-//                , params.getParameter("endDt").toString().replaceAll("-", ""));
-//        resultObj.put("rowTotalCount", rowTotalCount);
-//
-//        return resultObj;
-//    }
+    @CrossOrigin
+    @RequestMapping(value = "/GetCampaignHeadCount", method = RequestMethod.GET)
+    public Map<String, Object> GetCampaignHeadCount(HttpServletRequest params) throws Exception {
+        Map<String, Object> resultObj = new HashMap<String, Object>();
+        Map<String, Object> subsObj = new HashMap<String, Object>();
+
+        System.out.println("mbId     : [" + params.getParameter("mbId") + "]");
+        System.out.println("adId     : [" + params.getParameter("adId") + "]");
+        System.out.println("caId     : [" + params.getParameter("caId") + "]");
+        System.out.println("mkId     : [" + params.getParameter("ptId") + "]");
+        System.out.println("srtDt    : [" + params.getParameter("srtDt") + "]");
+        System.out.println("endDt    : [" + params.getParameter("endDt") + "]");
+
+        System.out.println("curPage  : [" + params.getParameter("curPage") + "]");
+        System.out.println("rowCount : [" + params.getParameter("rowCount") + "]");
+
+        //------------------------------------------------------------------------
+        // 랜딩페이지 총 개수
+        //------------------------------------------------------------------------
+        Long landingCount = landingPageMapper.selLandingMbTotalCount(
+                  Long.parseLong(params.getParameter("mbId").toString())
+                , Long.parseLong(params.getParameter("adId").toString())
+                , Long.parseLong(params.getParameter("mkId").toString())
+                , Long.parseLong(params.getParameter("caId").toString())
+        );
+        resultObj.put("landingCount", landingCount);
+
+        //------------------------------------------------------------------------
+        // 조회된 페이지 열림 데이터의 총 건수
+        //------------------------------------------------------------------------
+        Long rowViewTotalCount = cpaData.getCpaPageUsingCountForMbIdCaIdAdIdRowTotalCount(
+                  Long.parseLong(params.getParameter("mbId").toString())
+                , Long.parseLong(params.getParameter("adId").toString())
+                , Long.parseLong(params.getParameter("caId").toString())
+                , Long.parseLong(params.getParameter("mkId").toString())
+                , Long.parseLong(params.getParameter("pgId").toString())
+                , params.getParameter("srtDt").toString().replaceAll("-", "")
+                , params.getParameter("endDt").toString().replaceAll("-", ""));
+        resultObj.put("viewCount", rowViewTotalCount);
+
+        //------------------------------------------------------------------------
+        // 조회된 수집데이터의 총 건수
+        //------------------------------------------------------------------------
+        List<Map<String, Object>> rowCommitTotalCount = cpaData.getCpaDataForMbIdCaIdAdIdCount(
+                  Long.parseLong(params.getParameter("mbId").toString())
+                , Long.parseLong(params.getParameter("adId").toString())
+                , Long.parseLong(params.getParameter("caId").toString())
+                , Long.parseLong(params.getParameter("mkId").toString())
+                , Long.parseLong(params.getParameter("pgId").toString())
+                , params.getParameter("srtDt").toString().replaceAll("-", "")
+                , params.getParameter("endDt").toString().replaceAll("-", ""));
+
+        resultObj.put("commitCount", rowCommitTotalCount.get(0).get("rowTotalCount"));
+        resultObj.put("adPriceSum", rowCommitTotalCount.get(0).get("price"));
+        resultObj.put("mkPriceSum", rowCommitTotalCount.get(0).get("mkPrice"));
+
+        //------------------------------------------------------------------------
+        // 노출 대비 접수율
+        //------------------------------------------------------------------------
+        String strBuf = "";
+        Double commitPer = 0.00;
+
+        if( rowViewTotalCount <= 0 || Long.parseLong(rowCommitTotalCount.get(0).get("rowTotalCount").toString()) <= 0 )
+            commitPer = 0.00;
+        else
+            commitPer = ((double)Double.parseDouble(rowCommitTotalCount.get(0).get("rowTotalCount").toString()) / (double)rowViewTotalCount) * 100;
+        strBuf = String.format("%.0f", commitPer);
+
+        resultObj.put("commitPer", strBuf);
+
+        return resultObj;
+    }
 
     /*------------------------------------------------------------------------------------------------------------------
      * 캠페인별 DB 정보 서머리
