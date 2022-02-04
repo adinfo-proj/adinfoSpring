@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface AdUserMaster {
+public interface AdUserMasterMapper {
     @Select("SELECT " +
             "         UPDATE_DT" +
             "       , MB_ID" +
@@ -220,29 +220,16 @@ public interface AdUserMaster {
             " FROM " +
             "       AD_USER_MASTER" +
             " WHERE " +
-            "       MB_ID        = #{mbId}" +
-            " AND   CLNT_NM      = #{userName} " +
+            "       CLNT_NM      = #{userName} " +
             " AND   CLNT_SUBS_NO = #{clntSubsNo} ")
     @Results({
             @Result(property = "clntId" , column = "CLNT_ID")
     })
-    String getAdUserMasterFindId(Long mbId, String userName, String clntSubsNo);
-
-
-
-
-
-
-
-
-
-
-    //
+    String getAdUserMasterFindId(String userName, String clntSubsNo);
 
     @Update(" UPDATE AD_USER_MASTER " +
-            " SET    CLNT_PW = #{nanPw} " +
+            " SET    CLNT_PW = HEX(AES_ENCRYPT(#{nanPw}, 'dbfactory'))" +
             " WHERE " +
-            "       MB_ID        = #{mbId}" +
-            " AND   CLNT_ID      = #{userId} " )
-    Long setAdUserMasterFindPw(Long mbId, String nanPw, String userId);
+            "       CLNT_ID      = #{userId} " )
+    Long setAdUserMasterFindPw(String nanPw, String userId);
 }

@@ -2,8 +2,8 @@ package com.ad.adinfo.Controller;
 
 import com.ad.adinfo.Domain.COMMON_CODE;
 import com.ad.adinfo.Domain.CPA_MASTER;
-import com.ad.adinfo.Mapper.CommonCode;
-import com.ad.adinfo.Mapper.CpaMaster;
+import com.ad.adinfo.Mapper.CommonCodeMapper;
+import com.ad.adinfo.Mapper.CpaMasterMapper;
 import com.ad.adinfo.Service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +22,8 @@ import java.util.Map;
 @Slf4j
 public class CommonAPI {
 
-    private final CommonCode commonCode;
-    private final CpaMaster cpaCampaign;
+    private final CommonCodeMapper commonCode;
+    private final CpaMasterMapper cpaCampaign;
 
     @Autowired
     private JwtService jwtService;

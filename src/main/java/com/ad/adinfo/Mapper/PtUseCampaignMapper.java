@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface PtUseCampaign {
+public interface PtUseCampaignMapper {
     @Select(" SELECT " +
             "          DISTINCT " +
             "          B.MK_ID  MK_ID " +

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper
-public interface CpaData {
+public interface CpaDataMapper {
     @Select("SELECT " +
             "         SEQ_NO " +
             "       , UPDATE_DT " +
@@ -144,6 +144,9 @@ public interface CpaData {
             "       , URL " +
             "       , URL_AGENT " +
             "       , URL_REFERER " +
+            "       , DEVICE_MACHINE " +
+            "       , DEVICE_OS " +
+            "       , DEVICE_MODEL " +
             "       , ALL_MOBILE_DUP_YN " +
             "       , THIS_MOBILE_DUP_YN " +
             "       , POSTBACK_YN " +
@@ -218,6 +221,9 @@ public interface CpaData {
             @Result(property = "url" , column = "URL"),
             @Result(property = "urlAgent" , column = "URL_AGENT"),
             @Result(property = "urlReferer" , column = "URL_REFERER"),
+            @Result(property = "deviceMachine" , column = "DEVICE_MACHINE"),
+            @Result(property = "deviceOs" , column = "DEVICE_OS"),
+            @Result(property = "deviceModel" , column = "DEVICE_MODEL"),
             @Result(property = "allMobileDupYn" , column = "ALL_MOBILE_DUP_YN"),
             @Result(property = "thisMobileDupYn" , column = "THIS_MOBILE_DUP_YN"),
             @Result(property = "postbackYn" , column = "POSTBACK_YN"),

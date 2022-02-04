@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface AdAdvertBalance {
+public interface AdAdvertBalanceMapper {
     @Select("SELECT " +
             "         UPDATE_DT" +
             "       , AD_ID" +

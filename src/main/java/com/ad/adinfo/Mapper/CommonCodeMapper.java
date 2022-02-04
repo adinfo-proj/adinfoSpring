@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 @Mapper
-public interface CommonCode {
+public interface CommonCodeMapper {
     @Select("SELECT " +
             "         TP" +
             "       , TP_NM" +

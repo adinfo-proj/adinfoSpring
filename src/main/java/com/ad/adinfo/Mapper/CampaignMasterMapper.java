@@ -10,12 +10,12 @@ import java.util.Map;
 @Mapper
 public interface CampaignMasterMapper {
     @Select("SELECT " +
-            "       MAX(CA_ID) AS CA_ID" +
+            "       MAX(CA_ID) AS CA_ID " +
             " FROM " +
-            "       CAMPAIGN_MASTER" +
+            "       CAMPAIGN_MASTER " +
             " WHERE " +
-            "       MB_ID      = #{mbId}" +
-            " AND   AD_ID      = #{adId}" )
+            "       MB_ID      = #{mbId} " +
+            " AND   AD_ID      = #{adId} " )
     @Results({
             @Result(property = "caId" , column = "CA_ID")
     })
@@ -72,6 +72,8 @@ public interface CampaignMasterMapper {
             "       , AGE_TARGET" +
             " FROM " +
             "       CAMPAIGN_MASTER " +
+            " WHERE " +
+            "       STATUS    <> 'ZZ' " +
             " ORDER BY CA_ID DESC " +
             " LIMIT ${count} ")
     @Results({
@@ -178,8 +180,9 @@ public interface CampaignMasterMapper {
             " FROM " +
             "       CAMPAIGN_MASTER " +
             " WHERE " +
-            "       MB_ID  = ${mbId}" +
-            " AND   AD_ID  = ${adId}" )
+            "       MB_ID   = ${mbId}" +
+            " AND   AD_ID   = ${adId}" +
+            " AND   STATUS <> 'ZZ'" )
     @Results({
             @Result(property = "updateDt" , column = "UPDATE_DT"),
             @Result(property = "mbId" , column = "MB_ID"),
@@ -286,8 +289,9 @@ public interface CampaignMasterMapper {
             " WHERE " +
             "       MB_ID  = ${mbId}" +
             " AND   AD_ID  = ${adId}" +
-            " AND   STATUS LIKE #{status}" +
-            " ORDER BY CA_ID DESC")
+            " AND   STATUS  LIKE #{status}" +
+            " AND   STATUS  <> 'ZZ'" +
+            " ORDER BY CA_ID DESC" )
     @Results({
             @Result(property = "updateDt" , column = "UPDATE_DT"),
             @Result(property = "mbId" , column = "MB_ID"),
@@ -657,9 +661,9 @@ public interface CampaignMasterMapper {
     @Options(useGeneratedKeys = true, keyProperty = "caId")
     Long insCampaignMasterHistory(@Param("campaignMaster") CAMPAIGN_MASTER campaignMaster);
 
-    @Update("UPDATE " +
-            "       CAMPAIGN_MASTER " +
-            "SET" +
+    @Update(" UPDATE " +
+            "        CAMPAIGN_MASTER " +
+            " SET" +
             "         UPDATE_DT           = NOW()" +
             "       , MB_ID               = #{campaignMaster.mbId}" +
             "       , AD_ID               = #{campaignMaster.adId}" +
@@ -715,6 +719,17 @@ public interface CampaignMasterMapper {
     @Options(useGeneratedKeys = true, keyProperty = "caId")
     Long upCampaignMaster(@Param("campaignMaster") CAMPAIGN_MASTER campaignMaster);
 
+    @Update(" UPDATE " +
+            "        CAMPAIGN_MASTER " +
+            " SET" +
+            "          UPDATE_DT           = NOW()" +
+            "        , STATUS              = #{status}" +
+            " WHERE " +
+            "        MB_ID      = #{mbId}" +
+            " AND    AD_ID      = #{adId}" +
+            " AND    CA_ID      = #{caId}" )
+    Long changeStatusCampaignMaster(Long mbId, Long adId, Long caId, String status);
+
     @Select("SELECT " +
             "         MB_ID" +
             "       , AD_ID" +
@@ -724,7 +739,8 @@ public interface CampaignMasterMapper {
             "       CAMPAIGN_MASTER" +
             " WHERE " +
             "       MB_ID      = #{mbId}" +
-            " AND   AD_ID      = #{adId}" )
+            " AND   AD_ID      = #{adId}" +
+            " AND   STATUS    <> 'ZZ'" )
     @Results({
             @Result(property = "mbId" , column = "MB_ID"),
             @Result(property = "adId" , column = "AD_ID"),
@@ -744,8 +760,7 @@ public interface CampaignMasterMapper {
             " WHERE " +
             "       MB_ID      = #{mbId}" +
             " AND   AD_ID      = #{adId}" +
-            " AND   CA_ID      = #{caId}"
-    )
+            " AND   CA_ID      = #{caId}" )
     @Results({
             @Result(property = "mbId" , column = "MB_ID"),
             @Result(property = "adId" , column = "AD_ID"),
@@ -775,7 +790,8 @@ public interface CampaignMasterMapper {
             " WHERE " +
             "       MB_ID      = #{mbId}" +
             " AND   AD_ID      = #{adId}" +
-            " AND   NAME       = #{name}" )
+            " AND   NAME       = #{name}" +
+            " AND   STATUS    <> 'ZZ' ")
     @Results({
             @Result(property = "count" , column = "COUNT")
     })
@@ -819,12 +835,14 @@ public interface CampaignMasterMapper {
             "       , SMS_NO" +
             "       , (SELECT COUNT(*) FROM CPA_PAGE_USING_COUNT WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) VIEW_COUNT" +
             "       , (SELECT COUNT(*) FROM CPA_DATA             WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) CREATE_COUNT" +
+            "       , (SELECT COUNT(*) FROM LANDING_PAGE         WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) LAND_COUNT" +
             " FROM " +
             "       CAMPAIGN_MASTER A" +
             " WHERE " +
             "       MB_ID  = ${mbId}" +
             " AND   AD_ID  = ${adId}" +
             " AND   STATUS LIKE #{status}" +
+            " AND   STATUS != 'ZZ' " +
             " ORDER BY CA_ID DESC")
     @Results({
             @Result(property = "updateDt" , column = "UPDATE_DT"),
@@ -850,7 +868,8 @@ public interface CampaignMasterMapper {
             @Result(property = "smsYn" , column = "SMS_YN"),
             @Result(property = "smsNo" , column = "SMS_NO"),
             @Result(property = "viewCount" , column = "VIEW_COUNT"),
-            @Result(property = "createCount" , column = "CREATE_COUNT")
+            @Result(property = "createCount" , column = "CREATE_COUNT"),
+            @Result(property = "landCount" , column = "LAND_COUNT")
     })
     List<Map<String, Object>> getCampaignMasterForMbAdStatus_ViewCount(Long mbId, Long adId, String status);
 }

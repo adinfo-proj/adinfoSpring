@@ -302,7 +302,7 @@ public class LandingPageController {
                 //    String   formNames = arrGab.get("names").toString();
                 //
                 //    phpTag += "\n        <div class='formInput'>";
-                //    phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                //    phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
                 //
                 //    for(int k = 0 ; k < strArr.length; k++) {
                 //        phpTag += "\n          <input type='radio' name='" + nameValue + "' id='" + strArr[k] + "'>";
@@ -318,7 +318,7 @@ public class LandingPageController {
                 //    String   formNames = arrGab.get("names").toString();
                 //
                 //    phpTag += "\n        <div class='formInput'>";
-                //    phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                //    phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
                 //
                 //    for(int k = 0 ; k < strArr.length; k++) {
                 //        phpTag += "\n          <input type='checkbox' name='" + nameValue + "' id='" + strArr[k] + "'>";
@@ -334,7 +334,7 @@ public class LandingPageController {
                 //    String   formNames = arrGab.get("names").toString();
                 //
                 //    phpTag += "\n        <div class='formInput'>";
-                //    phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                //    phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
                 //    phpTag += "\n          <select name='" + nameValue + "'>";
                 //
                 //    for(int k = 0 ; k < strArr.length; k++) {
@@ -509,7 +509,7 @@ public class LandingPageController {
                             String   formNames = arrGab.get("names").toString();
 
                             phpTag += "\n        <div class='formInput'>";
-                            phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                            phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
 
                             for(int k = 0 ; k < strArr.length; k++) {
                                 phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArr[k] + "'>";
@@ -525,7 +525,7 @@ public class LandingPageController {
                             String   formNames = arrGab.get("names").toString();
 
                             phpTag += "\n        <div class='formInput'>";
-                            phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                            phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
 
                             for(int k = 0 ; k < strArr.length; k++) {
                                 phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArr[k] + "'>";
@@ -541,7 +541,7 @@ public class LandingPageController {
                             String   formNames = arrGab.get("names").toString();
 
                             phpTag += "\n        <div class='formInput'>";
-                            phpTag += "\n          <span class='fornInputName'>" + formNames + "</span>";
+                            phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
                             phpTag += "\n          <select name='" + namevalue + "'>";
 
                             for(int k = 0 ; k < strArr.length; k++) {
@@ -600,9 +600,7 @@ public class LandingPageController {
 
         resultObj.put("status", "success");
         resultObj.put("comment", "신규 랜딩페이지가 생성되었습니다.");
-
         resultObj.put("landingUrl", "http://dbfactory.kr/dbm/" + randChar);
-
 
         return resultObj;
     }

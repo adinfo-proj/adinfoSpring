@@ -1,9 +1,10 @@
 package com.ad.adinfo.Service;
 
+import com.ad.adinfo.Domain.AD_OPERATION_HISTORY;
 import com.ad.adinfo.Domain.AD_USER_MASTER;
-import com.ad.adinfo.Mapper.AdUserMaster;
-import com.ad.adinfo.Mapper.CpaCampaignData;
-import org.json.simple.JSONObject;
+import com.ad.adinfo.Mapper.AdOperationHistoryMapper;
+import com.ad.adinfo.Mapper.AdUserMasterMapper;
+import com.ad.adinfo.Mapper.CpaCampaignDataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,17 +12,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 
 @Service
 public class AdInfoUtil {
 
     @Autowired
-    AdUserMaster adUserMaster;
+    AdUserMasterMapper adUserMaster;
 
     @Autowired
-    CpaCampaignData cpaCampaignData;
+    CpaCampaignDataMapper cpaCampaignData;
+
+    @Autowired
+    AdOperationHistoryMapper    adOperationHistoryMapper;
 
     /*------------------------------------------------------------------------------------------------------------------
      * 로그인 아이디로 광고주ID를 조회한다.
@@ -94,6 +96,31 @@ public class AdInfoUtil {
 //    public Long GetCpaCampaignDataDateInCount(Long ptId, String date) {
 //        return cpaCampaignData.getCpaCampaignDataTodayInCount(ptId, date);
 //    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 업무 처리 내역을 생성한다.
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.04
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C] AD_OPERATION_HISTORY
+     *         [R]
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음. getCpaCampaignDataTodayInCount
+     -----------------------------------------------------------------------------------------------------------------*/
+    public Long InsAdOperationHistory(String clntTp, Long mbId, String clntId, String commonCd, String comment) {
+        AD_OPERATION_HISTORY adOperationHistory = new AD_OPERATION_HISTORY();
+        adOperationHistory.setClntTp("O");
+        adOperationHistory.setMbId(0L);
+        adOperationHistory.setClntId(clntId);
+        adOperationHistory.setCommonCd(commonCd);
+        adOperationHistory.setComment(comment);
+
+        return adOperationHistoryMapper.insAdOperationHistory(adOperationHistory);
+    }
+
     /*------------------------------------------------------------------------------------------------------------------
      * 랜덤한 문자열을 만든다.
      *   - 랜딩페이지가 생성될때 임의 URL을 만들기위해 사용함.
@@ -160,26 +187,4 @@ public class AdInfoUtil {
             }
         }
     }
-
-
-//    public void sendSms() {
-//        String api_key = "NCS540687B324ADE";
-//        String api_secret = "57F643F41F2521E3ADD85FF2B891DE7E";
-//        Message coolsms = new Message(api_key, api_secret);
-//        HashMap<String, String> params = new HashMap<String, String>();
-//
-//        params.put("to", "0226680020");
-//        params.put("from", "01024068222");
-//        params.put("type", "SMS");
-//        params.put("text", "인증문자 테스트");
-//        params.put("app_version", "test app 1.2");
-//
-//        try {
-//            JSONObject obj = (JSONObject) coolsms.send(params);
-//            System.out.println(obj.toString());
-//        } catch (CoolsmsException e) {
-//            System.out.println(e.getMessage());
-//            System.out.println(e.getCode());
-//        }
-//    }
 }

@@ -1,7 +1,7 @@
 package com.ad.adinfo.Controller;
 
 import com.ad.adinfo.Mapper.CampaignMasterMapper;
-import com.ad.adinfo.Mapper.CpaData;
+import com.ad.adinfo.Mapper.CpaDataMapper;
 import com.ad.adinfo.Mapper.DataCenterMapper;
 import com.ad.adinfo.Mapper.LandingPageMapper;
 import com.ad.adinfo.Service.DateCalc;
@@ -17,10 +17,10 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class DataCenter {
+public class DataCenterController {
     private final DateCalc              dateCalc;
     private final DataCenterMapper      dataCenterMapper;
-    private final CpaData               cpaData;
+    private final CpaDataMapper cpaData;
     private final CampaignMasterMapper  campaignMaster;
     private final LandingPageMapper     landingPageMapper;
 
@@ -182,6 +182,13 @@ public class DataCenter {
         //List<Map<String, Object>> campaignMasterObj = new ArrayList<Map<String, Object>>();
         //Map<String, Object> result = new HashMap<String, Object>();
 
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetCpaDataForAll Start...");
+        System.out.println("############################################################################");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+
         System.out.println("mbId     : [" + params.getParameter("mbId") + "]");
         System.out.println("adId     : [" + params.getParameter("adId") + "]");
         System.out.println("caId     : [" + params.getParameter("caId") + "]");
@@ -195,6 +202,9 @@ public class DataCenter {
         //------------------------------------------------------------------------
         // 조회된 수집데이터의 총 건수 (페이지 처리용)
         //------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  cpaData.getCpaDataForMbIdCaIdAdIdRowTotalCount Start");
+        System.out.println("----------------------------------------------------------------------------");
         List<Map<String, Object>> rowTotalCount = cpaData.getCpaDataForMbIdCaIdAdIdRowTotalCount(
                 Long.parseLong(params.getParameter("mbId").toString())
                 , Long.parseLong(params.getParameter("adId").toString())
@@ -211,6 +221,9 @@ public class DataCenter {
         //------------------------------------------------------------------------
         // 캠페인 수집정보 목록을 조회한다.
         //------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  campaignMaster.getCampaignMasterAskList Start");
+        System.out.println("----------------------------------------------------------------------------");
         List<Map<String, Object>> askList = campaignMaster.getCampaignMasterAskList(
                 Long.parseLong(params.getParameter("mbId")),
                 Long.parseLong(params.getParameter("adId")),
@@ -221,6 +234,9 @@ public class DataCenter {
         //------------------------------------------------------------------------
         // 회원사의 모든 캠페인을 조회한다.
         //------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  cpaData.getCpaDataForMbIdCaIdAdId Start");
+        System.out.println("----------------------------------------------------------------------------");
         List<Map<String, Object>> cpaDataArr = cpaData.getCpaDataForMbIdCaIdAdId(
                                                      Long.parseLong(params.getParameter("mbId").toString())
                                                    , Long.parseLong(params.getParameter("adId").toString())
@@ -234,6 +250,10 @@ public class DataCenter {
                                                    , Long.parseLong(params.getParameter("rowCount").toString()));
 
         cpaResult.add(2, cpaDataArr);
+
+        System.out.println("############################################################################");
+        System.out.println("GetCpaDataForAll Finish...");
+        System.out.println("############################################################################\n\n");
 
         return cpaResult;
     }

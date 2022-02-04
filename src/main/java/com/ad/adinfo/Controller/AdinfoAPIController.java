@@ -38,14 +38,14 @@ import java.util.*;
 public class AdinfoAPIController {
 
     private final CampaignMasterMapper campaignMaster;
-    private final CpaMaster             cpaCampaign;
-    private final CpaData               cpaData;
-    private final AdAdvertBalance       adAdvertBalance;
-    private final AdUserMaster          adUserMaster;
+    private final CpaMasterMapper cpaCampaign;
+    private final CpaDataMapper cpaData;
+    private final AdAdvertBalanceMapper adAdvertBalance;
+    private final AdUserMasterMapper adUserMaster;
     private final AdInfoUtil            adInfoUtil;
     private final DateCalc              dateCalc;
-    private final AdUtility               utility;
-    private final PtUseCampaign         ptUseCampaign;
+    private final AdUtilityMapper utility;
+    private final PtUseCampaignMapper ptUseCampaign;
 
     @Autowired
     private JwtService jwtService;

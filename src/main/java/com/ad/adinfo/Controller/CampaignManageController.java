@@ -1,6 +1,7 @@
 package com.ad.adinfo.Controller;
 
 import com.ad.adinfo.Domain.CAMPAIGN_MASTER;
+import com.ad.adinfo.Mapper.AdUtilityMapper;
 import com.ad.adinfo.Mapper.CampaignMasterMapper;
 import com.ad.adinfo.Mapper.DataCenterMapper;
 import com.ad.adinfo.Service.AdInfoUtil;
@@ -20,10 +21,11 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class CampaignManage {
-    private final CampaignMasterMapper campaignMaster;
+public class CampaignManageController {
+    private final CampaignMasterMapper campaignMasterMapper;
     private final AdInfoUtil        adInfoUtil;
     private final DataCenterMapper  dataCenterMapper;
+    private final AdUtilityMapper   adUtilityMapper;
 
     /*------------------------------------------------------------------------------------------------------------------
      * 신규 캠페인 등록
@@ -50,8 +52,8 @@ public class CampaignManage {
         // 변수 설정 영역 Start
         //---------------------------------------------------------------------------------------------------------
         Long newCaId                            = 0L;
-        CAMPAIGN_MASTER     cpaCampaignMaster   = new CAMPAIGN_MASTER();            //
-        Map<String, Object> resultMap           = new HashMap<String, Object>();    //
+        CAMPAIGN_MASTER     cpaCampaignMaster   = new CAMPAIGN_MASTER();
+        Map<String, Object> resultMap           = new HashMap<String, Object>();
 
         //---------------------------------------------------------------------------------------------------------
         // 비지니스 로직 Start
@@ -108,7 +110,7 @@ public class CampaignManage {
             // 캠페인 아이디는 Seq로 자동 증가한다. (1,000부터 시작)
             //   - MB_ID와 AD_ID 기준으로 CA_ID번호를 산출한다.
             try {
-                newCaId = campaignMaster.getCampaignMasterMaxCaId(cpaCampaignMaster.getMbId(), cpaCampaignMaster.getAdId());
+                newCaId = campaignMasterMapper.getCampaignMasterMaxCaId(cpaCampaignMaster.getMbId(), cpaCampaignMaster.getAdId());
                 System.out.println("Max CA_ID 1 : [" + newCaId + "]");
                 newCaId = (newCaId == null) ? 10000L : newCaId + 1L;
             } catch (Exception e) {
@@ -140,7 +142,7 @@ public class CampaignManage {
             // 캠페인명
             Long camNameCount = 0L;
             try {
-                camNameCount = campaignMaster.getCampaignMasterByName(
+                camNameCount = campaignMasterMapper.getCampaignMasterByName(
                           Long.parseLong(params.get("mbId").toString())
                         , Long.parseLong(params.get("adId").toString())
                         , params.get("adName").toString());
@@ -212,7 +214,7 @@ public class CampaignManage {
         // 캠페인 마스터에 데이터를 생성한다.
         //-------------------------------------------------------------------
         try {
-            campaignMaster.insCampaignMaster(cpaCampaignMaster);
+            campaignMasterMapper.insCampaignMaster(cpaCampaignMaster);
         } catch (Exception e) {
             System.out.println("campaignMaster.insCampaignMaster Fail : [" + e + "]");
 
@@ -288,7 +290,7 @@ public class CampaignManage {
             //---------------------------------------------------------------------------------------------------------
             // 이전 정보를 히스토리에 생성한다.
             //---------------------------------------------------------------------------------------------------------
-            orgCpaCampaignMaster = campaignMaster.getCampaignMasterForMbAdCa(
+            orgCpaCampaignMaster = campaignMasterMapper.getCampaignMasterForMbAdCa(
                     upCpaCampaignMaster.getMbId()
                     , upCpaCampaignMaster.getAdId()
                     , upCpaCampaignMaster.getCaId() );
@@ -303,10 +305,10 @@ public class CampaignManage {
             upCpaCampaignMaster.setEndTm(upCpaCampaignMaster.getEndTm().toString().replaceAll(":", ""));
 
 
-            campaignMaster.insCampaignMasterHistory(orgCpaCampaignMaster);
+            campaignMasterMapper.insCampaignMasterHistory(orgCpaCampaignMaster);
 
             upCpaCampaignMaster.setRegIp(clientIp);
-            Long ret = campaignMaster.upCampaignMaster(upCpaCampaignMaster);
+            Long ret = campaignMasterMapper.upCampaignMaster(upCpaCampaignMaster);
             if(ret <= 0) {
                 resultMap.put("result", "failure");
                 resultMap.put("resultMessage", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
@@ -321,6 +323,57 @@ public class CampaignManage {
             resultMap.put("result", "failure");
             resultMap.put("resultMessage", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
         }
+
+        return resultMap;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 캠페인 삭제
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.03
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R]
+     *         [U] CAMPAIGN_MASTER
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "ChangeCampaignStatus", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public Map<String, Object> ChangeCampaignStatus(HttpServletRequest    rq) throws Exception {
+        Long lReturn = -1L;
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+
+        System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId   : [" + rq.getParameter("adId") + "]");
+        System.out.println("caId   : [" + rq.getParameter("caId") + "]");
+        System.out.println("status : [" + rq.getParameter("status") + "]");
+
+        try {
+            lReturn = campaignMasterMapper.changeStatusCampaignMaster(
+                    Long.parseLong(rq.getParameter("mbId")),
+                    Long.parseLong(rq.getParameter("adId")),
+                    Long.parseLong(rq.getParameter("caId")),
+                    rq.getParameter("status")
+            );
+
+            System.out.println("lReturn : " + lReturn);
+
+            if( lReturn <= 0) {
+                resultMap.put("status", "fail");
+            }
+            else {
+                resultMap.put("status", "succ");
+            }
+        } catch(Exception e) {
+            System.out.println("Error : " + e.toString());
+            resultMap.put("status", "fail");
+        }
+
+        System.out.println("리턴 데이터 : ["+ resultMap.toString() +"]"); //로또번호 출력
 
         return resultMap;
     }
@@ -342,12 +395,26 @@ public class CampaignManage {
     @RequestMapping(value = "GetCampaignNameLst", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public List<Map<String, Object>> GetCampaignNameLst(HttpServletRequest rq) throws Exception {
-//        List<Map<String, Object>> resultObj = new ArrayList<Map<String, Object>>();
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetCampaignNameLst Func Start...");
+        System.out.println("############################################################################");
 
+        List<Map<String, Object>> resultObj = new ArrayList<Map<String, Object>>();
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
         System.out.println("mbId : [" + rq.getParameter("mbId") + "]");
         System.out.println("adId : [" + rq.getParameter("adId") + "]");
 
-        return campaignMaster.getCampaignMasterNameList(Long.parseLong(rq.getParameter("mbId")), Long.parseLong(rq.getParameter("adId")));
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  campaignMasterMapper.getCampaignMasterForMbAdStatus_ViewCount Start");
+        System.out.println("----------------------------------------------------------------------------");
+        resultObj = campaignMasterMapper.getCampaignMasterNameList(Long.parseLong(rq.getParameter("mbId")), Long.parseLong(rq.getParameter("adId")));
+
+        System.out.println("리턴 데이터 : ["+ resultObj.toString() +"]"); //로또번호 출력
+
+        return resultObj;
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -367,12 +434,16 @@ public class CampaignManage {
     @RequestMapping(value = "GetCampaignForMbAdStatus", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public List<Map<String, Object>> GetCampaignMasterForMbAdStatus(HttpServletRequest rq) throws Exception {
-        String      status = "";
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetCampaignMasterForMbAdStatus Func Start...");
+        System.out.println("############################################################################");
 
+        String      status = "";
         List<Map<String, Object>> resultObj = new ArrayList<Map<String, Object>>();
 
-        System.out.println("GetCampaignForMbAdStatus----------------------");
-
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
         System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
         System.out.println("adId   : [" + rq.getParameter("adId") + "]");
         System.out.println("status : [" + rq.getParameter("status") + "]");
@@ -387,11 +458,18 @@ public class CampaignManage {
             status = rq.getParameter("status").toString();
         }
 
-        return campaignMaster.getCampaignMasterForMbAdStatus_ViewCount(
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  campaignMasterMapper.getCampaignMasterForMbAdStatus_ViewCount Start");
+        System.out.println("----------------------------------------------------------------------------");
+        resultObj = campaignMasterMapper.getCampaignMasterForMbAdStatus_ViewCount(
                   Long.parseLong(rq.getParameter("mbId"))
                 , Long.parseLong(rq.getParameter("adId"))
                 , status
         );
+
+        System.out.println("리턴 데이터 : ["+ resultObj.toString() +"]"); //로또번호 출력
+
+        return resultObj;
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -411,15 +489,31 @@ public class CampaignManage {
     @RequestMapping(value = "GetCampaignForMbAdCa", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public CAMPAIGN_MASTER GetCampaignForMbAdCa(HttpServletRequest rq) throws Exception {
-        System.out.println("GetLandingNameLst----------------------");
+        CAMPAIGN_MASTER campaignMaster = new CAMPAIGN_MASTER();
+
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetCampaignForMbAdCa Func Start...");
+        System.out.println("############################################################################");
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
         System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
         System.out.println("adId   : [" + rq.getParameter("adId") + "]");
         System.out.println("caId   : [" + rq.getParameter("caId") + "]");
 
-        return campaignMaster.getCampaignMasterForMbAdCa(
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  campaignMaster.getCampaignMasterForMbAdCa Start");
+        System.out.println("----------------------------------------------------------------------------");
+
+        campaignMaster = campaignMasterMapper.getCampaignMasterForMbAdCa(
                   Long.parseLong(rq.getParameter("mbId"))
                 , Long.parseLong(rq.getParameter("adId"))
                 , Long.parseLong(rq.getParameter("caId"))
         );
+
+        System.out.println("리턴 메세지 : ["+ campaignMaster.toString() +"]"); //로또번호 출력
+
+        return campaignMaster;
     }
 }

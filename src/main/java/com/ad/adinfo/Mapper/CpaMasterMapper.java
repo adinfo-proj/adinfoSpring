@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper
-public interface CpaMaster {
+public interface CpaMasterMapper {
     @Select("SELECT " +
             "         CA_UPDATE_DT" +
             "       , CA_CA_ID" +
