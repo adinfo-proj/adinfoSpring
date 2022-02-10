@@ -147,6 +147,7 @@ public interface CpaDataMapper {
             "       , DEVICE_MACHINE " +
             "       , DEVICE_OS " +
             "       , DEVICE_MODEL " +
+            "       , COUNTRY_CD " +
             "       , ALL_MOBILE_DUP_YN " +
             "       , THIS_MOBILE_DUP_YN " +
             "       , POSTBACK_YN " +
@@ -224,6 +225,7 @@ public interface CpaDataMapper {
             @Result(property = "deviceMachine" , column = "DEVICE_MACHINE"),
             @Result(property = "deviceOs" , column = "DEVICE_OS"),
             @Result(property = "deviceModel" , column = "DEVICE_MODEL"),
+            @Result(property = "countryCd" , column = "COUNTRY_CD"),
             @Result(property = "allMobileDupYn" , column = "ALL_MOBILE_DUP_YN"),
             @Result(property = "thisMobileDupYn" , column = "THIS_MOBILE_DUP_YN"),
             @Result(property = "postbackYn" , column = "POSTBACK_YN"),
@@ -246,7 +248,7 @@ public interface CpaDataMapper {
     List<Map<String, Object>> getCpaDataForMbIdCaIdAdId(Long mbId, Long adId, Long caId, Long mkId, Long pgId, String dbKind, String startDt, String finishDt, Long srtPos, Long rowCount);
 
     @Select("SELECT " +
-            "         COUNT(*)        AS ROW_TOTAL_COUNT " +
+            "         COUNT(*)                 AS ROW_TOTAL_COUNT " +
             "       , FORMAT(SUM(PRICE), 0)    AS PRICE " +
             "       , FORMAT(SUM(MK_PRICE), 0) AS MK_PRICE " +
             " FROM " +

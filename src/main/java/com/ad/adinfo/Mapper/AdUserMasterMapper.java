@@ -232,4 +232,23 @@ public interface AdUserMasterMapper {
             " WHERE " +
             "       CLNT_ID      = #{userId} " )
     Long setAdUserMasterFindPw(String nanPw, String userId);
+
+    @Update(" UPDATE " +
+            "        AD_USER_MASTER " +
+            " SET " +
+            "          CLNT_PW      = HEX(AES_ENCRYPT(#{clntPw}, 'dbfactory')) " +
+            "        , CLNT_NM      = #{clntNm} " +
+            "        , CLNT_SUBS_NO = #{clntSubsNo} " +
+            " WHERE " +
+            "       CLNT_ID      = #{clntId} " )
+    Long updAdUserMaster(String clntId, String clntPw, String clntNm, String clntSubsNo);
+
+    @Update(" UPDATE " +
+            "        AD_USER_MASTER " +
+            " SET " +
+            "          CLNT_NM      = #{clntNm} " +
+            "        , CLNT_SUBS_NO = #{clntSubsNo} " +
+            " WHERE " +
+            "       CLNT_ID      = #{clntId} " )
+    Long updAdUserMasterNoPass(String clntId, String clntNm, String clntSubsNo);
 }

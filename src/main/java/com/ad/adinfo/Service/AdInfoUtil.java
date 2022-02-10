@@ -111,14 +111,31 @@ public class AdInfoUtil {
      * 코멘트 : 없음. getCpaCampaignDataTodayInCount
      -----------------------------------------------------------------------------------------------------------------*/
     public Long InsAdOperationHistory(String clntTp, Long mbId, String clntId, String commonCd, String comment) {
-        AD_OPERATION_HISTORY adOperationHistory = new AD_OPERATION_HISTORY();
-        adOperationHistory.setClntTp("O");
-        adOperationHistory.setMbId(0L);
-        adOperationHistory.setClntId(clntId);
-        adOperationHistory.setCommonCd(commonCd);
-        adOperationHistory.setComment(comment);
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  작업 히스토리 생성 시작...");
+        System.out.println("----------------------------------------------------------------------------");
 
-        return adOperationHistoryMapper.insAdOperationHistory(adOperationHistory);
+        Long    lResultRow = 0L;
+        AD_OPERATION_HISTORY adOperationHistory = new AD_OPERATION_HISTORY();
+        try {
+            adOperationHistory.setClntTp("O");
+            adOperationHistory.setMbId(mbId);
+            adOperationHistory.setClntId(clntId);
+            adOperationHistory.setCommonCd(commonCd);
+            adOperationHistory.setComment(comment);
+
+            lResultRow = adOperationHistoryMapper.insAdOperationHistory(adOperationHistory);
+
+        } catch(Exception e) {
+            System.out.println("작업 히스토리 생성 실패 : [" + e + "]");
+            lResultRow = -1L;
+        }
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  작업 히스토리 생성 종료...");
+        System.out.println("----------------------------------------------------------------------------");
+
+        return lResultRow;
     }
 
     /*------------------------------------------------------------------------------------------------------------------

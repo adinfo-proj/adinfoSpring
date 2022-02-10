@@ -11,6 +11,7 @@ import com.ad.adinfo.Service.DateCalc;
 import com.ad.adinfo.Service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
@@ -18,16 +19,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class AdUserMasterAPI {
     private final DateCalc dateCalc;
-    private final AdUserMasterMapper adUserMaster;
+    private final AdUserMasterMapper adUserMasterMapper;
     private final AdInfoUtil adInfoUtil;
     private final AdUtilityMapper   adUtilityMapper;
     private final AdOperationHistoryMapper adOperationHistoryMapper;
@@ -36,17 +35,92 @@ public class AdUserMasterAPI {
     private JwtService jwtService;
 
     @CrossOrigin
-    @RequestMapping(value = "/test", method = RequestMethod.GET)
-    public String Test(HttpServletRequest rq) throws Exception {
+    @RequestMapping(value = "/testGet", method = RequestMethod.GET)
+    public String testGet(HttpServletRequest rq) throws Exception {
+        System.out.println("Get Request");
 
-        String ptId = "";
-        //adInfoUtil.sendSms();
+        System.out.println(rq.getParameter("page_id"));
 
-        for(int i = 0 ; i < 10; i++) {
-            ptId = ptId + Character.toString(adInfoUtil.RandamChar());
+        Set<String> keySet = rq.getParameterMap().keySet();
+        for(String key: keySet) {
+            System.out.println(key + ": " + rq.getParameter(key));
         }
-        System.out.println(ptId);
-        return "";
+
+        System.out.println("---------------------------------------------------------------------------------");
+
+        return "testGet Success";
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/testPost", method = RequestMethod.POST)
+    public String testPost(HttpServletRequest rq) throws Exception {
+        System.out.println("Post Request");
+
+        Set<String> keySet = rq.getParameterMap().keySet();
+        for(String key: keySet) {
+            System.out.println(key + ": " + rq.getParameter(key));
+        }
+
+        System.out.println("---------------------------------------------------------------------------------");
+
+
+        return "testPost Success";
+    }
+    /*------------------------------------------------------------------------------------------------------------------
+     * 회원 정보 조회
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.09
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] AD_USER_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "/selectmember", method = RequestMethod.POST)
+    public Map<String, Object> selectmember(@RequestPart(value = "dataObj") Map<String, Object> params) throws Exception {
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("clntId        : [" + params.get("clntId") + "]");
+
+        Map<String, Object> resMap = new HashMap<>();
+
+        AD_USER_MASTER selAdUserMaster = new AD_USER_MASTER();
+
+        selAdUserMaster.setClntId(params.get("clntId").toString());
+
+        //-------------------------------------------------------------------
+        // 기 생성된 사용자를 확인한다.
+        //-------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  adUserMasterMapper.getAdUserMaster Start");
+        System.out.println("----------------------------------------------------------------------------");
+
+        selAdUserMaster = adUserMasterMapper.getAdUserMaster(params.get("clntId").toString());
+        System.out.println("1. [" + params.get("clntId").toString() + "] 아이디가 없습니다.");
+        if (selAdUserMaster.getClntId() == null || selAdUserMaster.getClntId() == "") {
+            System.out.println("2. [" + params.get("clntId").toString() + "] 아이디가 없습니다.");
+
+            resMap.put("message", "시스템 오류로 관리자에게 연락바랍니다.");
+            resMap.put("status", false);
+        }
+        else {
+            resMap.put("message", "정상적으로 회원정보가 조회되었습니다.");
+
+            resMap.put("clntId", selAdUserMaster.getClntId());
+            resMap.put("clntNm", selAdUserMaster.getClntNm());
+            resMap.put("clntSubsNo", selAdUserMaster.getClntSubsNo());
+
+            resMap.put("status", true);
+        }
+
+        System.out.println("리턴 메세지 : ["+ resMap.toString() +"]");
+
+        return resMap;
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -72,7 +146,7 @@ public class AdUserMasterAPI {
         //-------------------------------------------------------------------
         // 기 생성된 사용자를 확인한다.
         //-------------------------------------------------------------------
-        String createdUser = adUserMaster.getAdUserMasterForId(params.get("emailId").toString());
+        String createdUser = adUserMasterMapper.getAdUserMasterForId(params.get("emailId").toString());
         System.out.println("1. [" + createdUser + "] 아이디가 없습니다.");
         if(createdUser == null || createdUser == "") {
             System.out.println("2. [" + params.get("emailId").toString() + "] 아이디가 없습니다.");
@@ -107,8 +181,8 @@ public class AdUserMasterAPI {
                         // AD_ID 값 신규 생성
                         creAdUserMaster.setMbId(Long.parseLong(params.get("mbId").toString()));
 
-                        adUserMaster.getAdUserMasterMaxAdId(creAdUserMaster.getMbId());
-                        creAdUserMaster.setAdId(adUserMaster.getAdUserMasterMaxAdId(creAdUserMaster.getMbId()) + 1);
+                        adUserMasterMapper.getAdUserMasterMaxAdId(creAdUserMaster.getMbId());
+                        creAdUserMaster.setAdId(adUserMasterMapper.getAdUserMasterMaxAdId(creAdUserMaster.getMbId()) + 1);
                     }
                     // 광고주
                     else if(params.get("adGradeCd").equals("03")) {
@@ -117,8 +191,8 @@ public class AdUserMasterAPI {
                     // 마케터
                     else if(params.get("adGradeCd").equals("04")) {
                         // PT_ID 값 신규 생성
-                        adUserMaster.getAdUserMasterMaxPtId(creAdUserMaster.getMbId());
-                        creAdUserMaster.setMkId(adUserMaster.getAdUserMasterMaxPtId(creAdUserMaster.getMbId()) + 1);
+                        adUserMasterMapper.getAdUserMasterMaxPtId(creAdUserMaster.getMbId());
+                        creAdUserMaster.setMkId(adUserMasterMapper.getAdUserMasterMaxPtId(creAdUserMaster.getMbId()) + 1);
 
                         // PT_CD 값 신규 생성
                         String ptCd = "";
@@ -134,7 +208,7 @@ public class AdUserMasterAPI {
                         // DB마스터의 경우 MB_ID, AD_ID, MK_ID가 모두 동일함.
                         // MK_CD값은 신규로 생성해서 사용함은 동일하다.
                         // MB_ID를 새로 생성한다.
-                        Long lNewMbId = adUserMaster.getAdUserMasterMaxMbId() + 1;
+                        Long lNewMbId = adUserMasterMapper.getAdUserMasterMaxMbId() + 1;
 
                         creAdUserMaster.setMbId(lNewMbId);
                         creAdUserMaster.setAdId(lNewMbId);
@@ -156,7 +230,7 @@ public class AdUserMasterAPI {
             }
 
             try {
-                Long returnMbId = adUserMaster.insAdUserMaster(creAdUserMaster);
+                Long returnMbId = adUserMasterMapper.insAdUserMaster(creAdUserMaster);
                 System.out.println("returnMbId : [" + returnMbId + "]");
 
                 TokenResponse loginInfo = new TokenResponse();
@@ -171,6 +245,13 @@ public class AdUserMasterAPI {
                 resMap.put("emailId", params.get("emailId").toString());
                 resMap.put("adGradeCd", params.get("adGradeCd").toString());
                 resMap.put("jwtAuthToken", token);
+
+                adInfoUtil.InsAdOperationHistory("O"
+                        , creAdUserMaster.getMbId()
+                        , params.get("emailId").toString()
+                        , "00"
+                        , "["+ params.get("emailId").toString() +"] 회원이 신규로 가입신청을 하였습니다."
+                );
             } catch (Exception e) {
                 System.out.println("Exception : [" + e.getMessage() + "]");
                 resMap.put("status" , false);
@@ -182,6 +263,118 @@ public class AdUserMasterAPI {
             resMap.put("message", "이미 등록된 사용자가 있습니다.");
             System.out.println("Fail Process : [이미 등록된 사용자가 있습니다]");
         }
+
+        return resMap;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 회원 변경
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.09
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R]
+     *         [U] AD_USER_MASTER
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "/modifymember", method = RequestMethod.POST)
+    public Map<String, Object> modifymember(@RequestPart(value = "dataObj") Map<String, Object> params) throws Exception {
+        System.out.println("\n\n############################################################################");
+        System.out.println("modifymember Func Start...");
+        System.out.println("############################################################################");
+
+        Map<String, Object> resMap = new HashMap<>();
+        AD_USER_MASTER updAdUserMaster = new AD_USER_MASTER();
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("clntId        : [" + params.get("clntId") + "]");
+        System.out.println("clntPw        : [" + params.get("clntPw") + "]");
+        System.out.println("clntNm        : [" + params.get("clntNm") + "]");
+        System.out.println("clntSubsNo    : [" + params.get("clntSubsNo") + "]");
+
+        //-------------------------------------------------------------------
+        // 사용자를 확인한다.
+        //-------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  adUserMasterMapper.getAdUserMasterForId Start");
+        System.out.println("----------------------------------------------------------------------------");
+
+        updAdUserMaster = adUserMasterMapper.getAdUserMaster(params.get("clntId").toString());
+        System.out.println("1. [" + params.get("clntId").toString() + "]");
+        if (updAdUserMaster.getClntId() == null || updAdUserMaster.getClntId().equals("")) {
+            System.out.println("2. [" + params.get("clntId").toString() + "] 아이디가 없습니다.");
+
+            resMap.put("status", false);
+            resMap.put("message", "시스템 오류로 관리자에게 연락바랍니다.");
+
+            return resMap;
+        }
+
+        try {
+            Long lUpdRow = -1L;
+            if (params.get("clntPw") == null || params.get("clntPw").equals("")) {
+                System.out.println("----------------------------------------------------------------------------");
+                System.out.println("  adUserMasterMapper.updAdUserMasterNoPass Start");
+                System.out.println("----------------------------------------------------------------------------");
+
+                lUpdRow = adUserMasterMapper.updAdUserMasterNoPass(
+                          params.get("clntId").toString()
+                        , params.get("clntNm").toString()
+                        , params.get("clntSubsNo").toString()
+                );
+            }
+            else
+            {
+                System.out.println("----------------------------------------------------------------------------");
+                System.out.println("  adUserMasterMapper.updAdUserMaster Start");
+                System.out.println("----------------------------------------------------------------------------");
+
+                lUpdRow = adUserMasterMapper.updAdUserMaster(
+                          params.get("clntId").toString()
+                        , params.get("clntPw").toString()
+                        , params.get("clntNm").toString()
+                        , params.get("clntSubsNo").toString()
+                );
+            }
+
+            if( lUpdRow <= 0) {
+                resMap.put("status" , false);
+                resMap.put("message", "회원정보 변경이 실패하였습니다.\n\n고객센터 [1533-3757] 번호로 문의주세요.");
+
+                System.out.println("리턴 메세지 : ["+ resMap.toString() +"]");
+
+                return resMap;
+            }
+
+            System.out.println("rtString : [" + lUpdRow + "]");
+        } catch (Exception e) {
+            System.out.println("에러 메세지 : ["+ e.toString() +"]");
+
+            resMap.put("status" , false);
+            resMap.put("message", "회원정보 변경이 실패하였습니다.\n\n고객센터 [1533-3757] 번호로 문의주세요.");
+
+            System.out.println("리턴 메세지 : ["+ resMap.toString() +"]");
+
+            return resMap;
+        }
+
+        resMap.put("status" , true);
+        resMap.put("message", "정상적으로 회원정보가 변경되었습니다.");
+
+        System.out.println("리턴 메세지 : ["+ resMap.toString() +"]");
+
+        adInfoUtil.InsAdOperationHistory("O"
+                , updAdUserMaster.getMbId()
+                , params.get("clntId").toString()
+                , "00"
+                , "["+ params.get("clntId").toString() +"] 회원 정보를 변경하였습니다."
+        );
 
         return resMap;
     }
@@ -216,10 +409,10 @@ public class AdUserMasterAPI {
         System.out.println("clntSubsNo   : [" + params.get("clntSubsNo") + "]");
 
         System.out.println("----------------------------------------------------------------------------");
-        System.out.println("  adUserMaster.getAdUserMasterFindId Start");
+        System.out.println("  adUserMasterMapper.getAdUserMasterFindId Start");
         System.out.println("----------------------------------------------------------------------------");
         try {
-            rtString = adUserMaster.getAdUserMasterFindId(params.get("userName").toString(), params.get("clntSubsNo").toString());
+            rtString = adUserMasterMapper.getAdUserMasterFindId(params.get("userName").toString(), params.get("clntSubsNo").toString());
             if( rtString == null) {
                 resMap.put("status" , false);
                 resMap.put("message", "등록된 사용자 정보가 없습니다.");
@@ -243,17 +436,12 @@ public class AdUserMasterAPI {
 
         System.out.println("리턴 메세지 : ["+ resMap.toString() +"]");
 
-        System.out.println("----------------------------------------------------------------------------");
-        System.out.println("  adOperationHistoryMapper.insAdOperationHistory Start");
-        System.out.println("----------------------------------------------------------------------------");
-        AD_OPERATION_HISTORY adOperationHistory = new AD_OPERATION_HISTORY();
-
-        adOperationHistory.setClntTp("O");
-        adOperationHistory.setMbId(0L);
-        adOperationHistory.setClntId(params.get("userName").toString());
-        adOperationHistory.setCommonCd("00");
-        adOperationHistory.setComment("["+ params.get("userName").toString() +"] 사용자가 ID 찾기를 요청하였습니다.");
-        adOperationHistoryMapper.insAdOperationHistory(adOperationHistory);
+        adInfoUtil.InsAdOperationHistory("O"
+                , 0L
+                , params.get("userName").toString()
+                , "00"
+                , "["+ params.get("userName").toString() +"] 사용자가 ID 찾기를 요청하였습니다."
+        );
 
         return resMap;
     }
@@ -287,6 +475,43 @@ public class AdUserMasterAPI {
         System.out.println("  화면에서 수신된 입력값");
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("userId     : [" + params.get("userId") + "]");
+        System.out.println("clntSubsNo : [" + params.get("clntSubsNo") + "]");
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  adUserMasterMapper.setAdUserMasterFindPw Start");
+        System.out.println("----------------------------------------------------------------------------");
+
+        AD_USER_MASTER adUserMaster = new AD_USER_MASTER();
+        try {
+            adUserMaster = adUserMasterMapper.getAdUserMaster(params.get("userId").toString());
+
+            if(adUserMaster.getClntId().equals("") ||
+               adUserMaster.getClntId() == null    )
+            {
+                resMap.put("status" , false);
+                resMap.put("message", "요청하신 회원 ID가 존재하지 않습니다.");
+
+                System.out.println("리턴 메세지 : ["+ resMap.toString() +"]");
+
+                return resMap;
+            }
+
+            if(!params.get("clntSubsNo").equals(adUserMaster.getClntSubsNo())) {
+                resMap.put("status" , false);
+                resMap.put("message", "회원님의 아이디 또는 휴대전화번호가 일치하지 않습니다.");
+
+                System.out.println("리턴 메세지 : ["+ resMap.toString() +"]");
+
+                return resMap;
+            }
+        } catch (Exception e) {
+            resMap.put("status" , false);
+            resMap.put("message", "요청하신 회원 ID가 존재하지 않습니다.");
+
+            System.out.println("리턴 메세지 : ["+ resMap.toString() +"]");
+
+            return resMap;
+        }
 
         //---------------------------------------------------------------------------------------------------------
         // 변경할 비밀번호를 난수로 설정
@@ -297,10 +522,10 @@ public class AdUserMasterAPI {
         System.out.println(nanPw);
 
         System.out.println("----------------------------------------------------------------------------");
-        System.out.println("  adUserMaster.setAdUserMasterFindPw Start");
+        System.out.println("  adUserMasterMapper.setAdUserMasterFindPw Start");
         System.out.println("----------------------------------------------------------------------------");
         try {
-            rtString = adUserMaster.setAdUserMasterFindPw(nanPw, params.get("userId").toString());
+            rtString = adUserMasterMapper.setAdUserMasterFindPw(nanPw, params.get("userId").toString());
             if( rtString <= 0) {
                 resMap.put("status" , false);
                 resMap.put("message", "비밀번호 초기화에 실패하였습니다.");
@@ -330,7 +555,7 @@ public class AdUserMasterAPI {
 
         rtString = -1L;
         rtString = adUtilityMapper.insertSms(
-                  "01034932406"
+                  adUserMaster.getClntSubsNo()
                 , "15333757"
                 , sSmsComment
         );
@@ -340,10 +565,12 @@ public class AdUserMasterAPI {
 
         System.out.println("리턴 메세지 : ["+ resMap.toString() +"]");
 
-        System.out.println("----------------------------------------------------------------------------");
-        System.out.println("  adInfoUtil.InsAdOperationHistory Start");
-        System.out.println("----------------------------------------------------------------------------");
-        adInfoUtil.InsAdOperationHistory("O", 0L, params.get("userId").toString(), "01", "["+ params.get("userId").toString() +"] 사용자가 비밀번호를 재설정 하였습니다.");
+        adInfoUtil.InsAdOperationHistory("O"
+                , adUserMaster.getMbId()
+                , params.get("userId").toString()
+                , "00"
+                , "["+ params.get("userId").toString() +"] 사용자가 비밀번호를 재설정 하였습니다."
+        );
 
         return resMap;
     }
@@ -462,6 +689,7 @@ public class AdUserMasterAPI {
         //---------------------------------------------------------------------------------------------------------
         resMap.put("result", 0);
         resMap.put("comment", sComment);
+        resMap.put("no", sRandom);
 
         System.out.println("리턴 메세지 : ["+ resMap.toString() +"]"); //로또번호 출력
 

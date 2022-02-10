@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.DecimalFormat;
 import java.util.*;
 
 @RestController
@@ -277,6 +278,8 @@ public class DataCenterController {
         Map<String, Object> resultObj = new HashMap<String, Object>();
         Map<String, Object> subsObj = new HashMap<String, Object>();
 
+        DecimalFormat decFormat = new DecimalFormat("###,###.#"); // 3자리마다 콤마를 찍기 위함.
+
         System.out.println("mbId     : [" + params.getParameter("mbId") + "]");
         System.out.println("adId     : [" + params.getParameter("adId") + "]");
         System.out.println("caId     : [" + params.getParameter("caId") + "]");
@@ -309,7 +312,7 @@ public class DataCenterController {
                 , Long.parseLong(params.getParameter("pgId").toString())
                 , params.getParameter("srtDt").toString().replaceAll("-", "")
                 , params.getParameter("endDt").toString().replaceAll("-", ""));
-        resultObj.put("viewCount", rowViewTotalCount);
+        resultObj.put("viewCount", new java.text.DecimalFormat("#,###").format(rowViewTotalCount));
 
         //------------------------------------------------------------------------
         // 조회된 수집데이터의 총 건수
@@ -337,7 +340,8 @@ public class DataCenterController {
             commitPer = 0.00;
         else
             commitPer = ((double)Double.parseDouble(rowCommitTotalCount.get(0).get("rowTotalCount").toString()) / (double)rowViewTotalCount) * 100;
-        strBuf = String.format("%.0f", commitPer);
+
+        strBuf = String.format("%.1f", commitPer);
 
         resultObj.put("commitPer", strBuf);
 

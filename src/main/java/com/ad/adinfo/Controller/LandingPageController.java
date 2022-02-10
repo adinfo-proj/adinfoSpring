@@ -191,13 +191,12 @@ public class LandingPageController {
             // php 파일을 생성한다.
             //   - 생성규칙 : "http://landing.dbmaster.co.kr/mb_id/caid/pg_id?....
             //---------------------------------------------------------------------------------------------------------
-            String      indexPath = "";
-            String      indexFullFileName = "";
-            String      phpTag    = "";
+            String      indexPath           = "/WebFileClient/ad/" + randChar;
+            String      phpTag              = "";
+            String      indexFullFileName   = "";
 
             // Directory Create
             // RandamChar() 함수로 생성한다.
-            indexPath = "/WebFile/ad/" + randChar;
             System.out.println("indexPath : " + indexPath);
 
             // Main Directory
@@ -210,7 +209,7 @@ public class LandingPageController {
             System.out.println("imgPath : " + imgPath.toString());
 
             // CSS/JS/icomoon Directory Copy
-            File    orgFolder = new File("/ad/DecoFile");
+            File    orgFolder = new File("/WebFileClient/Form");
             File    trgFolder = new File(indexPath);
             adInfoUtil.FolderCopy(orgFolder, trgFolder);
 
@@ -221,7 +220,7 @@ public class LandingPageController {
             //---------------------------------------------------------------------------------------------------------
             // PHP 기본 추가
             //---------------------------------------------------------------------------------------------------------
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("/ad/top_php.php"), "UTF-8"));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("/WebFileClient/Script/PostScript.php"), "UTF-8"));
 
             String strBuf;
             Integer     nRows = 1;
@@ -229,12 +228,12 @@ public class LandingPageController {
                 phpTag += strBuf + "\n";
 
                 if(nRows == 13) {
-                    phpTag += "$pgUrl = " + randChar + ";\n";
-                    phpTag += "$mbId   = " + params.get("mbId") + ";\n";
-                    phpTag += "$adId   = " + params.get("mbId") + ";\n";
-                    phpTag += "$mkId   = " + params.get("mbId") + ";\n";
-                    phpTag += "$caId   = " + params.get("caId") + ";\n";
-                    phpTag += "$pgId   = " + lNewPgId + ";\n";
+                    phpTag += "  $pgUrl  = " + randChar + ";\n";
+                    phpTag += "  $mbId   = " + params.get("mbId") + ";\n";
+                    phpTag += "  $adId   = " + params.get("mbId") + ";\n";
+                    phpTag += "  $mkId   = " + params.get("mbId") + ";\n";
+                    phpTag += "  $caId   = " + params.get("caId") + ";\n";
+                    phpTag += "  $pgId   = " + lNewPgId + ";\n";
                 }
 
                 nRows++;
@@ -246,19 +245,19 @@ public class LandingPageController {
             //---------------------------------------------------------------------------------------------------------
             phpTag += "    <script type='text/javascript'>\n";
             phpTag += "      function chk_validate(e) {\n";
-            phpTag += "        if(e.agree01.checked == false) {\n";
+            phpTag += "        if(e.agree.checked == false) {\n";
             phpTag += "          alert('개인정보 수집에 동의해주세요')\n";
-            phpTag += "          e.agree01.focus();\n";
-            phpTag += "          return false;\n";
-            phpTag += "        }\n";
-            phpTag += "        if(e.value1.value == '') {\n";
-            phpTag += "          alert('이름을 입력해주세요');\n";
-            phpTag += "          e.value1.focus();\n";
+            phpTag += "          e.agree.focus();\n";
             phpTag += "          return false;\n";
             phpTag += "        }\n";
             phpTag += "        if(e.value2.value == '') {\n";
-            phpTag += "          alert('연락처를 입력해주세요');\n";
+            phpTag += "          alert('이름을 입력해주세요');\n";
             phpTag += "          e.value2.focus();\n";
+            phpTag += "          return false;\n";
+            phpTag += "        }\n";
+            phpTag += "        if(e.value1.value == '') {\n";
+            phpTag += "          alert('연락처를 입력해주세요');\n";
+            phpTag += "          e.value1.focus();\n";
             phpTag += "          return false;\n";
             phpTag += "        }\n";
 
@@ -450,18 +449,18 @@ public class LandingPageController {
                     resultMap    = (Map<String, Object>)formArr.get(formCount);
                     phpTag += "\n    <div class='formPrev'>";
                     phpTag += "\n      <form method='post' onsubmit='return chk_validate(this)'>";
-                    phpTag += "\n        <input type='hidden' name='mbId'          value='<?php echo $mbId?>'>";
-                    phpTag += "\n        <input type='hidden' name='adId'          value='<?php echo $adId?>'>";
-                    phpTag += "\n        <input type='hidden' name='caId'          value='<?php echo $caId?>'>";
-                    phpTag += "\n        <input type='hidden' name='mkId'          value='<?php echo $mkId?>'>";
-                    phpTag += "\n        <input type='hidden' name='pgId'          value='<?php echo $pgId?>'>";
-                    phpTag += "\n        <input type='hidden' name='httpReferer'   value='<?php echo $_SERVER['HTTP_REFERER']?>'>";
-                    phpTag += "\n        <input type='hidden' name='remoteAddr'    value='<?php echo $_SERVER['REMOTE_ADDR']?>'>";
-                    phpTag += "\n        <input type='hidden' name='serverName'    value='<?php echo $_SERVER['SERVER_NAME']?>'>";
-                    phpTag += "\n        <input type='hidden' name='requestUri'    value='<?php echo $_SERVER['REQUEST_URI']?>'>";
-                    phpTag += "\n        <input type='hidden' name='httpUserAgent' value='<?php echo $_SERVER['HTTP_USER_AGENT']?>'>";
-                    phpTag += "\n        <input type='text'   name='value1' placeholder='이름을 입력하세요.'>";
-                    phpTag += "\n        <input type='text'   name='value2' placeholder='연락처 (구분없이 입력해주세요)'>";
+                    phpTag += "\n        <input type='hidden' id='mbId" + i + "'          name='mbId'          value='<?php echo $mbId?>'>";
+                    phpTag += "\n        <input type='hidden' id='adId" + i + "'          name='adId'          value='<?php echo $adId?>'>";
+                    phpTag += "\n        <input type='hidden' id='caId" + i + "'          name='caId'          value='<?php echo $caId?>'>";
+                    phpTag += "\n        <input type='hidden' id='mkId" + i + "'          name='mkId'          value='<?php echo $mkId?>'>";
+                    phpTag += "\n        <input type='hidden' id='pgId" + i + "'          name='pgId'          value='<?php echo $pgId?>'>";
+                    phpTag += "\n        <input type='hidden' id='httpReferer" + i + "'   name='httpReferer'   value='<?php echo $_SERVER['HTTP_REFERER']?>'>";
+                    phpTag += "\n        <input type='hidden' id='remoteAddr" + i + "'    name='remoteAddr'    value='<?php echo $_SERVER['REMOTE_ADDR']?>'>";
+                    phpTag += "\n        <input type='hidden' id='serverName" + i + "'    name='serverName'    value='<?php echo $_SERVER['SERVER_NAME']?>'>";
+                    phpTag += "\n        <input type='hidden' id='requestUri" + i + "'    name='requestUri'    value='<?php echo $_SERVER['REQUEST_URI']?>'>";
+                    phpTag += "\n        <input type='hidden' id='httpUserAgent" + i + "' name='httpUserAgent' value='<?php echo $_SERVER['HTTP_USER_AGENT']?>'>";
+                    phpTag += "\n        <input type='text'   id='value2" + i + "'        name='value2'        placeholder='이름을 입력하세요.'>";
+                    phpTag += "\n        <input type='text'   id='value1" + i + "'        name='value1'        placeholder='연락처 (구분없이 입력해주세요)'>";
                     phpTag += "\n";
 
                     for(int j = 0 ; j < inputArr.size() ; j++) {
@@ -512,7 +511,7 @@ public class LandingPageController {
                             phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
 
                             for(int k = 0 ; k < strArr.length; k++) {
-                                phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArr[k] + "'>";
+                                phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArr[k] + "'" + "value='" + strArr[k] + "'>";
                                 phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
                             }
                             phpTag += "\n        </div>";
@@ -528,7 +527,7 @@ public class LandingPageController {
                             phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
 
                             for(int k = 0 ; k < strArr.length; k++) {
-                                phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArr[k] + "'>";
+                                phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArr[k] + "'" + "value='" + strArr[k] + "'>";
                                 phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
                             }
                             phpTag += "\n        </div>";
@@ -552,8 +551,8 @@ public class LandingPageController {
                         }
                     }
 
-                    phpTag += "\n        <input type='checkbox' name='agree01' id='agree01'>";
-                    phpTag += "\n        <label for='agree01'>개인정보 수집 동의 <span>[보러가기]</span></label>";
+                    phpTag += "\n        <input type='checkbox' name='agree' id='agree" + i + "'>";
+                    phpTag += "\n        <label for='agree" + i + "'>개인정보 수집 동의 <span>[보러가기]</span></label>";
 
                     phpTag += "\n        <div class='centerBox'>";
                     phpTag += "\n          <button style='background: " + resultMap.get("btnColor").toString() + "; ";
@@ -600,7 +599,7 @@ public class LandingPageController {
 
         resultObj.put("status", "success");
         resultObj.put("comment", "신규 랜딩페이지가 생성되었습니다.");
-        resultObj.put("landingUrl", "http://dbfactory.kr/dbm/" + randChar);
+        resultObj.put("landingUrl", "http://www.dbmaster.co.kr/ad/" + randChar);
 
         return resultObj;
     }
@@ -669,20 +668,28 @@ public class LandingPageController {
     @RequestMapping(value = "GetLandingListForMbAdCa", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public ArrayList<List<Map<String, Object>>> GetLandingListForMbAdCa(HttpServletRequest rq) throws Exception {
-        ArrayList<List<Map<String, Object>>> cpaResult = new ArrayList<>();
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetLandingListForMbAdCa Func Start...");
+        System.out.println("############################################################################");
 
-        System.out.println("GetLandingListForMbAdCa----------------------");
-
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
         System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
         System.out.println("adId   : [" + rq.getParameter("adId") + "]");
         System.out.println("mkId   : [" + rq.getParameter("mkId") + "]");
         System.out.println("caId   : [" + rq.getParameter("caId") + "]");
 
+        ArrayList<List<Map<String, Object>>> cpaResult = new ArrayList<>();
+
         //---------------------------------------------------------------------------------------------------------
         // 랜딩페이지 목록을 조회한다.
         //---------------------------------------------------------------------------------------------------------
-        List<Map<String, Object>> landingObj = new ArrayList<Map<String, Object>>();
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  landingPageMapper.GetLandingListForMbAdCa Start");
+        System.out.println("----------------------------------------------------------------------------");
 
+        List<Map<String, Object>> landingObj = new ArrayList<Map<String, Object>>();
         landingObj = landingPageMapper.GetLandingListForMbAdCa(
                       Long.parseLong(rq.getParameter("mbId"))
                     , Long.parseLong(rq.getParameter("adId"))
@@ -695,9 +702,13 @@ public class LandingPageController {
 
         cpaResult.add(0, landingObj);
 
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  landingPageMapper.GetLandingListForMbAdCaRowCount Start");
+        System.out.println("----------------------------------------------------------------------------");
+
         List<Map<String, Object>> landingCountObj = new ArrayList<Map<String, Object>>();
         landingCountObj = landingPageMapper.GetLandingListForMbAdCaRowCount(
-                Long.parseLong(rq.getParameter("mbId"))
+                  Long.parseLong(rq.getParameter("mbId"))
                 , Long.parseLong(rq.getParameter("adId"))
                 , Long.parseLong(rq.getParameter("mkId"))
                 , Long.parseLong(rq.getParameter("caId"))

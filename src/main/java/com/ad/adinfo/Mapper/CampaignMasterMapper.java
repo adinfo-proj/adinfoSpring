@@ -2,6 +2,7 @@ package com.ad.adinfo.Mapper;
 
 import com.ad.adinfo.Domain.CAMPAIGN_MASTER;
 import com.ad.adinfo.Domain.COMMON_CODE;
+import com.ad.adinfo.Domain.TB_CAMPAIGN_LANDING_FORM;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -843,7 +844,8 @@ public interface CampaignMasterMapper {
             " AND   AD_ID  = ${adId}" +
             " AND   STATUS LIKE #{status}" +
             " AND   STATUS != 'ZZ' " +
-            " ORDER BY CA_ID DESC")
+            " ORDER BY CA_ID DESC" +
+            " LIMIT #{srtPos}, #{rowCount}" )
     @Results({
             @Result(property = "updateDt" , column = "UPDATE_DT"),
             @Result(property = "mbId" , column = "MB_ID"),
@@ -871,5 +873,148 @@ public interface CampaignMasterMapper {
             @Result(property = "createCount" , column = "CREATE_COUNT"),
             @Result(property = "landCount" , column = "LAND_COUNT")
     })
-    List<Map<String, Object>> getCampaignMasterForMbAdStatus_ViewCount(Long mbId, Long adId, String status);
+    List<Map<String, Object>> getCampaignMasterForMbAdStatus_ViewCount(Long mbId, Long adId, String status, Long srtPos, Long rowCount);
+
+    @Select("SELECT " +
+            "       COUNT(*) AS ROW_TOTAL_COUNT " +
+            " FROM " +
+            "       CAMPAIGN_MASTER A" +
+            " WHERE " +
+            "       MB_ID      = ${mbId}" +
+            " AND   AD_ID      = ${adId}" +
+            " AND   STATUS    != 'ZZ' " +
+            " AND   STATUS     LIKE #{status}" )
+    @Results({
+            @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT")
+    })
+    List<Map<String, Object>> getCampaignMasterForMbAdStatus_TotalCount(Long mbId, Long adId, String status);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Insert("INSERT INTO CAMPAIGN_LANDING_FORM " +
+            "( " +
+            "       SEQ_NO " +
+            "     , CREATE_DT " +
+            "     , UPDATE_DT " +
+            "     , MB_ID " +
+            "     , AD_ID " +
+            "     , MK_ID " +
+            "     , CA_ID " +
+            "     , AD_NAME " +
+            "     , REG_CLNT_ID " +
+            "     , REG_IP " +
+            "     , TYPE01 " +
+            "     , TYPE02 " +
+            "     , TYPE03 " +
+            "     , TYPE04 " +
+            "     , TYPE05 " +
+            "     , TYPE06 " +
+            "     , TYPE07 " +
+            "     , TYPE08 " +
+            "     , TYPE09 " +
+            "     , TYPE10 " +
+            "     , VALUE01 " +
+            "     , VALUE02 " +
+            "     , VALUE03 " +
+            "     , VALUE04 " +
+            "     , VALUE05 " +
+            "     , VALUE06 " +
+            "     , VALUE07 " +
+            "     , VALUE08 " +
+            "     , VALUE09 " +
+            "     , VALUE10 " +
+            "     , PAGE01 " +
+            "     , PAGE02 " +
+            "     , PAGE03 " +
+            "     , PAGE04 " +
+            "     , PAGE05 " +
+            "     , PAGE06 " +
+            "     , PAGE07 " +
+            "     , PAGE08 " +
+            "     , PAGE09 " +
+            "     , PAGE10 " +
+            ") " +
+            "VALUES( " +
+            "       0 " +
+            "     , NOW() " +
+            "     , NOW() " +
+
+            "     , #{tbCampaignLandingForm.mbId} " +
+            "     , #{tbCampaignLandingForm.adId} " +
+            "     , #{tbCampaignLandingForm.mkId} " +
+            "     , #{tbCampaignLandingForm.caId} " +
+
+            "     , #{tbCampaignLandingForm.adName} " +
+            "     , #{tbCampaignLandingForm.regClntId} " +
+            "     , #{tbCampaignLandingForm.regIp} " +
+
+            "     , #{tbCampaignLandingForm.type01} " +
+            "     , #{tbCampaignLandingForm.type02} " +
+            "     , #{tbCampaignLandingForm.type03} " +
+            "     , #{tbCampaignLandingForm.type04} " +
+            "     , #{tbCampaignLandingForm.type05} " +
+            "     , #{tbCampaignLandingForm.type06} " +
+            "     , #{tbCampaignLandingForm.type07} " +
+            "     , #{tbCampaignLandingForm.type08} " +
+            "     , #{tbCampaignLandingForm.type09} " +
+            "     , #{tbCampaignLandingForm.type10} " +
+
+            "     , #{tbCampaignLandingForm.value01} " +
+            "     , #{tbCampaignLandingForm.value02} " +
+            "     , #{tbCampaignLandingForm.value03} " +
+            "     , #{tbCampaignLandingForm.value04} " +
+            "     , #{tbCampaignLandingForm.value05} " +
+            "     , #{tbCampaignLandingForm.value06} " +
+            "     , #{tbCampaignLandingForm.value07} " +
+            "     , #{tbCampaignLandingForm.value08} " +
+            "     , #{tbCampaignLandingForm.value09} " +
+            "     , #{tbCampaignLandingForm.value10} " +
+
+            "     , #{tbCampaignLandingForm.page01} " +
+            "     , #{tbCampaignLandingForm.page02} " +
+            "     , #{tbCampaignLandingForm.page03} " +
+            "     , #{tbCampaignLandingForm.page04} " +
+            "     , #{tbCampaignLandingForm.page05} " +
+            "     , #{tbCampaignLandingForm.page06} " +
+            "     , #{tbCampaignLandingForm.page07} " +
+            "     , #{tbCampaignLandingForm.page08} " +
+            "     , #{tbCampaignLandingForm.page09} " +
+            "     , #{tbCampaignLandingForm.page10} " +
+            ") ")
+    @Options(useGeneratedKeys = true, keyProperty = "seqNo")
+    Long insCampaignLandingForm(@Param("landingPage") TB_CAMPAIGN_LANDING_FORM tbCampaignLandingForm);
+
+
+
+
+
+
+
 }
