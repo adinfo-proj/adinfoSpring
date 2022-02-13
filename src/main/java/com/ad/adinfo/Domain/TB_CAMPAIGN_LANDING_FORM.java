@@ -14,9 +14,10 @@ public class TB_CAMPAIGN_LANDING_FORM {
     private     Long        mkId;
     private     Long        caId;
 
-    private     String      adName;
     private     String      regClntId;
     private     String      regIp;
+    private     String      stipulationTitle;
+    private     String      stipulationDesc;
 
     private     String      type01;
     private     String      type02;

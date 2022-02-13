@@ -3,7 +3,7 @@ package com.ad.adinfo.Domain;
 import lombok.Data;
 
 @Data
-public class CAMPAIGN_MASTER {
+public class TB_CAMPAIGN_MASTER {
     private String  updateDt;
     private Long    mbId;
     private Long    adId;
@@ -14,6 +14,7 @@ public class CAMPAIGN_MASTER {
     private String  campaignAreaEtc;
     private String  status;
     private String  name;
+    private String  adName;
     private String  tp;
     private String  topKind;
     private String  middleKind;

@@ -1,20 +1,19 @@
 package com.ad.adinfo.Controller;
 
-import com.ad.adinfo.Domain.AD_OPERATION_HISTORY;
-import com.ad.adinfo.Domain.CAMPAIGN_MASTER;
+import com.ad.adinfo.Domain.TB_CAMPAIGN_MASTER;
 import com.ad.adinfo.Domain.TB_CAMPAIGN_LANDING_FORM;
-import com.ad.adinfo.Mapper.AdOperationHistoryMapper;
-import com.ad.adinfo.Mapper.AdUtilityMapper;
-import com.ad.adinfo.Mapper.CampaignMasterMapper;
-import com.ad.adinfo.Mapper.DataCenterMapper;
+import com.ad.adinfo.Mapper.*;
 import com.ad.adinfo.Service.AdInfoUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,6 +29,11 @@ public class CampaignManageController {
     private final DataCenterMapper  dataCenterMapper;
     private final AdUtilityMapper   adUtilityMapper;
     private final AdOperationHistoryMapper adOperationHistoryMapper;
+    private final CampaignLandingFormMapper campaignLandingFormMapper;
+
+    @Autowired
+    private PlatformTransactionManager trxManager;
+
 
     /*------------------------------------------------------------------------------------------------------------------
      * 신규 캠페인 등록
@@ -57,11 +61,14 @@ public class CampaignManageController {
         System.out.println("newcampaign Func Start...");
         System.out.println("############################################################################");
 
+        // 트랜잭션 시작
+        TransactionStatus trxStatus = trxManager.getTransaction(new DefaultTransactionDefinition());
+
         //---------------------------------------------------------------------------------------------------------
         // 변수 설정 영역 Start
         //---------------------------------------------------------------------------------------------------------
         Long newCaId                            = 0L;
-        CAMPAIGN_MASTER     cpaCampaignMaster   = new CAMPAIGN_MASTER();
+        TB_CAMPAIGN_MASTER cpaCampaignMaster   = new TB_CAMPAIGN_MASTER();
         Map<String, Object> resultMap           = new HashMap<String, Object>();
 
         System.out.println("----------------------------------------------------------------------------");
@@ -69,6 +76,7 @@ public class CampaignManageController {
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("헤더        : [" + rHeader + "]");
         System.out.println("입력 파라메터 : [" + params + "]");
+        System.out.println("입력 파라메터 : [" + formRq + "]");
 
         //---------------------------------------------------------------------------------------------------------
         // 비지니스 로직 Start
@@ -95,20 +103,6 @@ public class CampaignManageController {
         }
 
         try {
-            System.out.println("gradeCd        : [" + params.get("gradeCd") + "]");
-            System.out.println("mbId           : [" + params.get("mbId") + "]");
-            System.out.println("adId           : [" + params.get("adId") + "]");
-            System.out.println("clntId         : [" + params.get("clntId") + "]");
-            System.out.println("adPurpose      : [" + params.get("adPurpose") + "]");
-            System.out.println("adTopKind      : [" + params.get("adTopKind") + "]");
-            System.out.println("adMiddleKind   : [" + params.get("adMiddleKind") + "]");
-            System.out.println("adName         : [" + params.get("adName") + "]");
-            System.out.println("adComment      : [" + params.get("adComment") + "]");
-            System.out.println("adPrice        : [" + params.get("adPrice") + "]");
-            System.out.println("adMaketerPrice : [" + params.get("adMaketerPrice") + "]");
-            System.out.println("smsYn          : [" + params.get("smsYn") + "]");
-            System.out.println("smsNo          : [" + params.get("smsNo") + "]");
-
             //-------------------------------------------------------------------
             // DB생성을 위해 변수를 대입한다.
             //   - DB마스터는 회원사ID와 대행사ID가 모두 같다.
@@ -176,11 +170,15 @@ public class CampaignManageController {
                     resultMap.put("result", false);
                     resultMap.put("message", "이미 등록한 캠페인명이 있습니다.");
 
+                    trxManager.rollback(trxStatus);
                     return resultMap;
                 }
             } catch (Exception e) {
                 System.out.println("campaignMaster.getCampaignMasterByName Fail : [" + e + "]");
             }
+
+            // 광고주명
+            cpaCampaignMaster.setAdName(params.get("adNameAd").toString());
 
             // 캠페인명
             cpaCampaignMaster.setName(params.get("adName").toString());
@@ -233,6 +231,112 @@ public class CampaignManageController {
 
         System.out.println("Parsing Data : [" + cpaCampaignMaster + "]");
 
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  랜딩페이지 폼 규격 생성.");
+        System.out.println("----------------------------------------------------------------------------");
+        //-------------------------------------------------------------------
+        // 캠페인별 랜딩페이지 폼 규격 생성.
+        //-------------------------------------------------------------------
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println(formRq.size());
+        System.out.println("----------------------------------------------------------------------------");
+
+        TB_CAMPAIGN_LANDING_FORM tbCampaignLandingForm = new TB_CAMPAIGN_LANDING_FORM();
+
+        tbCampaignLandingForm.setMbId            (Long.parseLong(params.get("mbId").toString()));
+        tbCampaignLandingForm.setAdId            (Long.parseLong(params.get("adId").toString()));
+        tbCampaignLandingForm.setMkId            (Long.parseLong(params.get("mkId").toString()));
+        tbCampaignLandingForm.setCaId            (newCaId);
+        tbCampaignLandingForm.setRegClntId       (params.get("clntId").toString());
+        tbCampaignLandingForm.setRegIp           (clientIp);
+        tbCampaignLandingForm.setStipulationTitle(params.get("stipulationTitle").toString());
+        tbCampaignLandingForm.setStipulationDesc (params.get("stipulationDesc").toString());
+
+        String sAskList = "";
+
+        for(int i = 0 ; i < formRq.size() ; i++) {
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println(formRq.get(i).toString());
+            System.out.println("----------------------------------------------------------------------------");
+
+            if(formRq.get(i).get("value").equals("") || formRq.get(i).get("value") == null) {
+                if(i == 9)
+                    sAskList += "-";
+                else
+                    sAskList += "-,";
+
+//                continue;
+            }
+            else {
+                if(i == 9)
+                    sAskList += formRq.get(i).get("value").toString();
+                else
+                    sAskList += formRq.get(i).get("value").toString() + ",";
+            }
+
+            switch(i) {
+                case 0 :
+                    tbCampaignLandingForm.setType01 (formRq.get(i).get("types").toString());
+                    tbCampaignLandingForm.setValue01(formRq.get(i).get("value").toString());
+                    tbCampaignLandingForm.setPage01 (formRq.get(i).get("desc").toString());
+                    break;
+                case 1 :
+                    tbCampaignLandingForm.setType02 (formRq.get(i).get("types").toString());
+                    tbCampaignLandingForm.setValue02(formRq.get(i).get("value").toString());
+                    tbCampaignLandingForm.setPage02 (formRq.get(i).get("desc").toString());
+                    break;
+                case 2 :
+                    tbCampaignLandingForm.setType03 (formRq.get(i).get("types").toString());
+                    tbCampaignLandingForm.setValue03(formRq.get(i).get("value").toString());
+                    tbCampaignLandingForm.setPage03 (formRq.get(i).get("desc").toString());
+                    break;
+                case 3 :
+                    tbCampaignLandingForm.setType04 (formRq.get(i).get("types").toString());
+                    tbCampaignLandingForm.setValue04(formRq.get(i).get("value").toString());
+                    tbCampaignLandingForm.setPage04 (formRq.get(i).get("desc").toString());
+                    break;
+                case 4 :
+                    tbCampaignLandingForm.setType05 (formRq.get(i).get("types").toString());
+                    tbCampaignLandingForm.setValue05(formRq.get(i).get("value").toString());
+                    tbCampaignLandingForm.setPage05 (formRq.get(i).get("desc").toString());
+                    break;
+                case 5 :
+                    tbCampaignLandingForm.setType06 (formRq.get(i).get("types").toString());
+                    tbCampaignLandingForm.setValue06(formRq.get(i).get("value").toString());
+                    tbCampaignLandingForm.setPage06 (formRq.get(i).get("desc").toString());
+                    break;
+                case 6 :
+                    tbCampaignLandingForm.setType07 (formRq.get(i).get("types").toString());
+                    tbCampaignLandingForm.setValue07(formRq.get(i).get("value").toString());
+                    tbCampaignLandingForm.setPage07 (formRq.get(i).get("desc").toString());
+                    break;
+                case 7 :
+                    tbCampaignLandingForm.setType08 (formRq.get(i).get("types").toString());
+                    tbCampaignLandingForm.setValue08(formRq.get(i).get("value").toString());
+                    tbCampaignLandingForm.setPage08 (formRq.get(i).get("desc").toString());
+                    break;
+                case 8 :
+                    tbCampaignLandingForm.setType09 (formRq.get(i).get("types").toString());
+                    tbCampaignLandingForm.setValue09(formRq.get(i).get("value").toString());
+                    tbCampaignLandingForm.setPage09 (formRq.get(i).get("desc").toString());
+                    break;
+                case 9 :
+                    tbCampaignLandingForm.setType10 (formRq.get(i).get("types").toString());
+                    tbCampaignLandingForm.setValue10(formRq.get(i).get("value").toString());
+                    tbCampaignLandingForm.setPage10 (formRq.get(i).get("desc").toString());
+                    break;
+            }
+
+            System.out.println("Step 02");
+
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println(tbCampaignLandingForm.toString());
+            System.out.println("----------------------------------------------------------------------------");
+        }
+
+        System.out.println(sAskList);
+
         //-------------------------------------------------------------------
         // 캠페인 마스터에 데이터를 생성한다.
         //-------------------------------------------------------------------
@@ -241,6 +345,8 @@ public class CampaignManageController {
             System.out.println("  campaignMasterMapper.insCampaignMaster Start");
             System.out.println("----------------------------------------------------------------------------");
 
+            cpaCampaignMaster.setAskList(sAskList);
+
             campaignMasterMapper.insCampaignMaster(cpaCampaignMaster);
         } catch (Exception e) {
             System.out.println("campaignMasterMapper.insCampaignMaster Fail : [" + e + "]");
@@ -248,71 +354,37 @@ public class CampaignManageController {
             resultMap.put("result", false);
             resultMap.put("message", "캠페인 등록이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
 
+            trxManager.rollback(trxStatus);
             return resultMap;
         }
 
         //-------------------------------------------------------------------
-        // 캠페인별 랜딩페이지 폼 규격 생성.
+        // 캠페인 폼 데이터를 생성한다.
         //-------------------------------------------------------------------
-        for(int i = 0 ; i < formRq.size() ; i++) {
-            TB_CAMPAIGN_LANDING_FORM tbCampaignLandingForm = new TB_CAMPAIGN_LANDING_FORM();
-
-            tbCampaignLandingForm.setMbId(Long.parseLong(params.get("mbId").toString()));
-            tbCampaignLandingForm.setAdId(Long.parseLong(params.get("adId").toString()));
-            tbCampaignLandingForm.setMkId(Long.parseLong(params.get("mkId").toString()));
-            tbCampaignLandingForm.setCaId(Long.parseLong(params.get("caId").toString()));
-
-            tbCampaignLandingForm.setAdName   (params.get("adName").toString());
-            tbCampaignLandingForm.setRegClntId(params.get("clntId").toString());
-            tbCampaignLandingForm.setRegIp    (clientIp);
-
-            switch(i) {
-                case 0 : tbCampaignLandingForm.setType01 (formRq.get(i).get("types").toString());
-                    tbCampaignLandingForm.setValue01(formRq.get(i).get("desc").toString());
-                    break;
-                case 1 : tbCampaignLandingForm.setType02 (formRq.get(i).get("types").toString());
-                    tbCampaignLandingForm.setValue02(formRq.get(i).get("desc").toString());
-                    break;
-                case 2 : tbCampaignLandingForm.setType03 (formRq.get(i).get("types").toString());
-                    tbCampaignLandingForm.setValue03(formRq.get(i).get("desc").toString());
-                    break;
-                case 3 : tbCampaignLandingForm.setType04 (formRq.get(i).get("types").toString());
-                    tbCampaignLandingForm.setValue04(formRq.get(i).get("desc").toString());
-                    break;
-                case 4 : tbCampaignLandingForm.setType05 (formRq.get(i).get("types").toString());
-                    tbCampaignLandingForm.setValue05(formRq.get(i).get("desc").toString());
-                    break;
-                case 5 : tbCampaignLandingForm.setType06 (formRq.get(i).get("types").toString());
-                    tbCampaignLandingForm.setValue06(formRq.get(i).get("desc").toString());
-                    break;
-                case 6 : tbCampaignLandingForm.setType07 (formRq.get(i).get("types").toString());
-                    tbCampaignLandingForm.setValue07(formRq.get(i).get("desc").toString());
-                    break;
-                case 7 : tbCampaignLandingForm.setType08 (formRq.get(i).get("types").toString());
-                    tbCampaignLandingForm.setValue08(formRq.get(i).get("desc").toString());
-                    break;
-                case 8 : tbCampaignLandingForm.setType09 (formRq.get(i).get("types").toString());
-                    tbCampaignLandingForm.setValue09(formRq.get(i).get("desc").toString());
-                    break;
-                case 9 : tbCampaignLandingForm.setType10 (formRq.get(i).get("types").toString());
-                    tbCampaignLandingForm.setValue10(formRq.get(i).get("desc").toString());
-                    break;
-            }
-
-            Long lResultRow = campaignMasterMapper.insCampaignLandingForm(tbCampaignLandingForm);
+        try {
+            Long lResultRow = campaignLandingFormMapper.insCampaignLandingForm(tbCampaignLandingForm);
             if(lResultRow > 0) {
                 System.out.println("생성 결과 : ["+ lResultRow +"]");
             }
+        } catch (Exception e) {
+            System.out.println("campaignMasterMapper.insCampaignLandingForm Fail : [" + e + "]");
+
+            resultMap.put("result", false);
+            resultMap.put("message", "캠페인 등록이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+
+            trxManager.rollback(trxStatus);
+            return resultMap;
         }
 
         //-------------------------------------------------------------------
         // SEQ로 생성된 캠페인 아이디를 리턴한다.
         //-------------------------------------------------------------------
-        resultMap.put("result", false);
+        resultMap.put("result", true);
         resultMap.put("message", "캠페인 등록이 정상적으로 처리되었습니다.");
 
         System.out.println("리턴 메세지 : ["+ resultMap.toString() +"]");
 
+        trxManager.commit(trxStatus);
         return resultMap;
     }
 
@@ -332,24 +404,29 @@ public class CampaignManageController {
     @CrossOrigin
     @RequestMapping(value = "/upcampaign", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
-    public Map<String, Object> insCampaignMaster(
+    public Map<String, Object> updCampaignMaster(
             NativeWebRequest nativeWebRequest,
-            @RequestPart (value = "dataObj") CAMPAIGN_MASTER upCpaCampaignMaster) throws Exception {
-
+            @RequestPart (value = "formObj") List<Map<String, Object>>  formRq,
+            @RequestPart (value = "dataObj")      Map<String, Object>   params) throws Exception
+    {
         System.out.println("\n\n############################################################################");
-        System.out.println("DiffAuthSms Func Start...");
+        System.out.println("updCampaignMaster Func Start...");
         System.out.println("############################################################################");
+
+        // 트랜잭션 시작
+        TransactionStatus trxStatus = trxManager.getTransaction(new DefaultTransactionDefinition());
 
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  화면에서 수신된 입력값");
         System.out.println("----------------------------------------------------------------------------");
-        System.out.println("테이블구조 : " + upCpaCampaignMaster + "]");
+        System.out.println("캠페인정보 : [" + params.toString() + "]");
+        System.out.println("폼 설정   : [" + formRq.toString() + "]");
 
         //---------------------------------------------------------------------------------------------------------
         // 변수 설정 영역 Start
         //---------------------------------------------------------------------------------------------------------
         Map<String, Object> resultMap = new HashMap<String, Object>();
-        CAMPAIGN_MASTER orgCpaCampaignMaster = new CAMPAIGN_MASTER();
+        TB_CAMPAIGN_MASTER orgCpaCampaignMaster = new TB_CAMPAIGN_MASTER();
 
         try {
             //---------------------------------------------------------------------------------------------------------
@@ -384,64 +461,246 @@ public class CampaignManageController {
             System.out.println("----------------------------------------------------------------------------");
 
             orgCpaCampaignMaster = campaignMasterMapper.getCampaignMasterForMbAdCa(
-                    upCpaCampaignMaster.getMbId()
-                    , upCpaCampaignMaster.getAdId()
-                    , upCpaCampaignMaster.getCaId() );
+                      Long.parseLong(params.get("mbId").toString())
+                    , Long.parseLong(params.get("adId").toString())
+                    , Long.parseLong(params.get("caId").toString())
+            );
 
             orgCpaCampaignMaster.setSrtDt(orgCpaCampaignMaster.getSrtDt().replaceAll("-", ""));
             orgCpaCampaignMaster.setSrtTm(orgCpaCampaignMaster.getSrtTm().replaceAll(":", ""));
 
-            upCpaCampaignMaster.setSrtDt(upCpaCampaignMaster.getSrtDt().toString().replaceAll("-", ""));
-            upCpaCampaignMaster.setEndDt(upCpaCampaignMaster.getEndDt().toString().replaceAll("-", ""));
-
-            upCpaCampaignMaster.setSrtTm(upCpaCampaignMaster.getSrtTm().toString().replaceAll(":", ""));
-            upCpaCampaignMaster.setEndTm(upCpaCampaignMaster.getEndTm().toString().replaceAll(":", ""));
-
             System.out.println("----------------------------------------------------------------------------");
             System.out.println("  campaignMasterMapper.insCampaignMasterHistory Start");
             System.out.println("----------------------------------------------------------------------------");
+
             campaignMasterMapper.insCampaignMasterHistory(orgCpaCampaignMaster);
+
+            //---------------------------------------------------------------------------------------------------------
+            // 변경된 정보를 갱신 후 업데이트 한다.
+            //---------------------------------------------------------------------------------------------------------
+            orgCpaCampaignMaster.setRegIp              (clientIp);
+            orgCpaCampaignMaster.setCaId(Long.parseLong(params.get("caId").toString()));
+            orgCpaCampaignMaster.setCampaignKind       (params.get("campaignKind").toString());
+            orgCpaCampaignMaster.setTopKind            (params.get("topKind").toString());
+            orgCpaCampaignMaster.setMiddleKind         (params.get("middleKind").toString());
+            orgCpaCampaignMaster.setName               (params.get("name").toString());
+            orgCpaCampaignMaster.setAdName             (params.get("adName").toString());
+            orgCpaCampaignMaster.setStatus             (params.get("status").toString());
+            orgCpaCampaignMaster.setComment            (params.get("comment").toString());
+
+            // 광고주 단가
+            if ((params.get("price") == null) || params.get("price").equals(""))
+                orgCpaCampaignMaster.setPrice(0L);
+            else
+                orgCpaCampaignMaster.setPrice(Long.parseLong(params.get("price").toString().replaceAll(",", "")));
+
+            // 마케터 단가
+            if ((params.get("marketerPrice") == null) || params.get("marketerPrice").equals(""))
+                orgCpaCampaignMaster.setMarketerPrice(0L);
+            else
+                orgCpaCampaignMaster.setMarketerPrice(Long.parseLong(params.get("marketerPrice").toString().replaceAll(",", "")));
+
+            // SMS 수신안함인경우 기존 SMS 번호를 제거한다.
+            if(params.get("smsYn").toString().equals("N"))
+                orgCpaCampaignMaster.setSmsNo("");
+            else
+                orgCpaCampaignMaster.setSmsNo(params.get("smsNo").toString().replaceAll("-", ""));
+
+            //---------------------------------------------------------------------------------------------------------
+            // 캠페인별 랜딩페이지 폼 규격 갱신.
+            //---------------------------------------------------------------------------------------------------------
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println(formRq.size());
+            System.out.println("----------------------------------------------------------------------------");
+
+            TB_CAMPAIGN_LANDING_FORM tbCampaignLandingForm = new TB_CAMPAIGN_LANDING_FORM();
+
+            try{
+                tbCampaignLandingForm = campaignLandingFormMapper.getCampaignLandingFormForTB(
+                          Long.parseLong(params.get("mbId").toString())
+                        , Long.parseLong(params.get("adId").toString())
+                        , Long.parseLong(params.get("mbId").toString())
+                        , Long.parseLong(params.get("caId").toString())
+                );
+            } catch(Exception e) {
+
+                System.out.println("tbCampaignLandingForm Fail : [" + e + "]");
+
+                resultMap.put("result", false);
+                resultMap.put("message", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+
+                System.out.println("처리 메세지 : [" + "뭐밍 냥냥냥 ???" + "]");
+
+                trxManager.rollback(trxStatus);
+                return resultMap;
+            }
+
+            tbCampaignLandingForm.setRegClntId       (orgCpaCampaignMaster.getOperId());
+            tbCampaignLandingForm.setRegIp           (clientIp);
+            tbCampaignLandingForm.setStipulationTitle(params.get("stipulationTitle").toString());
+            tbCampaignLandingForm.setStipulationDesc (params.get("stipulationDesc").toString());
+
+            String sAskList = "";
+
+            System.out.println("Sz : [" + formRq.size() + "]");
+
+            for(int i = 0 ; i < formRq.size() ; i++) {
+                System.out.println("----------------------------------------------------------------------------");
+                System.out.println(formRq.get(i).toString());
+                System.out.println("----------------------------------------------------------------------------");
+
+                if(formRq.get(i).get("value").equals("") || formRq.get(i).get("value") == null) {
+                    if(i == 9)
+                        sAskList += "-";
+                    else
+                        sAskList += "-,";
+                }
+                else {
+                    if(i == 9)
+                        sAskList += formRq.get(i).get("value").toString();
+                    else
+                        sAskList += formRq.get(i).get("value").toString() + ",";
+                }
+
+                switch(i) {
+                    case 0 :
+                        tbCampaignLandingForm.setType01 (formRq.get(i).get("types").toString());
+                        tbCampaignLandingForm.setValue01(formRq.get(i).get("value").toString());
+                        tbCampaignLandingForm.setPage01 (formRq.get(i).get("desc").toString());
+                        break;
+                    case 1 :
+                        tbCampaignLandingForm.setType02 (formRq.get(i).get("types").toString());
+                        tbCampaignLandingForm.setValue02(formRq.get(i).get("value").toString());
+                        tbCampaignLandingForm.setPage02 (formRq.get(i).get("desc").toString());
+                        break;
+                    case 2 :
+                        tbCampaignLandingForm.setType03 (formRq.get(i).get("types").toString());
+                        tbCampaignLandingForm.setValue03(formRq.get(i).get("value").toString());
+                        tbCampaignLandingForm.setPage03 (formRq.get(i).get("desc").toString());
+                        break;
+                    case 3 :
+                        tbCampaignLandingForm.setType04 (formRq.get(i).get("types").toString());
+                        tbCampaignLandingForm.setValue04(formRq.get(i).get("value").toString());
+                        tbCampaignLandingForm.setPage04 (formRq.get(i).get("desc").toString());
+                        break;
+                    case 4 :
+                        tbCampaignLandingForm.setType05 (formRq.get(i).get("types").toString());
+                        tbCampaignLandingForm.setValue05(formRq.get(i).get("value").toString());
+                        tbCampaignLandingForm.setPage05 (formRq.get(i).get("desc").toString());
+                        break;
+                    case 5 :
+                        tbCampaignLandingForm.setType06 (formRq.get(i).get("types").toString());
+                        tbCampaignLandingForm.setValue06(formRq.get(i).get("value").toString());
+                        tbCampaignLandingForm.setPage06 (formRq.get(i).get("desc").toString());
+                        break;
+                    case 6 :
+                        tbCampaignLandingForm.setType07 (formRq.get(i).get("types").toString());
+                        tbCampaignLandingForm.setValue07(formRq.get(i).get("value").toString());
+                        tbCampaignLandingForm.setPage07 (formRq.get(i).get("desc").toString());
+                        break;
+                    case 7 :
+                        tbCampaignLandingForm.setType08 (formRq.get(i).get("types").toString());
+                        tbCampaignLandingForm.setValue08(formRq.get(i).get("value").toString());
+                        tbCampaignLandingForm.setPage08 (formRq.get(i).get("desc").toString());
+                        break;
+                    case 8 :
+                        tbCampaignLandingForm.setType09 (formRq.get(i).get("types").toString());
+                        tbCampaignLandingForm.setValue09(formRq.get(i).get("value").toString());
+                        tbCampaignLandingForm.setPage09 (formRq.get(i).get("desc").toString());
+                        break;
+                    case 9 :
+                        tbCampaignLandingForm.setType10 (formRq.get(i).get("types").toString());
+                        tbCampaignLandingForm.setValue10(formRq.get(i).get("value").toString());
+                        tbCampaignLandingForm.setPage10 (formRq.get(i).get("desc").toString());
+                        break;
+                }
+
+                System.out.println("----------------------------------------------------------------------------");
+                System.out.println(tbCampaignLandingForm.toString());
+                System.out.println("----------------------------------------------------------------------------");
+            }
+
+            orgCpaCampaignMaster.setAskList(sAskList);
 
             System.out.println("----------------------------------------------------------------------------");
             System.out.println("  campaignMasterMapper.upCampaignMaster Start");
             System.out.println("----------------------------------------------------------------------------");
-            upCpaCampaignMaster.setRegIp(clientIp);
 
-            // SMS 수신안함인경우 기존 SMS 번호를 제거한다.
-            if(upCpaCampaignMaster.getSmsYn().equals("N")) {
-                upCpaCampaignMaster.setSmsNo("");
-            }
-
-            Long ret = campaignMasterMapper.upCampaignMaster(upCpaCampaignMaster);
+            Long ret = campaignMasterMapper.upCampaignMaster(orgCpaCampaignMaster);
             if(ret <= 0) {
-                resultMap.put("result", "failure");
-                resultMap.put("resultMessage", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+                resultMap.put("result", false);
+                resultMap.put("message", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
 
-                System.out.println("처리 메세지 : [" + "본인 확인을 다시 진행해 주세요" + "]");
+                System.out.println("처리 campaignMasterMapper.upCampaignMaster : [" + "에러나씀 ㅠㅠ" + "]");
+
+                trxManager.rollback(trxStatus);
+                return resultMap;
             }
             else {
-                resultMap.put("result", "success");
-                resultMap.put("resultMessage", "캠페인 변경이 정상적으로 처리되었습니다.");
+                System.out.println("campaignMasterMapper.upCampaignMaster : [" + ret + "]");
 
-                System.out.println("처리 메세지 : [" + "본인 확인을 다시 진행해 주세요" + "]");
+//                adInfoUtil.InsAdOperationHistory("O"
+//                                                , orgCpaCampaignMaster.getMbId()
+//                                                , orgCpaCampaignMaster.getOperId()
+//                                                , "00"
+//                                                , "["+ orgCpaCampaignMaster.getName() +"] 캠페인 정보를 변경하였습니다."
+//                );
+            }
 
+            Long rets = 0L;
+            try {
+                rets = campaignLandingFormMapper.updCampaignLandingForm(tbCampaignLandingForm);
+            } catch(Exception e) {
+                System.out.println("updCampaignLandingForm Fail 0 : [" + e + "]");
 
-                adInfoUtil.InsAdOperationHistory("O"
-                                                , upCpaCampaignMaster.getMbId()
-                                                , upCpaCampaignMaster.getOperId()
-                                                , "00"
-                                                , "["+ upCpaCampaignMaster.getName() +"] 캠페인 정보를 변경하였습니다."
-                );
+                resultMap.put("result", false);
+                resultMap.put("message", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+
+                System.out.println("처리 메세지 : [" + "뭐밍???" + "]");
+
+                trxManager.rollback(trxStatus);
+                return resultMap;
+            }
+
+            System.out.println("campaignLandingFormMapper.updCampaignLandingForm 결과 : [" + rets + "]");
+
+            if(rets <= 0) {
+                resultMap.put("result", false);
+                resultMap.put("message", "캠페인 랜딩페이지 포멧 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+
+                System.out.println("처리 메세지 : [" + "ret 값이 0보다 작다" + "]");
+
+                trxManager.rollback(trxStatus);
+                return resultMap;
+            }
+            else {
+                resultMap.put("result", true);
+                resultMap.put("message", "캠페인 랜딩페이지 포멧 변경이 정상적으로 처리되었습니다.");
+
+                System.out.println("처리 메세지 : [" + "정상이래..." + "]");
+
+//                adInfoUtil.InsAdOperationHistory("O"
+//                        , orgCpaCampaignMaster.getMbId()
+//                        , orgCpaCampaignMaster.getOperId()
+//                        , "00"
+//                        , "["+ orgCpaCampaignMaster.getName() +"] 캠페인 정보를 변경하였습니다."
+//                );
             }
         } catch(Exception e) {
-            System.out.println("upcampaign Fail : [" + e + "]");
+            System.out.println("updCampaignLandingForm Fail 1 : [" + e + "]");
 
-            resultMap.put("result", "failure");
-            resultMap.put("resultMessage", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+            resultMap.put("result", false);
+            resultMap.put("message", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
 
-            System.out.println("처리 메세지 : [" + "본인 확인을 다시 진행해 주세요" + "]");
+            System.out.println("처리 메세지 : [" + "뭐밍???" + "]");
+
+            trxManager.rollback(trxStatus);
+            return resultMap;
         }
 
+        System.out.println("최종 처리 메세지 : [" + resultMap + "]");
+
+        trxManager.commit(trxStatus);
         return resultMap;
     }
 
@@ -463,7 +722,7 @@ public class CampaignManageController {
     @ResponseStatus(value = HttpStatus.OK)
     public Map<String, Object> ChangeCampaignStatus(HttpServletRequest    rq) throws Exception {
         System.out.println("\n\n############################################################################");
-        System.out.println("GetCampaignNameLst Func Start...");
+        System.out.println("ChangeCampaignStatus Func Start...");
         System.out.println("############################################################################");
 
         Long lReturn = -1L;
@@ -519,6 +778,117 @@ public class CampaignManageController {
     }
 
     /*------------------------------------------------------------------------------------------------------------------
+     * 캠페인 정보 조회
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.11
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] CAMPAIGN_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetCampInfo", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Map<String, Object>> GetCampInfo(HttpServletRequest rq) throws Exception {
+        System.out.println("\n\n");
+        System.out.println("############################################################################");
+        System.out.println("GetCampInfo Func Start...");
+        System.out.println("############################################################################");
+
+        Map<String, Object>         resultMap             = new HashMap<String, Object>();
+        Map<String, Object>         tbCampaignMaster      = new HashMap<String, Object>();
+        Map<String, Object>         tbCampaignLandingForm = new HashMap<String, Object>();
+
+        List<Map<String, Object>>   resultObj             = new ArrayList<Map<String, Object>>();
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("mbId : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId : [" + rq.getParameter("adId") + "]");
+        System.out.println("mkId : [" + rq.getParameter("mkId") + "]");
+        System.out.println("caId : [" + rq.getParameter("caId") + "]");
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  campaignMasterMapper.getCampaignMasterForMbAdCaOne Start");
+        System.out.println("----------------------------------------------------------------------------");
+        try {
+            tbCampaignMaster = campaignMasterMapper.getCampaignMasterForMbAdCaOne(
+                    Long.parseLong(rq.getParameter("mbId")),
+                    Long.parseLong(rq.getParameter("adId")),
+                    Long.parseLong(rq.getParameter("caId"))
+            );
+
+            System.out.println("campaignMaster : [" + tbCampaignMaster + "]");
+
+            if( tbCampaignMaster == null) {
+                System.out.println("tbCampaignMaster is null!!");
+                resultMap.put("status", false);
+                resultMap.put("comment", "시스템 오류로 관리자에게 연락바랍니다.");
+
+                resultObj.add(0, resultMap);
+                return resultObj;
+            }
+
+
+        } catch(Exception e) {
+            System.out.println("Error : " + e.toString());
+            resultMap.put("status", false);
+            resultMap.put("comment", "시스템 오류로 관리자에게 연락바랍니다.");
+
+            resultObj.add(0, resultMap);
+            return resultObj;
+        }
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  campaignLandingFormMapper.getCampaignLandingForm Start");
+        System.out.println("----------------------------------------------------------------------------");
+        try {
+            tbCampaignLandingForm = campaignLandingFormMapper.getCampaignLandingForm(
+                    Long.parseLong(rq.getParameter("mbId")),
+                    Long.parseLong(rq.getParameter("adId")),
+                    Long.parseLong(rq.getParameter("mkId")),
+                    Long.parseLong(rq.getParameter("caId"))
+            );
+
+            System.out.println("campaignLandingForm : [" + tbCampaignLandingForm + "]");
+
+            if( tbCampaignLandingForm == null) {
+                System.out.println("tbCampaignLandingForm is null!!");
+                resultMap.put("status", false);
+                resultMap.put("comment", "시스템 오류로 관리자에게 연락바랍니다.");
+
+                resultObj.add(0, resultMap);
+                return resultObj;
+            }
+
+
+        } catch(Exception e) {
+            System.out.println("Error : " + e.toString());
+            resultMap.put("status", false);
+            resultMap.put("comment", "시스템 오류로 관리자에게 연락바랍니다.");
+            resultObj.add(0, resultMap);
+
+            return resultObj;
+        }
+
+        resultMap.put("status", true);
+        resultMap.put("comment", "정상적으로 조회되었습니다.");
+
+        resultObj.add(0, resultMap);
+        resultObj.add(1, tbCampaignMaster);
+        resultObj.add(2, tbCampaignLandingForm);
+
+        System.out.println("리턴 데이터 : ["+ resultObj.toString() +"]");
+
+        return resultObj;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
      * 캠페인명 리스트
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2021.12.22
@@ -548,9 +918,53 @@ public class CampaignManageController {
         System.out.println("adId : [" + rq.getParameter("adId") + "]");
 
         System.out.println("----------------------------------------------------------------------------");
-        System.out.println("  campaignMasterMapper.getCampaignMasterForMbAdStatus_ViewCount Start");
+        System.out.println("  campaignMasterMapper.getCampaignMasterNameList Start");
         System.out.println("----------------------------------------------------------------------------");
         resultObj = campaignMasterMapper.getCampaignMasterNameList(Long.parseLong(rq.getParameter("mbId")), Long.parseLong(rq.getParameter("adId")));
+
+        System.out.println("리턴 데이터 : ["+ resultObj.toString() +"]");
+
+        return resultObj;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 캠페인명 입력리스트 조회
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.12
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] CAMPAIGN_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetCampaignAskList", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Map<String, Object>> GetCampaignAskList(HttpServletRequest rq) throws Exception {
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetCampaignAskList Func Start...");
+        System.out.println("############################################################################");
+
+        List<Map<String, Object>> resultObj = new ArrayList<Map<String, Object>>();
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("mbId : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId : [" + rq.getParameter("adId") + "]");
+        System.out.println("caId : [" + rq.getParameter("caId") + "]");
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  campaignMasterMapper.getCampaignMasterAskList Start");
+        System.out.println("----------------------------------------------------------------------------");
+        resultObj = campaignMasterMapper.getCampaignMasterAskList(
+                Long.parseLong(rq.getParameter("mbId")),
+                Long.parseLong(rq.getParameter("adId")),
+                Long.parseLong(rq.getParameter("caId"))
+        );
 
         System.out.println("리턴 데이터 : ["+ resultObj.toString() +"]");
 
@@ -651,8 +1065,8 @@ public class CampaignManageController {
     @CrossOrigin
     @RequestMapping(value = "GetCampaignForMbAdCa", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public CAMPAIGN_MASTER GetCampaignForMbAdCa(HttpServletRequest rq) throws Exception {
-        CAMPAIGN_MASTER campaignMaster = new CAMPAIGN_MASTER();
+    public TB_CAMPAIGN_MASTER GetCampaignForMbAdCa(HttpServletRequest rq) throws Exception {
+        TB_CAMPAIGN_MASTER campaignMaster = new TB_CAMPAIGN_MASTER();
 
         System.out.println("\n\n############################################################################");
         System.out.println("GetCampaignForMbAdCa Func Start...");

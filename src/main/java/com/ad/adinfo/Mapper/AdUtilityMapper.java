@@ -1,6 +1,5 @@
 package com.ad.adinfo.Mapper;
 
-import com.ad.adinfo.Domain.CAMPAIGN_MASTER;
 import org.apache.ibatis.annotations.*;
 
 @Mapper

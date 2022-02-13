@@ -191,7 +191,7 @@ public class AdinfoAPIController {
     @CrossOrigin
     @RequestMapping(value = "/CampaignAllList", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public List<CAMPAIGN_MASTER> CampaignAllList() {
+    public List<TB_CAMPAIGN_MASTER> CampaignAllList() {
         return campaignMaster.getCampaignMasterAll(10000L);
     }
 
