@@ -57,7 +57,7 @@ public class CampaignManageController {
             @RequestPart (value = "formObj") List<Map<String, Object>>  formRq,
             @RequestPart (value = "dataObj")      Map<String, Object>   params) throws Exception
     {
-        System.out.println("\n\n############################################################################");
+        System.out.println("\n############################################################################");
         System.out.println("newcampaign Func Start...");
         System.out.println("############################################################################");
 
@@ -68,15 +68,15 @@ public class CampaignManageController {
         // 변수 설정 영역 Start
         //---------------------------------------------------------------------------------------------------------
         Long newCaId                            = 0L;
-        TB_CAMPAIGN_MASTER cpaCampaignMaster   = new TB_CAMPAIGN_MASTER();
+        TB_CAMPAIGN_MASTER cpaCampaignMaster    = new TB_CAMPAIGN_MASTER();
         Map<String, Object> resultMap           = new HashMap<String, Object>();
 
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  화면에서 수신된 입력값");
         System.out.println("----------------------------------------------------------------------------");
-        System.out.println("헤더        : [" + rHeader + "]");
-        System.out.println("입력 파라메터 : [" + params + "]");
-        System.out.println("입력 파라메터 : [" + formRq + "]");
+        System.out.println("헤더            : [" + rHeader + "]");
+        System.out.println("dataObj 파라메터 : [" + params + "]");
+        System.out.println("formObj 파라메터 : [" + formRq + "]");
 
         //---------------------------------------------------------------------------------------------------------
         // 비지니스 로직 Start

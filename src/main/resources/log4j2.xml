@@ -16,7 +16,7 @@
         <Logger name="jdbc.sqlonly"         level="INFO" additivity="false"><AppenderRef ref="console" /></Logger>
         <Logger name="jdbc.sqltiming"       level="INFO" additivity="false"><AppenderRef ref="console" /></Logger>
         <Logger name="jdbc.resultset"       level="ERROR" additivity="false"><AppenderRef ref="console" /></Logger>
-        <Logger name="jdbc.resultsettable"  level="INFO" additivity="false"><AppenderRef ref="console" /></Logger>
+        <Logger name="jdbc.resultsettable"  level="INFO" additivity="true"><AppenderRef ref="console" /></Logger>
 
         <!-- FATAL, ERROR, WARN, INFO, DEBUG, TRACE -->
         <Root level="ERROR">

@@ -955,7 +955,7 @@ public interface CampaignMasterMapper {
             "       , REFER_ID" +
             "       , SMS_YN" +
             "       , SMS_NO" +
-            "       , (SELECT COUNT(*) FROM CPA_PAGE_USING_COUNT WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) VIEW_COUNT" +
+            "       , (SELECT COUNT(*) FROM CPA_PAGE_USING_COUNT WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID AND EVENT_CD = 'M') VIEW_COUNT" +
             "       , (SELECT COUNT(*) FROM CPA_DATA             WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) CREATE_COUNT" +
             "       , (SELECT COUNT(*) FROM LANDING_PAGE         WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) LAND_COUNT" +
             " FROM " +

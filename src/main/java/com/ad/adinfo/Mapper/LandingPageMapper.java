@@ -64,15 +64,12 @@ public interface LandingPageMapper {
             "     , #{landingPage.caId} " +
             "     , #{landingPage.pgId} " +
             "     , #{landingPage.useTp} " +
-
             "     , #{landingPage.name} " +
             "     , #{landingPage.adName} " +
             "     , #{landingPage.url} " +
             "     , #{landingPage.askList} " +
-
             "     , #{landingPage.regClntId} " +
             "     , #{landingPage.regIp} " +
-
             "     , #{landingPage.type01} " +
             "     , #{landingPage.type02} " +
             "     , #{landingPage.type03} " +
@@ -83,7 +80,6 @@ public interface LandingPageMapper {
             "     , #{landingPage.type08} " +
             "     , #{landingPage.type09} " +
             "     , #{landingPage.type10} " +
-
             "     , #{landingPage.value01} " +
             "     , #{landingPage.value02} " +
             "     , #{landingPage.value03} " +
@@ -94,7 +90,6 @@ public interface LandingPageMapper {
             "     , #{landingPage.value08} " +
             "     , #{landingPage.value09} " +
             "     , #{landingPage.value10} " +
-
             "     , #{landingPage.page01} " +
             "     , #{landingPage.page02} " +
             "     , #{landingPage.page03} " +
@@ -160,7 +155,8 @@ public interface LandingPageMapper {
             "      MB_ID      = ${mbId} " +
             "AND   AD_ID      = ${adId} " +
             "AND   CA_ID      = ${caId} " +
-            "AND   PG_ID      = ${pgId} " )
+            "AND   PG_ID      = ${pgId} " +
+            "AND   USE_TP    <> 'F'     " )
     @Results({
             @Result(property = "seqNo" , column = "SEQ_NO"),
             @Result(property = "updateDt" , column = "UPDATE_DT"),
@@ -217,7 +213,7 @@ public interface LandingPageMapper {
             "      MB_ID      = ${mbId} " +
             "AND   AD_ID      = ${adId} " +
             "AND   MK_ID      = ${mkId} " +
-            "AND   CA_ID      = ${caId} ")
+            "AND   CA_ID      = ${caId} " )
     @Results({
             @Result(property = "pgId" , column = "PG_ID")
     })
@@ -340,4 +336,16 @@ public interface LandingPageMapper {
             @Result(property = "count", column = "COUNT")
     })
     List<Map<String, Object>> GetLandingListForMbAdCaRowCount(Long mbId, Long adId, Long mkId, Long caId, String useTp);
+
+    @Update(" UPDATE " +
+            "        LANDING_PAGE " +
+            " SET" +
+            "        UPDATE_DT  = NOW()" +
+            "      , USE_TP     = #{status}" +
+            " WHERE " +
+            "        MB_ID      = #{mbId}" +
+            " AND    AD_ID      = #{adId}" +
+            " AND    CA_ID      = #{caId}" +
+            " AND    PG_ID      = #{pgId}" )
+    Long changeStatusLandingPage(Long mbId, Long adId, Long caId, Long pgId, String status);
 }

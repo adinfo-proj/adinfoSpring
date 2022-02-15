@@ -1,7 +1,6 @@
 package com.ad.adinfo.Controller;
 
 import com.ad.adinfo.Domain.TB_LANDING_PAGE;
-import com.ad.adinfo.Mapper.AdPostbackFormatMapper;
 import com.ad.adinfo.Mapper.CampaignMasterMapper;
 import com.ad.adinfo.Mapper.LandingPageMapper;
 import com.ad.adinfo.Service.AdInfoUtil;
@@ -29,7 +28,6 @@ public class LandingPageController {
     private final AdInfoUtil  adInfoUtil;
     private final LandingPageMapper landingPageMapper;
     private final CampaignMasterMapper campaignMasterMapper;
-    private final AdPostbackFormatMapper adPostbackFormatMapper;
 
     /*------------------------------------------------------------------------------------------------------------------
      * 신규 랜딩페이지 등록
@@ -266,19 +264,25 @@ public class LandingPageController {
             reader.close();
 
             System.out.println("----------------------------------------------------------------------------");
+            System.out.println("  헤더 스크립트 삽입 Start");
+            System.out.println("----------------------------------------------------------------------------");
+            phpTag += "      " + params.get("scriptHeader").toString();
+            phpTag += "\n";
+
+            System.out.println("----------------------------------------------------------------------------");
             System.out.println("  헤더안에 valid function 추가 Start");
             System.out.println("----------------------------------------------------------------------------");
 
             //---------------------------------------------------------------------------------------------------------
             // 헤더안에 valid function 추가
             //---------------------------------------------------------------------------------------------------------
-            phpTag += "    <script type='text/javascript'>\n";
-            phpTag += "      function chk_validate(e) {\n";
-            phpTag += "        if(e.agree.checked == false) {\n";
-            phpTag += "          alert('개인정보 수집에 동의해주세요')\n";
-            phpTag += "          e.agree.focus();\n";
-            phpTag += "          return false;\n";
-            phpTag += "        }\n";
+            phpTag += "      <script type='text/javascript'>\n";
+            phpTag += "        function chk_validate(e) {\n";
+            phpTag += "          if(e.agree.checked == false) {\n";
+            phpTag += "            alert('개인정보 수집에 동의해주세요')\n";
+            phpTag += "            e.agree.focus();\n";
+            phpTag += "            return false;\n";
+            phpTag += "          }\n";
 //            phpTag += "        if(e.value2.value == '') {\n";
 //            phpTag += "          alert('이름을 입력해주세요');\n";
 //            phpTag += "          e.value2.focus();\n";
@@ -318,7 +322,7 @@ public class LandingPageController {
                 //-------------------------------------------------------------------
                 // 텍스트 박스
                 //-------------------------------------------------------------------
-                if(arrGab.get("values").equals("textForm")) {
+//                if(arrGab.get("values").equals("textForm")) {
                     String   textNames = arrGab.get("names").toString();
 
                     phpTag += "        if(e." + nameValue + ".value == '') {\n";
@@ -327,59 +331,59 @@ public class LandingPageController {
                     phpTag += "          return false;\n";
                     phpTag += "        }\n";
 
-                }
-                //-------------------------------------------------------------------
-                // 라디오 박스
-                //-------------------------------------------------------------------
-                //else if(arrGab.get("values").equals("radioForm")) {
-                //    String[] strArr    = arrGab.get("lab").toString().split(",");
-                //    String   formNames = arrGab.get("names").toString();
-                //
-                //    phpTag += "\n        <div class='formInput'>";
-                //    phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
-                //
-                //    for(int k = 0 ; k < strArr.length; k++) {
-                //        phpTag += "\n          <input type='radio' name='" + nameValue + "' id='" + strArr[k] + "'>";
-                //        phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
-                //    }
-                //    phpTag += "\n        </div>";
-                //}
-                //-------------------------------------------------------------------
-                // 체크 박스
-                //-------------------------------------------------------------------
-                //else if(arrGab.get("values").equals("checkForm")) {
-                //    String[] strArr    = arrGab.get("lab").toString().split(",");
-                //    String   formNames = arrGab.get("names").toString();
-                //
-                //    phpTag += "\n        <div class='formInput'>";
-                //    phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
-                //
-                //    for(int k = 0 ; k < strArr.length; k++) {
-                //        phpTag += "\n          <input type='checkbox' name='" + nameValue + "' id='" + strArr[k] + "'>";
-                //        phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
-                //    }
-                //    phpTag += "\n        </div>";
-                //}
-                //-------------------------------------------------------------------
-                // 셀렉트 박스
-                //-------------------------------------------------------------------
-                //else { // if(arrGab.get("values").equals("selForm")) {
-                //    String[] strArr    = arrGab.get("lab").toString().split(",");
-                //    String   formNames = arrGab.get("names").toString();
-                //
-                //    phpTag += "\n        <div class='formInput'>";
-                //    phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
-                //    phpTag += "\n          <select name='" + nameValue + "'>";
-                //
-                //    for(int k = 0 ; k < strArr.length; k++) {
-                //        phpTag += "\n          <option value='" + strArr[k] + "'>" + strArr[k] + "</option>";
-                //    }
-                //    phpTag += "\n          </select>";
-                //    phpTag += "\n        </div>";
-                //}
+//                }
+//                //-------------------------------------------------------------------
+//                // 라디오 박스
+//                //-------------------------------------------------------------------
+//                else if(arrGab.get("values").equals("radioForm")) {
+//                    String[] strArr    = arrGab.get("lab").toString().split(",");
+//                    String   formNames = arrGab.get("names").toString();
+//
+//                    phpTag += "\n        <div class='formInput'>";
+//                    phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
+//
+//                    for(int k = 0 ; k < strArr.length; k++) {
+//                        phpTag += "\n          <input type='radio' name='" + nameValue + "' id='" + strArr[k] + "'>";
+//                        phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
+//                    }
+//                    phpTag += "\n        </div>";
+//                }
+//                //-------------------------------------------------------------------
+//                // 체크 박스
+//                //-------------------------------------------------------------------
+//                else if(arrGab.get("values").equals("checkForm")) {
+//                    String[] strArr    = arrGab.get("lab").toString().split(",");
+//                    String   formNames = arrGab.get("names").toString();
+//
+//                    phpTag += "\n        <div class='formInput'>";
+//                    phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
+//
+//                    for(int k = 0 ; k < strArr.length; k++) {
+//                        phpTag += "\n          <input type='checkbox' name='" + nameValue + "' id='" + strArr[k] + "'>";
+//                        phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
+//                    }
+//                    phpTag += "\n        </div>";
+//                }
+//                //-------------------------------------------------------------------
+//                // 셀렉트 박스
+//                //-------------------------------------------------------------------
+//                else { // if(arrGab.get("values").equals("selForm")) {
+//                    String[] strArr    = arrGab.get("lab").toString().split(",");
+//                    String   formNames = arrGab.get("names").toString();
+//
+//                    phpTag += "\n        <div class='formInput'>";
+//                    phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
+//                    phpTag += "\n          <select name='" + nameValue + "'>";
+//
+//                    for(int k = 0 ; k < strArr.length; k++) {
+//                        phpTag += "\n          <option value='" + strArr[k] + "'>" + strArr[k] + "</option>";
+//                    }
+//                    phpTag += "\n          </select>";
+//                    phpTag += "\n        </div>";
+//                }
             }
 
-            phpTag += "        if(confirm('상담을 신청하시겠습니까?') == false) {\n";
+            phpTag += "        if(confirm('신청하시겠습니까?') == false) {\n";
             phpTag += "          return false;\n";
             phpTag += "        }\n";
             phpTag += "        e.action = './submit.php';\n";
@@ -496,8 +500,20 @@ public class LandingPageController {
 
 //                    System.out.println("resultMap() : " + resultMap.toString());
 
-                    phpTag += "\n    <div class='formPrev'>";
+                    phpTag += "\n    <div class='formPrev'";
+                    phpTag += " style='border-color: " + resultMap.get("lineColor").toString() + "; ";
+                    phpTag += "border-width: " + resultMap.get("borderLine").toString() +  ";'>";
+
                     phpTag += "\n      <form method='post' onsubmit='return chk_validate(this)'>";
+
+                    System.out.println("----------------------------------------------------------------------------");
+                    System.out.println("  폼 스크립트 삽입 Start");
+                    System.out.println("----------------------------------------------------------------------------");
+
+                    phpTag += "\n";
+                    phpTag += "      " + params.get("scriptForm").toString();
+                    phpTag += "\n";
+
                     phpTag += "\n        <input type='hidden' id='mbId" + i + "'          name='mbId'          value='<?php echo $mbId?>'>";
                     phpTag += "\n        <input type='hidden' id='adId" + i + "'          name='adId'          value='<?php echo $adId?>'>";
                     phpTag += "\n        <input type='hidden' id='caId" + i + "'          name='caId'          value='<?php echo $caId?>'>";
@@ -538,7 +554,11 @@ public class LandingPageController {
                         //-------------------------------------------------------------------
                         if(arrGab.get("values").equals("textForm")) {
 //                            System.out.println("textForm In");
-                            phpTag += "\n        <input type='text'   name='" + namevalue + "' placeholder='" + arrGab.get("names") + "'>";
+
+                            phpTag += "\n        <div class='formInput'>";
+                            phpTag += "\n          <span class='formInputName '>" + arrGab.get("names") +"</span>";
+                            phpTag += "\n          <input type='text'   name='" + namevalue + "' >";
+                            phpTag += "\n        </div>";
 
                             switch(i) {
                                 case 0 : tbLandingPage.setPage01(arrGab.get("names").toString()); break;
@@ -623,12 +643,18 @@ public class LandingPageController {
 
 //                    System.out.println("check 1 : ");
 
+                    phpTag += "\n      <div class='agreeBox'>";
                     phpTag += "\n        <input type='checkbox' name='agree' id='agree" + i + "'>";
-                    phpTag += "\n        <label for='agree" + i + "'>개인정보 수집 동의 <span>[보러가기]</span></label>";
+                    phpTag += "\n        <label for='agree" + i + "'>개인정보 수집 동의 </label> <span>[보러가기]</span>";
+                    phpTag += "\n      </div>";
 
                     phpTag += "\n        <div class='centerBox'>";
                     phpTag += "\n          <button style='background: " + resultMap.get("btnColor").toString() + "; ";
-                    phpTag += "border-radius: " + resultMap.get("btnShape").toString() +  ";'>";
+                    phpTag += "border-radius: " + resultMap.get("btnShape").toString() +  ";";
+
+                    phpTag += "color: " + resultMap.get("textColor").toString() +  ";'>";
+
+
                     phpTag += resultMap.get("btnNm") + "</button>";
 
                     phpTag += "\n        </div>";
@@ -715,8 +741,13 @@ public class LandingPageController {
     @RequestMapping(value = "GetLandingListForMbAdCaCode", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public List<Map<String, Object>> GetLandingListForMbAdCaCode(HttpServletRequest rq) throws Exception {
-        System.out.println("GetLandingListForMbAdCaCode----------------------");
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetLandingListForMbAdCaCode Func Start...");
+        System.out.println("############################################################################");
 
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
         System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
         System.out.println("adId   : [" + rq.getParameter("adId") + "]");
         System.out.println("mkId   : [" + rq.getParameter("mkId") + "]");
@@ -877,5 +908,80 @@ public class LandingPageController {
         System.out.println("리턴 메세지 : ["+ cpaResult.toString() +"]");
 
         return cpaResult;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 포스트백 삭제 (상태를 변경함).
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.14
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R]
+     *         [U] AD_POSTBACK_FORMAT
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "ChangeLandingStatus", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public Map<String, Object> ChangeLandingStatus(HttpServletRequest    rq) throws Exception {
+        System.out.println("\n\n############################################################################");
+        System.out.println("ChangeLandingStatus Func Start...");
+        System.out.println("############################################################################");
+
+        Long lReturn = -1L;
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("clntId   : [" + rq.getParameter("clntId") + "]");
+        System.out.println("campName : [" + rq.getParameter("campName") + "]");
+        System.out.println("mbId     : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId     : [" + rq.getParameter("adId") + "]");
+        System.out.println("caId     : [" + rq.getParameter("caId") + "]");
+        System.out.println("pgId     : [" + rq.getParameter("pgId") + "]");
+        System.out.println("status   : [" + rq.getParameter("status") + "]");
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  landingPageMapper.changeStatusLandingPage Start");
+        System.out.println("----------------------------------------------------------------------------");
+        try {
+            lReturn = landingPageMapper.changeStatusLandingPage(
+                    Long.parseLong(rq.getParameter("mbId")),
+                    Long.parseLong(rq.getParameter("adId")),
+                    Long.parseLong(rq.getParameter("caId")),
+                    Long.parseLong(rq.getParameter("pgId")),
+                    rq.getParameter("status")
+            );
+
+            System.out.println("lReturn : " + lReturn);
+
+            if( lReturn <= 0) {
+                resultMap.put("status", false);
+                resultMap.put("comment", "시스템 오류로 관리자에게 연락바랍니다.");
+            }
+            else {
+                resultMap.put("status", true);
+                resultMap.put("comment", "랜딩페이지의 상태를 변경하였습니다.");
+
+//                adInfoUtil.InsAdOperationHistory("O"
+//                        , Long.parseLong(rq.getParameter("mbId"))
+//                        , rq.getParameter("clntId").toString()
+//                        , "00"
+//                        , "["+ rq.getParameter("campName").toString() +"] 캠페인의 상태를 변경하였습니다."
+//                );
+            }
+        } catch(Exception e) {
+            System.out.println("Error : " + e.toString());
+            resultMap.put("status", false);
+            resultMap.put("comment", "시스템 오류로 관리자에게 연락바랍니다.");
+        }
+
+        System.out.println("리턴 데이터 : ["+ resultMap.toString() +"]");
+
+        return resultMap;
     }
 }
