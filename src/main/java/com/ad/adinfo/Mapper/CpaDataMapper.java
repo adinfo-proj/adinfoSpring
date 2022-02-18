@@ -38,6 +38,7 @@ public interface CpaDataMapper {
             "       , URL_REFERER " +
             "       , ALL_MOBILE_DUP_YN " +
             "       , THIS_MOBILE_DUP_YN " +
+            "       , POSTBACK_IN " +
             "       , POSTBACK_YN " +
             "       , POSTBACK_RETRY_CNT " +
             "       , POSTBACK_DTTM " +
@@ -96,6 +97,7 @@ public interface CpaDataMapper {
             @Result(property = "urlReferer" , column = "URL_REFERER"),
             @Result(property = "allMobileDupYn" , column = "ALL_MOBILE_DUP_YN"),
             @Result(property = "thisMobileDupYn" , column = "THIS_MOBILE_DUP_YN"),
+            @Result(property = "postbackIn" , column = "POSTBACK_IN"),
             @Result(property = "postbackYn" , column = "POSTBACK_YN"),
             @Result(property = "postbackRetryCtn" , column = "POSTBACK_RETRY_CNT"),
             @Result(property = "postbackDttm" , column = "POSTBACK_DTTM"),
@@ -150,6 +152,7 @@ public interface CpaDataMapper {
             "       , COUNTRY_CD " +
             "       , ALL_MOBILE_DUP_YN " +
             "       , THIS_MOBILE_DUP_YN " +
+            "       , POSTBACK_IN " +
             "       , POSTBACK_YN " +
             "       , POSTBACK_RETRY_CNT " +
             "       , POSTBACK_DTTM " +
@@ -178,7 +181,7 @@ public interface CpaDataMapper {
             " WHERE " +
             "       MB_ID  = #{mbId} " +
             " AND   AD_ID  = #{adId} " +
-            " AND   CA_ID  = #{caId} " +
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
             " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
             "                ELSE #{mkId}          END " +
             " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
@@ -228,6 +231,7 @@ public interface CpaDataMapper {
             @Result(property = "countryCd" , column = "COUNTRY_CD"),
             @Result(property = "allMobileDupYn" , column = "ALL_MOBILE_DUP_YN"),
             @Result(property = "thisMobileDupYn" , column = "THIS_MOBILE_DUP_YN"),
+            @Result(property = "postbackIn" , column = "POSTBACK_IN"),
             @Result(property = "postbackYn" , column = "POSTBACK_YN"),
             @Result(property = "postbackRetryCnt" , column = "POSTBACK_RETRY_CNT"),
             @Result(property = "postbackDttm" , column = "POSTBACK_DTTM"),
@@ -256,7 +260,7 @@ public interface CpaDataMapper {
             " WHERE " +
             "       MB_ID  = #{mbId} " +
             " AND   AD_ID  = #{adId} " +
-            " AND   CA_ID  = #{caId} " +
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
             " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
             "                ELSE      #{mkId}     END " +
             " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
@@ -275,7 +279,7 @@ public interface CpaDataMapper {
             " WHERE " +
             "       MB_ID  = #{mbId} " +
             " AND   AD_ID  = #{adId} " +
-            " AND   CA_ID  = #{caId} " +
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
             " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
             "                ELSE      #{mkId}     END " +
             " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
@@ -293,7 +297,7 @@ public interface CpaDataMapper {
             " WHERE " +
             "       MB_ID  = #{mbId} " +
             " AND   AD_ID  = #{adId} " +
-            " AND   CA_ID  = #{caId} " +
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
             " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
             "                ELSE      #{mkId}     END " +
             " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
@@ -341,7 +345,7 @@ public interface CpaDataMapper {
             " WHERE " +
             "       MB_ID  = #{mbId} " +
             " AND   AD_ID  = #{adId} " +
-            " AND   CA_ID  = #{caId} " +
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
             " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
             " ELSE                     #{mkId}     END " +
             " AND   INS_DT BETWEEN #{startDt} AND #{finishDt} " +

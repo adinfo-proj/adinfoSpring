@@ -194,33 +194,6 @@ public interface DataCenterMapper {
             " AND   TO_ADVT_MEDIA = 'A' " )
     String DataCenterBySummaryForExchangeAmt(Long mbId, Long adId, Long caId);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //------------------------------------------------------------------------
     // 캠페인별 합산 충전금
     //------------------------------------------------------------------------
@@ -250,15 +223,4 @@ public interface DataCenterMapper {
             " AND   CA_ID  = ${caId}" +
             " AND   ADVT_MEDIA = 'A' " )
     String DataCenterBySummaryForAdAdvtyBalanceCampRemainAmt(Long mbId, Long adId, Long caId);
-
-
-
-
-
-
-
-
-
-
-
 }

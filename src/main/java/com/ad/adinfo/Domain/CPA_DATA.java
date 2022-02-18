@@ -33,6 +33,7 @@ public class CPA_DATA {
     private String  urlReferer;
     private String  allMobileDupYn;
     private String  thisMobileDupYn;
+    private String  postbackIn;
     private String  postbackYn;
     private Long    postbackRetryCnt;
     private String  postbackDttm;

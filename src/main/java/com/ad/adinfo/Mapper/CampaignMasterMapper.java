@@ -404,7 +404,7 @@ public interface CampaignMasterMapper {
             " WHERE " +
             "       MB_ID  = ${mbId}" +
             " AND   AD_ID  = ${adId}" +
-            " AND   CA_ID  = ${caId}" )
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " )
     @Results({
             @Result(property = "updateDt" , column = "UPDATE_DT"),
             @Result(property = "mbId" , column = "MB_ID"),
@@ -513,7 +513,7 @@ public interface CampaignMasterMapper {
             " WHERE " +
             "       MB_ID  = ${mbId}" +
             " AND   AD_ID  = ${adId}" +
-            " AND   CA_ID  = ${caId}" )
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " )
     @Results({
             @Result(property = "updateDt" , column = "UPDATE_DT"),
             @Result(property = "mbId" , column = "MB_ID"),
@@ -836,8 +836,7 @@ public interface CampaignMasterMapper {
             " WHERE " +
             "       MB_ID      = #{campaignMaster.mbId}" +
             " AND   AD_ID      = #{campaignMaster.adId}" +
-            " AND   CA_ID      = #{campaignMaster.caId}" )
-    @Options(useGeneratedKeys = true, keyProperty = "caId")
+            " AND   ((-1 = ${campaignMaster.caId}) OR (CA_ID = ${campaignMaster.caId})) " )
     Long upCampaignMaster(@Param("campaignMaster") TB_CAMPAIGN_MASTER campaignMaster);
 
     @Update(" UPDATE " +
@@ -881,7 +880,7 @@ public interface CampaignMasterMapper {
             " WHERE " +
             "       MB_ID      = #{mbId}" +
             " AND   AD_ID      = #{adId}" +
-            " AND   CA_ID      = #{caId}" )
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " )
     @Results({
             @Result(property = "mbId" , column = "MB_ID"),
             @Result(property = "adId" , column = "AD_ID"),
@@ -898,7 +897,7 @@ public interface CampaignMasterMapper {
             " WHERE " +
             "       MB_ID      = #{mbId}" +
             " AND   AD_ID      = #{adId}" +
-            " AND   CA_ID      = #{caId}" )
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) ")
     @Results({
             @Result(property = "askList" , column = "ASK_LIST")
     })
@@ -925,7 +924,7 @@ public interface CampaignMasterMapper {
             " WHERE " +
             "       MB_ID      = #{mbId}" +
             " AND   AD_ID      = #{adId}" +
-            " AND   CA_ID      = #{caId}" )
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " )
     @Results({
             @Result(property = "name" , column = "NAME")
     })

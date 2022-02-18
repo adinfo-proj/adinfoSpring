@@ -62,7 +62,7 @@ public class CampaignManageController {
         System.out.println("############################################################################");
 
         // 트랜잭션 시작
-        TransactionStatus trxStatus = trxManager.getTransaction(new DefaultTransactionDefinition());
+//        TransactionStatus trxStatus = trxManager.getTransaction(new DefaultTransactionDefinition());
 
         //---------------------------------------------------------------------------------------------------------
         // 변수 설정 영역 Start
@@ -170,7 +170,7 @@ public class CampaignManageController {
                     resultMap.put("result", false);
                     resultMap.put("message", "이미 등록한 캠페인명이 있습니다.");
 
-                    trxManager.rollback(trxStatus);
+//                    trxManager.rollback(trxStatus);
                     return resultMap;
                 }
             } catch (Exception e) {
@@ -354,7 +354,7 @@ public class CampaignManageController {
             resultMap.put("result", false);
             resultMap.put("message", "캠페인 등록이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
 
-            trxManager.rollback(trxStatus);
+//            trxManager.rollback(trxStatus);
             return resultMap;
         }
 
@@ -372,7 +372,7 @@ public class CampaignManageController {
             resultMap.put("result", false);
             resultMap.put("message", "캠페인 등록이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
 
-            trxManager.rollback(trxStatus);
+//            trxManager.rollback(trxStatus);
             return resultMap;
         }
 
@@ -384,7 +384,7 @@ public class CampaignManageController {
 
         System.out.println("리턴 메세지 : ["+ resultMap.toString() +"]");
 
-        trxManager.commit(trxStatus);
+//        trxManager.commit(trxStatus);
         return resultMap;
     }
 
@@ -414,7 +414,7 @@ public class CampaignManageController {
         System.out.println("############################################################################");
 
         // 트랜잭션 시작
-        TransactionStatus trxStatus = trxManager.getTransaction(new DefaultTransactionDefinition());
+//        TransactionStatus trxStatus = trxManager.getTransaction(new DefaultTransactionDefinition());
 
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  화면에서 수신된 입력값");
@@ -531,10 +531,11 @@ public class CampaignManageController {
 
                 System.out.println("처리 메세지 : [" + "뭐밍 냥냥냥 ???" + "]");
 
-                trxManager.rollback(trxStatus);
+//                trxManager.rollback(trxStatus);
                 return resultMap;
             }
 
+            tbCampaignLandingForm.setCaId(Long.parseLong(params.get("caId").toString()));
             tbCampaignLandingForm.setRegClntId       (orgCpaCampaignMaster.getOperId());
             tbCampaignLandingForm.setRegIp           (clientIp);
             tbCampaignLandingForm.setStipulationTitle(params.get("stipulationTitle").toString());
@@ -626,18 +627,28 @@ public class CampaignManageController {
             System.out.println("  campaignMasterMapper.upCampaignMaster Start");
             System.out.println("----------------------------------------------------------------------------");
 
+
+
+            System.out.println("orgCpaCampaignMaster.toString()");
+            System.out.println(orgCpaCampaignMaster.toString());
+
             Long ret = campaignMasterMapper.upCampaignMaster(orgCpaCampaignMaster);
             if(ret <= 0) {
+                System.out.println("campaignMasterMapper.upCampaignMaster" + ": Step01");
                 resultMap.put("result", false);
                 resultMap.put("message", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+                System.out.println("campaignMasterMapper.upCampaignMaster" + ": Step02");
 
                 System.out.println("처리 campaignMasterMapper.upCampaignMaster : [" + "에러나씀 ㅠㅠ" + "]");
+                System.out.println("campaignMasterMapper.upCampaignMaster" + ": Step03");
 
-                trxManager.rollback(trxStatus);
+//                trxManager.rollback(trxStatus);
                 return resultMap;
             }
             else {
+                System.out.println("campaignMasterMapper.upCampaignMaster" + ": Step04");
                 System.out.println("campaignMasterMapper.upCampaignMaster : [" + ret + "]");
+                System.out.println("campaignMasterMapper.upCampaignMaster" + ": Step05");
 
 //                adInfoUtil.InsAdOperationHistory("O"
 //                                                , orgCpaCampaignMaster.getMbId()
@@ -647,18 +658,26 @@ public class CampaignManageController {
 //                );
             }
 
+            System.out.println("tbCampaignLandingForm.toString()");
+            System.out.println(tbCampaignLandingForm.toString());
+
             Long rets = 0L;
             try {
+                System.out.println("campaignMasterMapper.upCampaignMaster" + ": Step06");
+                System.out.println(tbCampaignLandingForm.toString());
                 rets = campaignLandingFormMapper.updCampaignLandingForm(tbCampaignLandingForm);
+                System.out.println("campaignMasterMapper.upCampaignMaster" + ": Step07");
             } catch(Exception e) {
+                System.out.println("campaignMasterMapper.upCampaignMaster" + ": Step08");
                 System.out.println("updCampaignLandingForm Fail 0 : [" + e + "]");
+                System.out.println("campaignMasterMapper.upCampaignMaster" + ": Step09");
 
                 resultMap.put("result", false);
                 resultMap.put("message", "캠페인 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
 
                 System.out.println("처리 메세지 : [" + "뭐밍???" + "]");
 
-                trxManager.rollback(trxStatus);
+//                trxManager.rollback(trxStatus);
                 return resultMap;
             }
 
@@ -670,7 +689,7 @@ public class CampaignManageController {
 
                 System.out.println("처리 메세지 : [" + "ret 값이 0보다 작다" + "]");
 
-                trxManager.rollback(trxStatus);
+//                trxManager.rollback(trxStatus);
                 return resultMap;
             }
             else {
@@ -694,13 +713,13 @@ public class CampaignManageController {
 
             System.out.println("처리 메세지 : [" + "뭐밍???" + "]");
 
-            trxManager.rollback(trxStatus);
+//            trxManager.rollback(trxStatus);
             return resultMap;
         }
 
         System.out.println("최종 처리 메세지 : [" + resultMap + "]");
 
-        trxManager.commit(trxStatus);
+//        trxManager.commit(trxStatus);
         return resultMap;
     }
 
@@ -855,7 +874,7 @@ public class CampaignManageController {
                     Long.parseLong(rq.getParameter("caId"))
             );
 
-            System.out.println("campaignLandingForm : [" + tbCampaignLandingForm + "]");
+            //System.out.println("campaignLandingForm : [" + tbCampaignLandingForm + "]");
 
             if( tbCampaignLandingForm == null) {
                 System.out.println("tbCampaignLandingForm is null!!");

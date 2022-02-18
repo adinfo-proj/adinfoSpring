@@ -38,7 +38,7 @@ import java.util.*;
 public class AdinfoAPIController {
 
     private final CampaignMasterMapper campaignMaster;
-    private final CpaMasterMapper cpaCampaign;
+//    private final CpaMasterMapper cpaCampaign;
     private final CpaDataMapper cpaData;
     private final AdAdvertBalanceMapper adAdvertBalance;
     private final AdUserMasterMapper adUserMaster;
@@ -515,17 +515,17 @@ public class AdinfoAPIController {
 //        System.out.println("curDt    : [" + curDt + "]");
 //        System.out.println("beforeDt : [" + beforeDt + "]");
 
-        //-------------------------------------------------------------------
-        // 파트너별 당일 접수된 DB의 건수
-        //-------------------------------------------------------------------
-        Long todayDbCount = adInfoUtil.GetCpaCampaignDataDateInCount(adInfoUtil.AdClntIdToPtId("ad@dbfactory.kr").longValue(), curDt);
-        returnObj.put("todayDbCount", todayDbCount+158);
-
-        //-------------------------------------------------------------------
-        // 파트너별 당일 접수된 DB의 건수
-        //-------------------------------------------------------------------
-        Long beforeDayDbCount = adInfoUtil.GetCpaCampaignDataDateInCount(adInfoUtil.AdClntIdToPtId("ad@dbfactory.kr").longValue(), beforeDt);
-        fetchObj.put("beforeDayDbCount", beforeDayDbCount+258);
+//        //-------------------------------------------------------------------
+//        // 파트너별 당일 접수된 DB의 건수
+//        //-------------------------------------------------------------------
+//        Long todayDbCount = adInfoUtil.GetCpaCampaignDataDateInCount(adInfoUtil.AdClntIdToPtId("ad@dbfactory.kr").longValue(), curDt);
+//        returnObj.put("todayDbCount", todayDbCount+158);
+//
+//        //-------------------------------------------------------------------
+//        // 파트너별 당일 접수된 DB의 건수
+//        //-------------------------------------------------------------------
+//        Long beforeDayDbCount = adInfoUtil.GetCpaCampaignDataDateInCount(adInfoUtil.AdClntIdToPtId("ad@dbfactory.kr").longValue(), beforeDt);
+//        fetchObj.put("beforeDayDbCount", beforeDayDbCount+258);
 
         //-------------------------------------------------------------------
         // 당일 수익금
@@ -764,13 +764,13 @@ public class AdinfoAPIController {
      *------------------------------------------------------------------------------------------------------------------
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "GetCampaignStatusCount", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public List<Map<String, Object>> GetCampaignStatusCount(HttpServletRequest rq) throws Exception {
-        System.out.println("tp : [" + rq.getParameter("adId") + "]");
-        return cpaCampaign.GetCampaignStatusCount(Long.parseLong(rq.getParameter("adId")));
-    }
+//    @CrossOrigin
+//    @RequestMapping(value = "GetCampaignStatusCount", method = RequestMethod.GET)
+//    @ResponseStatus(value = HttpStatus.OK)
+//    public List<Map<String, Object>> GetCampaignStatusCount(HttpServletRequest rq) throws Exception {
+//        System.out.println("tp : [" + rq.getParameter("adId") + "]");
+//        return cpaCampaign.GetCampaignStatusCount(Long.parseLong(rq.getParameter("adId")));
+//    }
 
     /*------------------------------------------------------------------------------------------------------------------
      * 대쉬보드 / 라이브 캠페인 / 금액 및 수량확인
@@ -785,176 +785,176 @@ public class AdinfoAPIController {
      *------------------------------------------------------------------------------------------------------------------
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "GetLiveCampaignStatus", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public JSONObject GetLiveCampaignStatus(HttpServletRequest rq) throws Exception {
-        SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd a hh:mm:ss.SS");
-
-        long reqTime = System.currentTimeMillis();
-        String reqTimeStr = dayTime.format(new Date(reqTime));
-
-        JSONArray liveJArray        = new JSONArray();
-        JSONArray reviewJArray      = new JSONArray();
-        JSONArray reviewDelayJArray = new JSONArray();
-        JSONArray pauseJArray       = new JSONArray();
-        JSONArray finishJArray      = new JSONArray();
-
-        JSONObject returnObj = new JSONObject();
-
-        System.out.println("tp : [" + rq.getParameter("adId") + "]");
-
-        //------------------------------------------------------------------------
-        // 당일일자와 전일일자를 조회한다. (YYYYMMDD)
-        //------------------------------------------------------------------------
-        String toDateDate = dateCalc.DateInterval(0);
-        String beforeDate = dateCalc.DateInterval(-1);
-
-        //------------------------------------------------------------------------
-        // 라이브중인 캠페인
-        //------------------------------------------------------------------------
-        {
-            ArrayList<Map<String, Object>> liveArr = new ArrayList<Map<String, Object>>();
-
-            //------------------------------------------------------------------------
-            // 회원사의 모든 캠페인을 조회한다.
-            //------------------------------------------------------------------------
-            liveArr = cpaCampaign.GetCampaignForStatus(Long.parseLong(rq.getParameter("adId")), "00");
-            for (int i = 0; i < liveArr.size(); i++) {
-                long    lAdId = Long.parseLong(liveArr.get(i).get("adId").toString());
-                long    lCaId = Long.parseLong(liveArr.get(i).get("caId").toString());
-
-                JSONObject resultObj = new JSONObject();
-
-                Long lLiveAmt        = cpaCampaign.GetCampaignForRemainAmt  (lAdId, lCaId);
-                Long lTodayCount     = cpaCampaign.GetCampaignForDateCount  (lAdId, lCaId, toDateDate);
-                Long lBeforeDayCount = cpaCampaign.GetCampaignForDateCount  (lAdId, lCaId, beforeDate);
-                Long lAllDayCount    = cpaCampaign.GetCampaignForAllDayCount(lAdId, lCaId);
-
-                resultObj.put("campaignName", liveArr.get(i).get("name"));
-                resultObj.put("remainAmt"   , String.valueOf(lLiveAmt));
-                resultObj.put("todayCount"  , String.valueOf(lTodayCount));
-                resultObj.put("beforeCount" , String.valueOf(lBeforeDayCount));
-                resultObj.put("totalCount"  , String.valueOf(lAllDayCount));
-
-                liveJArray.add(resultObj);
-            }
-
-            returnObj.put("liveCount", liveJArray.size());
-            returnObj.put("liveResult", liveJArray);
-        }
-
-        //------------------------------------------------------------------------
-        // 심사중인 캠페인
-        //------------------------------------------------------------------------
-        {
-            ArrayList<Map<String, Object>> reviewArr = new ArrayList<Map<String, Object>>();
-
-            //------------------------------------------------------------------------
-            // 회원사의 모든 캠페인을 조회한다.
-            //------------------------------------------------------------------------
-            reviewArr = cpaCampaign.GetCampaignForStatus(Long.parseLong(rq.getParameter("adId")), "03");
-            for (int i = 0; i < reviewArr.size(); i++) {
-                JSONObject resultObj = new JSONObject();
-
-                resultObj.put("campaignName", reviewArr.get(i).get("name"));
-                resultObj.put("updateDt", reviewArr.get(i).get("updateDt"));
-                resultObj.put("progressStatus", "50%");
-                resultObj.put("operId", reviewArr.get(i).get("operId"));
-                resultObj.put("status", "Process");
-
-                reviewJArray.add(resultObj);
-            }
-
-            returnObj.put("reviewCount", reviewJArray.size());
-            returnObj.put("reviewResult", reviewJArray);
-        }
-
-        //------------------------------------------------------------------------
-        // 심사 보류중인 캠페인
-        //------------------------------------------------------------------------
-        {
-            ArrayList<Map<String, Object>> reviewDelayArr = new ArrayList<Map<String, Object>>();
-
-            //------------------------------------------------------------------------
-            // 회원사의 모든 캠페인을 조회한다.
-            //------------------------------------------------------------------------
-            reviewDelayArr = cpaCampaign.GetCampaignForStatus(Long.parseLong(rq.getParameter("adId")), "04");
-            for (int i = 0; i < reviewDelayArr.size(); i++) {
-                JSONObject resultObj = new JSONObject();
-
-                resultObj.put("campaignName", reviewDelayArr.get(i).get("name"));
-                resultObj.put("updateDt", reviewDelayArr.get(i).get("updateDt"));
-                resultObj.put("progressStatus", "50%");
-                resultObj.put("operId", reviewDelayArr.get(i).get("operId"));
-                resultObj.put("status", "Process");
-
-                reviewDelayJArray.add(resultObj);
-            }
-
-            returnObj.put("reviewDelayCount", reviewDelayJArray.size());
-            returnObj.put("reviewDelayResult", reviewDelayJArray);
-        }
-
-        //------------------------------------------------------------------------
-        // 일시정지 캠페인
-        //------------------------------------------------------------------------
-        {
-            ArrayList<Map<String, Object>> pauseArr = new ArrayList<Map<String, Object>>();
-
-            //------------------------------------------------------------------------
-            // 회원사의 모든 캠페인을 조회한다.
-            //------------------------------------------------------------------------
-            pauseArr = cpaCampaign.GetCampaignForStatus(Long.parseLong(rq.getParameter("adId")), "04");
-            for (int i = 0; i < pauseArr.size(); i++) {
-                JSONObject resultObj = new JSONObject();
-
-                resultObj.put("campaignName", pauseArr.get(i).get("name"));
-                resultObj.put("updateDt", pauseArr.get(i).get("updateDt"));
-                resultObj.put("progressStatus", "50%");
-                resultObj.put("operId", pauseArr.get(i).get("operId"));
-                resultObj.put("status", "Process");
-
-                pauseJArray.add(resultObj);
-            }
-
-            returnObj.put("pauseCount", pauseJArray.size());
-            returnObj.put("pauseResult", pauseJArray);
-        }
-
-        //------------------------------------------------------------------------
-        // 종료 캠페인
-        //------------------------------------------------------------------------
-        {
-            ArrayList<Map<String, Object>> finishArr = new ArrayList<Map<String, Object>>();
-
-            //------------------------------------------------------------------------
-            // 회원사의 모든 캠페인을 조회한다.
-            //------------------------------------------------------------------------
-            finishArr = cpaCampaign.GetCampaignForStatus(Long.parseLong(rq.getParameter("adId")), "04");
-            for (int i = 0; i < finishArr.size(); i++) {
-                JSONObject resultObj = new JSONObject();
-
-                resultObj.put("campaignName"  , finishArr.get(i).get("name"));
-                resultObj.put("updateDt"      , finishArr.get(i).get("updateDt"));
-                resultObj.put("progressStatus", "50%");
-                resultObj.put("operId"        , finishArr.get(i).get("operId"));
-                resultObj.put("status"        , "Process");
-
-                finishJArray.add(resultObj);
-            }
-
-            returnObj.put("finishCount", finishJArray.size());
-            returnObj.put("finishResult", finishJArray);
-        }
-
-        long resTime = System.currentTimeMillis();
-        String resTimeStr = dayTime.format(resTime);
-
-        System.out.println("걸린시간 : " + (resTime - reqTime)/1000.000);
-
-        return returnObj;
-    }
+//    @CrossOrigin
+//    @RequestMapping(value = "GetLiveCampaignStatus", method = RequestMethod.GET)
+//    @ResponseStatus(value = HttpStatus.OK)
+//    public JSONObject GetLiveCampaignStatus(HttpServletRequest rq) throws Exception {
+//        SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd a hh:mm:ss.SS");
+//
+//        long reqTime = System.currentTimeMillis();
+//        String reqTimeStr = dayTime.format(new Date(reqTime));
+//
+//        JSONArray liveJArray        = new JSONArray();
+//        JSONArray reviewJArray      = new JSONArray();
+//        JSONArray reviewDelayJArray = new JSONArray();
+//        JSONArray pauseJArray       = new JSONArray();
+//        JSONArray finishJArray      = new JSONArray();
+//
+//        JSONObject returnObj = new JSONObject();
+//
+//        System.out.println("tp : [" + rq.getParameter("adId") + "]");
+//
+//        //------------------------------------------------------------------------
+//        // 당일일자와 전일일자를 조회한다. (YYYYMMDD)
+//        //------------------------------------------------------------------------
+//        String toDateDate = dateCalc.DateInterval(0);
+//        String beforeDate = dateCalc.DateInterval(-1);
+//
+//        //------------------------------------------------------------------------
+//        // 라이브중인 캠페인
+//        //------------------------------------------------------------------------
+//        {
+//            ArrayList<Map<String, Object>> liveArr = new ArrayList<Map<String, Object>>();
+//
+//            //------------------------------------------------------------------------
+//            // 회원사의 모든 캠페인을 조회한다.
+//            //------------------------------------------------------------------------
+//            liveArr = cpaCampaign.GetCampaignForStatus(Long.parseLong(rq.getParameter("adId")), "00");
+//            for (int i = 0; i < liveArr.size(); i++) {
+//                long    lAdId = Long.parseLong(liveArr.get(i).get("adId").toString());
+//                long    lCaId = Long.parseLong(liveArr.get(i).get("caId").toString());
+//
+//                JSONObject resultObj = new JSONObject();
+//
+//                Long lLiveAmt        = cpaCampaign.GetCampaignForRemainAmt  (lAdId, lCaId);
+//                Long lTodayCount     = cpaCampaign.GetCampaignForDateCount  (lAdId, lCaId, toDateDate);
+//                Long lBeforeDayCount = cpaCampaign.GetCampaignForDateCount  (lAdId, lCaId, beforeDate);
+//                Long lAllDayCount    = cpaCampaign.GetCampaignForAllDayCount(lAdId, lCaId);
+//
+//                resultObj.put("campaignName", liveArr.get(i).get("name"));
+//                resultObj.put("remainAmt"   , String.valueOf(lLiveAmt));
+//                resultObj.put("todayCount"  , String.valueOf(lTodayCount));
+//                resultObj.put("beforeCount" , String.valueOf(lBeforeDayCount));
+//                resultObj.put("totalCount"  , String.valueOf(lAllDayCount));
+//
+//                liveJArray.add(resultObj);
+//            }
+//
+//            returnObj.put("liveCount", liveJArray.size());
+//            returnObj.put("liveResult", liveJArray);
+//        }
+//
+//        //------------------------------------------------------------------------
+//        // 심사중인 캠페인
+//        //------------------------------------------------------------------------
+//        {
+//            ArrayList<Map<String, Object>> reviewArr = new ArrayList<Map<String, Object>>();
+//
+//            //------------------------------------------------------------------------
+//            // 회원사의 모든 캠페인을 조회한다.
+//            //------------------------------------------------------------------------
+//            reviewArr = cpaCampaign.GetCampaignForStatus(Long.parseLong(rq.getParameter("adId")), "03");
+//            for (int i = 0; i < reviewArr.size(); i++) {
+//                JSONObject resultObj = new JSONObject();
+//
+//                resultObj.put("campaignName", reviewArr.get(i).get("name"));
+//                resultObj.put("updateDt", reviewArr.get(i).get("updateDt"));
+//                resultObj.put("progressStatus", "50%");
+//                resultObj.put("operId", reviewArr.get(i).get("operId"));
+//                resultObj.put("status", "Process");
+//
+//                reviewJArray.add(resultObj);
+//            }
+//
+//            returnObj.put("reviewCount", reviewJArray.size());
+//            returnObj.put("reviewResult", reviewJArray);
+//        }
+//
+//        //------------------------------------------------------------------------
+//        // 심사 보류중인 캠페인
+//        //------------------------------------------------------------------------
+//        {
+//            ArrayList<Map<String, Object>> reviewDelayArr = new ArrayList<Map<String, Object>>();
+//
+//            //------------------------------------------------------------------------
+//            // 회원사의 모든 캠페인을 조회한다.
+//            //------------------------------------------------------------------------
+//            reviewDelayArr = cpaCampaign.GetCampaignForStatus(Long.parseLong(rq.getParameter("adId")), "04");
+//            for (int i = 0; i < reviewDelayArr.size(); i++) {
+//                JSONObject resultObj = new JSONObject();
+//
+//                resultObj.put("campaignName", reviewDelayArr.get(i).get("name"));
+//                resultObj.put("updateDt", reviewDelayArr.get(i).get("updateDt"));
+//                resultObj.put("progressStatus", "50%");
+//                resultObj.put("operId", reviewDelayArr.get(i).get("operId"));
+//                resultObj.put("status", "Process");
+//
+//                reviewDelayJArray.add(resultObj);
+//            }
+//
+//            returnObj.put("reviewDelayCount", reviewDelayJArray.size());
+//            returnObj.put("reviewDelayResult", reviewDelayJArray);
+//        }
+//
+//        //------------------------------------------------------------------------
+//        // 일시정지 캠페인
+//        //------------------------------------------------------------------------
+//        {
+//            ArrayList<Map<String, Object>> pauseArr = new ArrayList<Map<String, Object>>();
+//
+//            //------------------------------------------------------------------------
+//            // 회원사의 모든 캠페인을 조회한다.
+//            //------------------------------------------------------------------------
+//            pauseArr = cpaCampaign.GetCampaignForStatus(Long.parseLong(rq.getParameter("adId")), "04");
+//            for (int i = 0; i < pauseArr.size(); i++) {
+//                JSONObject resultObj = new JSONObject();
+//
+//                resultObj.put("campaignName", pauseArr.get(i).get("name"));
+//                resultObj.put("updateDt", pauseArr.get(i).get("updateDt"));
+//                resultObj.put("progressStatus", "50%");
+//                resultObj.put("operId", pauseArr.get(i).get("operId"));
+//                resultObj.put("status", "Process");
+//
+//                pauseJArray.add(resultObj);
+//            }
+//
+//            returnObj.put("pauseCount", pauseJArray.size());
+//            returnObj.put("pauseResult", pauseJArray);
+//        }
+//
+//        //------------------------------------------------------------------------
+//        // 종료 캠페인
+//        //------------------------------------------------------------------------
+//        {
+//            ArrayList<Map<String, Object>> finishArr = new ArrayList<Map<String, Object>>();
+//
+//            //------------------------------------------------------------------------
+//            // 회원사의 모든 캠페인을 조회한다.
+//            //------------------------------------------------------------------------
+//            finishArr = cpaCampaign.GetCampaignForStatus(Long.parseLong(rq.getParameter("adId")), "04");
+//            for (int i = 0; i < finishArr.size(); i++) {
+//                JSONObject resultObj = new JSONObject();
+//
+//                resultObj.put("campaignName"  , finishArr.get(i).get("name"));
+//                resultObj.put("updateDt"      , finishArr.get(i).get("updateDt"));
+//                resultObj.put("progressStatus", "50%");
+//                resultObj.put("operId"        , finishArr.get(i).get("operId"));
+//                resultObj.put("status"        , "Process");
+//
+//                finishJArray.add(resultObj);
+//            }
+//
+//            returnObj.put("finishCount", finishJArray.size());
+//            returnObj.put("finishResult", finishJArray);
+//        }
+//
+//        long resTime = System.currentTimeMillis();
+//        String resTimeStr = dayTime.format(resTime);
+//
+//        System.out.println("걸린시간 : " + (resTime - reqTime)/1000.000);
+//
+//        return returnObj;
+//    }
 
 
 }

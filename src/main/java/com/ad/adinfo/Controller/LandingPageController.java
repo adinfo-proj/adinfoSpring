@@ -1,6 +1,7 @@
 package com.ad.adinfo.Controller;
 
 import com.ad.adinfo.Domain.TB_LANDING_PAGE;
+import com.ad.adinfo.Mapper.AdExternalUrlMapper;
 import com.ad.adinfo.Mapper.CampaignMasterMapper;
 import com.ad.adinfo.Mapper.LandingPageMapper;
 import com.ad.adinfo.Service.AdInfoUtil;
@@ -25,9 +26,10 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class LandingPageController {
-    private final AdInfoUtil  adInfoUtil;
-    private final LandingPageMapper landingPageMapper;
-    private final CampaignMasterMapper campaignMasterMapper;
+    private final AdInfoUtil            adInfoUtil;
+    private final LandingPageMapper     landingPageMapper;
+    private final CampaignMasterMapper  campaignMasterMapper;
+    private final AdExternalUrlMapper   adExternalUrlMapper;
 
     /*------------------------------------------------------------------------------------------------------------------
      * 신규 랜딩페이지 등록
@@ -55,14 +57,15 @@ public class LandingPageController {
         System.out.println("newlandingpage Func Start...");
         System.out.println("############################################################################");
 
+        Map<String, Object> tbLandingPageObj = new HashMap<String, Object>();
         Map<String, Object> resultObj = new HashMap<String, Object>();
         TB_LANDING_PAGE tbLandingPage = new TB_LANDING_PAGE();
 
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  화면에서 수신된 입력값");
         System.out.println("----------------------------------------------------------------------------");
-        System.out.println("헤더        : [" + rHeader + "]");
-        System.out.println("입력 파라메터 : [" + params + "]");
+        System.out.println("헤더        : [" + rHeader.toString() + "]");
+        System.out.println("입력 파라메터 : [" + params.toString() + "]");
 
         ArrayList   contentArr  = new ArrayList();
         ArrayList   textArr     = new ArrayList();
@@ -74,10 +77,13 @@ public class LandingPageController {
         Integer     formCount   = 0;
 
         String      randChar    = "";
+        String      titleName   = "";
 
         contentArr  = (ArrayList)params.get("formType");
         textArr     = (ArrayList)params.get("textData");
         formArr     = (ArrayList)params.get("formData");
+
+        Long        lNewPgId = 0L;
 
         try {
             Map<String, Object> inputFormArr = new HashMap<String, Object>();
@@ -94,41 +100,82 @@ public class LandingPageController {
             tbLandingPage.setMkId(Long.parseLong(params.get("mkId").toString()));
             tbLandingPage.setCaId(Long.parseLong(params.get("caId").toString()));
 
-            //---------------------------------------------------------------------------------------------------------
-            // pgId는 최종 정보로 처리하고 최초이면 10,000번부터 시작하자!
-            //---------------------------------------------------------------------------------------------------------
-            System.out.println("----------------------------------------------------------------------------");
-            System.out.println("  landingPageMapper.selLandingPageMaxCaId Start");
-            System.out.println("----------------------------------------------------------------------------");
-            Long lNewPgId = landingPageMapper.selLandingPageMaxCaId(
-                      Long.parseLong(params.get("mbId").toString())
-                    , Long.parseLong(params.get("adId").toString())
-                    , Long.parseLong(params.get("mkId").toString())
-                    , Long.parseLong(params.get("caId").toString()) ) + 1;
-            tbLandingPage.setPgId(lNewPgId);
-            tbLandingPage.setUseTp("R");
+            tbLandingPage.setTitleName(params.get("titleName").toString());
+            tbLandingPage.setMemo     (params.get("memo").toString());
 
-            //---------------------------------------------------------------------------------------------------------
-            // 동일한 랜딩페이지명이 있으면 등록이 불가하다.
-            //---------------------------------------------------------------------------------------------------------
-            System.out.println("----------------------------------------------------------------------------");
-            System.out.println("  landingPageMapper.selLandingPageDupName Start");
-            System.out.println("----------------------------------------------------------------------------");
-            Long lDupCount = landingPageMapper.selLandingPageDupName(
-                      Long.parseLong(params.get("mbId").toString())
-                    , Long.parseLong(params.get("adId").toString())
-                    , Long.parseLong(params.get("mkId").toString())
-                    , Long.parseLong(params.get("caId").toString())
-                    ,                params.get("landingNm").toString());
+            if(params.get("landReplace").equals(false)) {
+                //---------------------------------------------------------------------------------------------------------
+                // 동일한 랜딩페이지명이 있으면 등록이 불가하다.
+                //---------------------------------------------------------------------------------------------------------
 
-            if( lDupCount > 0) {
-                resultObj.put("status", false);
-                resultObj.put("message", "동일한 랜딩페이지명이 존재합니다.");
-                System.out.println("리턴 메세지 : ["+ resultObj.toString() +"]");
-                return resultObj;
+                //---------------------------------------------------------------------------------------------------------
+                // pgId는 최종 정보로 처리하고 최초이면 10,000번부터 시작하자!
+                //---------------------------------------------------------------------------------------------------------
+                System.out.println("----------------------------------------------------------------------------");
+                System.out.println("  landingPageMapper.selLandingPageMaxCaId Start");
+                System.out.println("----------------------------------------------------------------------------");
+                lNewPgId = landingPageMapper.selLandingPageMaxCaId(
+                          Long.parseLong(params.get("mbId").toString())
+                        , Long.parseLong(params.get("adId").toString())
+                        , Long.parseLong(params.get("mkId").toString())
+                        , Long.parseLong(params.get("caId").toString()) ) + 1;
+                tbLandingPage.setPgId(lNewPgId);
+                tbLandingPage.setUseTp("00");
+
+                System.out.println("----------------------------------------------------------------------------");
+                System.out.println("  landingPageMapper.selLandingPageDupName Start");
+                System.out.println("----------------------------------------------------------------------------");
+                Long lDupCount = landingPageMapper.selLandingPageDupName(
+                          Long.parseLong(params.get("mbId").toString())
+                        , Long.parseLong(params.get("adId").toString())
+                        , Long.parseLong(params.get("mkId").toString())
+                        , Long.parseLong(params.get("caId").toString())
+                        ,                params.get("landingNm").toString());
+
+                if( lDupCount > 0) {
+                    resultObj.put("status", false);
+                    resultObj.put("message", "동일한 랜딩페이지명이 존재합니다.");
+                    System.out.println("리턴 메세지 : ["+ resultObj.toString() +"]");
+                    return resultObj;
+                }
+                else {
+                    tbLandingPage.setName(params.get("landingNm").toString());
+                }
             }
             else {
-                tbLandingPage.setName(params.get("landingNm").toString());
+                System.out.println("Stepsss 01");
+                tbLandingPageObj = landingPageMapper.selLandingPage(
+                          Long.parseLong(params.get("mbId").toString())
+                        , Long.parseLong(params.get("adId").toString())
+                        , Long.parseLong(params.get("caId").toString())
+                        , Long.parseLong(params.get("pgId").toString())
+                );
+                System.out.println("Stepsss 02");
+
+                if(tbLandingPageObj == null) {
+                    resultObj.put("status", false);
+                    resultObj.put("message", "등록된 랜딩페이지 정보가 없습니다.");
+                    System.out.println("리턴 메세지 : ["+ resultObj.toString() +"]");
+                    return resultObj;
+                }
+
+                System.out.println("Stepsss 03");
+//                System.out.println(tbLandingPage.toString());
+
+                lNewPgId = Long.parseLong(tbLandingPageObj.get("pgId").toString());
+                tbLandingPage.setPgId    (Long.parseLong(tbLandingPageObj.get("pgId").toString()));
+                tbLandingPage.setUseTp("00");
+                tbLandingPage.setName     (tbLandingPageObj.get("name").toString());
+                tbLandingPage.setAdName   (tbLandingPageObj.get("adName").toString());
+                tbLandingPage.setTitleName(tbLandingPageObj.get("titleName").toString());
+                tbLandingPage.setMemo     (tbLandingPageObj.get("memo").toString());
+
+                randChar = tbLandingPageObj.get("url").toString();
+
+                tbLandingPage.setUrl(tbLandingPageObj.get("url").toString());
+
+                System.out.println("Stepsss 04");
+//                System.out.println(tbLandingPage.toString());
             }
 
             //---------------------------------------------------------------------------------------------------------
@@ -143,8 +190,6 @@ public class LandingPageController {
                     , Long.parseLong(params.get("caId").toString())
             );
 
-            System.out.println("------------------ Step F");
-
             if( adName.isEmpty() || (adName == null) ) {
                 resultObj.put("status", false);
                 resultObj.put("message", "등록된 캠페인정보가 없습니다.");
@@ -152,7 +197,9 @@ public class LandingPageController {
                 return resultObj;
             }
             else {
-                tbLandingPage.setAdName(adName);
+                if(params.get("landReplace").equals(false)) {
+                    tbLandingPage.setAdName(adName);
+                }
             }
 
             //---------------------------------------------------------------------------------------------------------
@@ -182,38 +229,69 @@ public class LandingPageController {
             tbLandingPage.setRegClntId(params.get("clntId").toString());
             tbLandingPage.setRegIp(clientIp);
 
-            //System.out.println("upFile       : [" + upFile.get(0).getSize() + "]");
+//            System.out.println("upFile       : [" + upFile.get(0).getSize() + "]");
 
             //---------------------------------------------------------------------------------------------------------
-            // URL주소를 생성 후 사용가능한지 확인한다.
+            // 신규 랜딩페이지의 경우 URL주소를 생성 후 사용가능한지 확인한다.
             //---------------------------------------------------------------------------------------------------------
-            System.out.println("----------------------------------------------------------------------------");
-            System.out.println("  random.ints Start");
-            System.out.println("----------------------------------------------------------------------------");
-            Long        dupUrl = 0L;
-            do {
-                randChar = "";
-                Random random = new Random();
-                randChar = random.ints(58,123)
-                        .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                        .limit(10)
-                        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                        .toString();
-//                System.out.println("------------------ Step 055 : " + randChar);
+            String      indexPath           = "";
+            String      phpTag              = "";
+            String      indexFullFileName   = "";
 
-                dupUrl = landingPageMapper.selLandingPageDupUrl(randChar);
-            } while(dupUrl > 0);
+            if(params.get("landReplace").equals(false)) {
+                System.out.println("----------------------------------------------------------------------------");
+                System.out.println("  random.ints Start");
+                System.out.println("----------------------------------------------------------------------------");
+                Long dupUrl = 0L;
+                do {
+                    randChar = "";
+                    Random random = new Random();
+                    randChar = random.ints(58, 123)
+                            .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                            .limit(10)
+                            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                            .toString();
+                System.out.println("------------------ Step 055 : " + randChar);
 
-            tbLandingPage.setUrl(randChar);
+                    dupUrl = landingPageMapper.selLandingPageDupUrl(randChar);
+                } while (dupUrl > 0);
+
+                tbLandingPage.setUrl(randChar);
+
+                indexPath = "/WebFileClient/ad/" + randChar;
+                titleName = params.get("titleName").toString();
+            }
+            else {
+                //---------------------------------------------------------------------------------------------------------
+                // 이전 페이지는 제거한다.
+                //---------------------------------------------------------------------------------------------------------
+                indexPath = "/WebFileClient/ad/" + tbLandingPage.getUrl().toString();
+                System.out.println("indexPath : " + indexPath );
+
+                File deleteFolder = new File(indexPath);
+
+                if(deleteFolder.exists()){
+                    File[] deleteFolderList = deleteFolder.listFiles();
+
+                    for (int j = 0; j < deleteFolderList.length; j++) {
+                        deleteFolderList[j].delete();
+                    }
+
+                    if(deleteFolderList.length == 0 && deleteFolder.isDirectory()){
+                        deleteFolder.delete();
+                    }
+                }
+
+                tbLandingPage.setUrl(tbLandingPageObj.get("url").toString());
+                titleName = tbLandingPageObj.get("titleName").toString();
+            }
+
+//            System.out.println(tbLandingPage.getUrl().toString());
 
             //---------------------------------------------------------------------------------------------------------
             // php 파일을 생성한다.
             //   - 생성규칙 : "http://landing.dbmaster.co.kr/mb_id/caid/pg_id?....
             //---------------------------------------------------------------------------------------------------------
-            String      indexPath           = "/WebFileClient/ad/" + randChar;
-            String      phpTag              = "";
-            String      indexFullFileName   = "";
-
             // Directory Create
             // RandamChar() 함수로 생성한다.
             System.out.println("----------------------------------------------------------------------------");
@@ -294,7 +372,7 @@ public class LandingPageController {
 //            phpTag += "          return false;\n";
 //            phpTag += "        }\n";
 
-//            System.out.println("inputArr.size() : " + inputArr.size());
+            System.out.println("inputArr.size() : " + inputArr.size());
 
             //---------------------------------------------------------------------------------------------------------
             // 헤더 추가
@@ -310,7 +388,7 @@ public class LandingPageController {
                 //-------------------------------------------------------------------
                 String nameValue = "value"  + (j + 1);
 
-//                System.out.println("nameValue : " + nameValue);
+                System.out.println("nameValue : " + nameValue);
 
                 //-------------------------------------------------------------------
                 // 입력항목 추가만 되어있고 입력정보가 없는 경우
@@ -322,7 +400,7 @@ public class LandingPageController {
                 //-------------------------------------------------------------------
                 // 텍스트 박스
                 //-------------------------------------------------------------------
-//                if(arrGab.get("values").equals("textForm")) {
+                if(arrGab.get("values").equals("textForm")) {
                     String   textNames = arrGab.get("names").toString();
 
                     phpTag += "        if(e." + nameValue + ".value == '') {\n";
@@ -330,8 +408,7 @@ public class LandingPageController {
                     phpTag += "          e." +  nameValue + ".focus();\n";
                     phpTag += "          return false;\n";
                     phpTag += "        }\n";
-
-//                }
+                }
 //                //-------------------------------------------------------------------
 //                // 라디오 박스
 //                //-------------------------------------------------------------------
@@ -348,22 +425,25 @@ public class LandingPageController {
 //                    }
 //                    phpTag += "\n        </div>";
 //                }
-//                //-------------------------------------------------------------------
-//                // 체크 박스
-//                //-------------------------------------------------------------------
-//                else if(arrGab.get("values").equals("checkForm")) {
-//                    String[] strArr    = arrGab.get("lab").toString().split(",");
-//                    String   formNames = arrGab.get("names").toString();
-//
-//                    phpTag += "\n        <div class='formInput'>";
-//                    phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
-//
-//                    for(int k = 0 ; k < strArr.length; k++) {
-//                        phpTag += "\n          <input type='checkbox' name='" + nameValue + "' id='" + strArr[k] + "'>";
-//                        phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
-//                    }
-//                    phpTag += "\n        </div>";
-//                }
+                //-------------------------------------------------------------------
+                // 체크 박스
+                //-------------------------------------------------------------------
+                else if(arrGab.get("values").equals("checkForm")) {
+                    String   textNames = arrGab.get("names").toString();
+                    phpTag += "        if($(e).find('[name="+nameValue+"]:checked').val() == undefined) \n";
+                    phpTag += "        { \n";
+                    phpTag += "          alert('"+textNames+"'); \n";
+                    phpTag += "          return false; \n";
+                    phpTag += "        } \n";
+                    phpTag += "        else \n";
+                    phpTag += "        { \n";
+                    phpTag += "          var "+nameValue+" = []; \n";
+                    phpTag += "          $(e).find('[name="+nameValue+"]:checked').each(function() { \n";
+                    phpTag += "            "+nameValue+".push($(this).val()); \n";
+                    phpTag += "          }); \n";
+                    phpTag += "          $(e).find('input[name="+nameValue+"]').val("+nameValue+".join(',')); \n";
+                    phpTag += "        } \n";
+                }
 //                //-------------------------------------------------------------------
 //                // 셀렉트 박스
 //                //-------------------------------------------------------------------
@@ -389,12 +469,12 @@ public class LandingPageController {
             phpTag += "        e.action = './submit.php';\n";
             phpTag += "      }\n";
             phpTag += "    </script>\n";
-            phpTag += "\n  <title>" + params.get("landingNm") + "</title>";
+            phpTag += "\n  <title>" + titleName + "</title>";
             phpTag += "\n</head>";
             phpTag += "\n<body>";
             phpTag += "\n  <div class='landPrev'>";
 
-//            System.out.println("phpTag : " + phpTag);
+            System.out.println("phpTag : " + phpTag);
 
             //---------------------------------------------------------------------------------------------------------
             // 헤더안에 valid function 추가
@@ -403,7 +483,7 @@ public class LandingPageController {
             //---------------------------------------------------------------------------------------------------------
             // 헤더 추가
             //---------------------------------------------------------------------------------------------------------
-//            System.out.println("contentArr.size() : " + contentArr.size());
+            System.out.println("contentArr.size() : " + contentArr.size());
 //            System.out.println("contentArr.data() : " + contentArr.toString());
 
             for(int i = 0 ; i < contentArr.size(); i++) {
@@ -464,7 +544,7 @@ public class LandingPageController {
                 // 텍스트 추가
                 //-------------------------------------------------------------------
                 else if( contentArr.get(i).equals("02")) {
-//                    System.out.println("text.get       : [" + textArr.get(textCount) + "]");
+                    System.out.println("text.get       : [" + textArr.get(textCount) + "]");
                     phpTag += "\n    <div>";
                     phpTag += "\n      " + textArr.get(textCount).toString();
                     phpTag += "\n    </div>";
@@ -489,7 +569,7 @@ public class LandingPageController {
                 // 폼 추가
                 //-------------------------------------------------------------------
                 else if( contentArr.get(i).equals("03")) {
-//                    System.out.println("resultMap() : In");
+                    System.out.println("resultMap() : In");
 
                     System.out.println("----------------------------------------------------------------------------");
                     System.out.println("  입력 폼 추가 Start");
@@ -499,6 +579,7 @@ public class LandingPageController {
                     resultMap    = (Map<String, Object>)formArr.get(formCount);
 
 //                    System.out.println("resultMap() : " + resultMap.toString());
+
 
                     phpTag += "\n    <div class='formPrev'";
                     phpTag += " style='border-color: " + resultMap.get("lineColor").toString() + "; ";
@@ -528,7 +609,7 @@ public class LandingPageController {
 //                    phpTag += "\n        <input type='text'   id='value1" + i + "'        name='value1'        placeholder='연락처 (구분없이 입력해주세요)'>";
                     phpTag += "\n";
 
-//                    System.out.println("inputArr In");
+                    System.out.println("inputArr In");
 //                    System.out.println("inputArr : " + inputArr.toString());
 
                     for(int j = 0 ; j < inputArr.size() ; j++) {
@@ -542,6 +623,13 @@ public class LandingPageController {
                         //-------------------------------------------------------------------
                         String namevalue = "value"  + (j + 1);
 
+                        if(j == 0) {
+                            namevalue = "value2";
+                        }
+                        if(j == 1) {
+                            namevalue = "value1";
+                        }
+
                         //-------------------------------------------------------------------
                         // 입력항목 추가만 되어있고 입력정보가 없는 경우
                         //-------------------------------------------------------------------
@@ -553,7 +641,7 @@ public class LandingPageController {
                         // 텍스트 박스
                         //-------------------------------------------------------------------
                         if(arrGab.get("values").equals("textForm")) {
-//                            System.out.println("textForm In");
+                            System.out.println("textForm In");
 
                             phpTag += "\n        <div class='formInput'>";
                             phpTag += "\n          <span class='formInputName '>" + arrGab.get("names") +"</span>";
@@ -573,7 +661,7 @@ public class LandingPageController {
                                 case 9 : tbLandingPage.setPage10(arrGab.get("names").toString()); break;
                             }
 
-//                            System.out.println("textForm 1 : " + arrGab.get("names").toString());
+                            System.out.println("textForm 1 : " + arrGab.get("names").toString());
                         }
                         //-------------------------------------------------------------------
                         // 라디오 박스
@@ -589,8 +677,11 @@ public class LandingPageController {
                             phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
 
                             for(int k = 0 ; k < strArr.length; k++) {
-                                phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArr[k] + "'" + "value='" + strArr[k] + "'>";
-                                phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
+                                String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArrVals + namevalue+ "'" + "value='" + strArrVals + "'>";
+                                phpTag += "\n          <label for='" + strArrVals + namevalue + "'>" + strArrVals + "</label>";
                             }
                             phpTag += "\n        </div>";
                         }
@@ -608,8 +699,11 @@ public class LandingPageController {
                             phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
 
                             for(int k = 0 ; k < strArr.length; k++) {
-                                phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArr[k] + "'" + "value='" + strArr[k] + "'>";
-                                phpTag += "\n          <label for='" + strArr[k] + "'>" + strArr[k] + "</label>";
+                                String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArrVals + namevalue + "'" + "value='" + strArrVals + "'>";
+                                phpTag += "\n          <label for='" + strArrVals + namevalue + "'>" + strArrVals + "</label>";
                             }
                             phpTag += "\n        </div>";
                         }
@@ -617,7 +711,7 @@ public class LandingPageController {
                         // 셀렉트 박스
                         //-------------------------------------------------------------------
                         else if(arrGab.get("values").equals("selForm")) {
-//                            System.out.println("selForm In");
+                            System.out.println("selForm In");
 
 
 
@@ -632,7 +726,10 @@ public class LandingPageController {
                             phpTag += "\n          <select name='" + namevalue + "'>";
 
                             for(int k = 0 ; k < strArr.length; k++) {
-                                phpTag += "\n          <option value='" + strArr[k] + "'>" + strArr[k] + "</option>";
+                                String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                phpTag += "\n          <option value='" + strArrVals + "'>" + strArrVals + "</option>";
                             }
                             phpTag += "\n          </select>";
                             phpTag += "\n        </div>";
@@ -641,7 +738,7 @@ public class LandingPageController {
 
                     //System.out.println("phpTag 11 : " + phpTag);
 
-//                    System.out.println("check 1 : ");
+                    System.out.println("check 1 : ");
 
                     phpTag += "\n      <div class='agreeBox'>";
                     phpTag += "\n        <input type='checkbox' name='agree' id='agree" + i + "'>";
@@ -651,16 +748,13 @@ public class LandingPageController {
                     phpTag += "\n        <div class='centerBox'>";
                     phpTag += "\n          <button style='background: " + resultMap.get("btnColor").toString() + "; ";
                     phpTag += "border-radius: " + resultMap.get("btnShape").toString() +  ";";
-
                     phpTag += "color: " + resultMap.get("textColor").toString() +  ";'>";
-
-
                     phpTag += resultMap.get("btnNm") + "</button>";
 
                     phpTag += "\n        </div>";
                     phpTag += "\n      </form>";
 
-//                    System.out.println("check 4 : ");
+                    System.out.println("check 4 : ");
 
                     phpTag += "\n      <div class='priBox'>";
                     phpTag += "\n        <h6>" + params.get("stipulationTitle").toString() + "</h6>";
@@ -669,13 +763,13 @@ public class LandingPageController {
                     phpTag += "\n      </div>";
                     phpTag += "\n    </div>";
 
-//                    System.out.println("phpTag 12 : ");
+                    System.out.println("phpTag 12 : ");
 
                     formCount++;
                 }
             }
 
-//            System.out.println("phpTag 12 : " + phpTag);
+            System.out.println("phpTag 12 : " + phpTag);
             System.out.println("----------------------------------------------------------------------------");
             System.out.println("  푸터 추가 Start");
             System.out.println("----------------------------------------------------------------------------");
@@ -692,7 +786,7 @@ public class LandingPageController {
             System.out.println("  최종 파일 PHP 생성 : [" + phpTag + "]");
             System.out.println("----------------------------------------------------------------------------");
 
-//            System.out.println("steps 3 : ");
+            System.out.println("steps 3 : ");
 
             //-------------------------------------------------------------------
             // 최종 저장
@@ -705,19 +799,39 @@ public class LandingPageController {
             System.out.println("  landingPageMapper.insLandingPage Start");
             System.out.println("----------------------------------------------------------------------------");
 
-            landingPageMapper.insLandingPage(tbLandingPage);
+            if(params.get("landReplace").equals(false)) {
+                landingPageMapper.insLandingPage(tbLandingPage);
+            }
+            else {
+                landingPageMapper.updLandingPage(tbLandingPage);
+            }
         } catch (Exception e) {
             System.out.println(e);
 
-            resultObj.put("status", false);
-            resultObj.put("message", "신규 랜딩페이지 생성이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
-            System.out.println("리턴 메세지 : ["+ resultObj.toString() +"]");
+            if(params.get("landReplace").equals(false)) {
+                resultObj.put("status", false);
+                resultObj.put("message", "신규 랜딩페이지 생성이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+                System.out.println("리턴 메세지 : ["+ resultObj.toString() +"]");
+            }
+            else {
+                resultObj.put("status", false);
+                resultObj.put("message", "신규 랜딩페이지 대체가 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+                System.out.println("리턴 메세지 : ["+ resultObj.toString() +"]");
+            }
+
             return resultObj;
         }
 
-        resultObj.put("status", true);
-        resultObj.put("message", "신규 랜딩페이지가 생성되었습니다.");
-        resultObj.put("landingUrl", "http://www.dbmaster.co.kr/ad/" + randChar);
+        if(params.get("landReplace").equals(false)) {
+            resultObj.put("status", true);
+            resultObj.put("message", "신규 랜딩페이지가 생성되었습니다.");
+            resultObj.put("landingUrl", "http://www.dbmaster.co.kr/ad/" + tbLandingPage.getUrl().toString());
+        }
+        else {
+            resultObj.put("status", true);
+            resultObj.put("message", "신규 랜딩페이지가 대체되었습니다.");
+            resultObj.put("landingUrl", "http://www.dbmaster.co.kr/ad/" + tbLandingPage.getUrl().toString());
+        }
 
         System.out.println("리턴 메세지 : ["+ resultObj.toString() +"]");
 
@@ -745,6 +859,8 @@ public class LandingPageController {
         System.out.println("GetLandingListForMbAdCaCode Func Start...");
         System.out.println("############################################################################");
 
+        List<Map<String, Object>> cpaResult = new ArrayList<Map<String, Object>>();
+
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  화면에서 수신된 입력값");
         System.out.println("----------------------------------------------------------------------------");
@@ -752,28 +868,68 @@ public class LandingPageController {
         System.out.println("adId   : [" + rq.getParameter("adId") + "]");
         System.out.println("mkId   : [" + rq.getParameter("mkId") + "]");
         System.out.println("caId   : [" + rq.getParameter("caId") + "]");
+        System.out.println("useTp  : [" + rq.getParameter("useTp") + "]");
 
         //---------------------------------------------------------------------------------------------------------
         // 랜딩페이지 목록을 조회한다.
         //---------------------------------------------------------------------------------------------------------
-        if(rq.getParameter("caId").equals("-1")) {
-            return landingPageMapper.GetLandingListForMbAdCaCode(
-                      Long.parseLong(rq.getParameter("mbId"))
-                    , Long.parseLong(rq.getParameter("adId"))
-                    , Long.parseLong(rq.getParameter("mkId"))
-                    , Long.parseLong(rq.getParameter("caId"))
-                    , rq.getParameter("useTp")
-            );
-        }
-        else {
-            return landingPageMapper.GetLandingListForMbAdCaCode(
-                      Long.parseLong(rq.getParameter("mbId"))
-                    , Long.parseLong(rq.getParameter("adId"))
-                    , Long.parseLong(rq.getParameter("mkId"))
-                    , Long.parseLong(rq.getParameter("caId"))
-                    , rq.getParameter("useTp")
-            );
-        }
+        cpaResult = landingPageMapper.GetLandingListForMbAdCaCode(
+                          Long.parseLong(rq.getParameter("mbId"))
+                        , Long.parseLong(rq.getParameter("adId"))
+                        , Long.parseLong(rq.getParameter("mkId"))
+                        , Long.parseLong(rq.getParameter("caId"))
+                        , rq.getParameter("useTp")
+                    );
+
+        System.out.println("리턴 메세지 : ["+ cpaResult.toString() +"]");
+
+        return cpaResult;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 랜딩페이지 단건 조회
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.17
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] LANDING_PAGE
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetLandingListOne", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public TB_LANDING_PAGE GetLandingListOne(HttpServletRequest rq) throws Exception {
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetLandingListOne Func Start...");
+        System.out.println("############################################################################");
+
+        TB_LANDING_PAGE     tbLandingPage = new TB_LANDING_PAGE();
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId   : [" + rq.getParameter("adId") + "]");
+        System.out.println("caId   : [" + rq.getParameter("caId") + "]");
+        System.out.println("pgId   : [" + rq.getParameter("pgId") + "]");
+
+        //---------------------------------------------------------------------------------------------------------
+        // 랜딩페이지 목록을 조회한다.
+        //---------------------------------------------------------------------------------------------------------
+        tbLandingPage = landingPageMapper.selLandingPageByTableOne(
+                  Long.parseLong(rq.getParameter("mbId"))
+                , Long.parseLong(rq.getParameter("adId"))
+                , Long.parseLong(rq.getParameter("caId"))
+                , Long.parseLong(rq.getParameter("pgId"))
+        );
+
+        System.out.println("리턴 메세지 : ["+ tbLandingPage.toString() +"]");
+
+        return tbLandingPage;
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -983,5 +1139,70 @@ public class LandingPageController {
         System.out.println("리턴 데이터 : ["+ resultMap.toString() +"]");
 
         return resultMap;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 외부 사용자 목록 조회
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.16
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] AD_EXTERNAL_USER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetExternalUrlList", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public ArrayList<List<Map<String, Object>>> GetExternalUrlList(HttpServletRequest rq) throws Exception {
+        ArrayList<List<Map<String, Object>>> userResult = new ArrayList<>();
+
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetExternalUrlList Func Start...");
+        System.out.println("############################################################################");
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("mbId   : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId   : [" + rq.getParameter("adId") + "]");
+        System.out.println("caId   : [" + rq.getParameter("caId") + "]");
+        System.out.println("pgId   : [" + rq.getParameter("pgId") + "]");
+        System.out.println("status : [" + rq.getParameter("status") + "]");
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  adExternalUserMapper.selAdExternalUserRowCount Start");
+        System.out.println("----------------------------------------------------------------------------");
+
+        List<Map<String, Object>> adExternalUserCount = adExternalUrlMapper.selAdExternalUrlRowCount(
+                  Long.parseLong(rq.getParameter("mbId").toString())
+                , Long.parseLong(rq.getParameter("adId").toString())
+                , Long.parseLong(rq.getParameter("caId").toString())
+                , Long.parseLong(rq.getParameter("pgId").toString())
+                , rq.getParameter("status").toString()
+        );
+
+        userResult.add(0, adExternalUserCount);
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  adExternalUserMapper.selAdExternalUser Start");
+        System.out.println("----------------------------------------------------------------------------");
+
+        List<Map<String, Object>> adExternalUserArr = adExternalUrlMapper.selAdExternalUrl(
+                  Long.parseLong(rq.getParameter("mbId").toString())
+                , Long.parseLong(rq.getParameter("adId").toString())
+                , Long.parseLong(rq.getParameter("caId").toString())
+                , Long.parseLong(rq.getParameter("pgId").toString())
+                , rq.getParameter("status").toString()
+        );
+
+        userResult.add(1, adExternalUserArr);
+
+        System.out.println("리턴 메세지 : ["+ rq.toString() +"]");
+
+        return userResult;
     }
 }

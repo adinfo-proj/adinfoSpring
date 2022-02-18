@@ -1,8 +1,7 @@
 package com.ad.adinfo.Controller;
 
-import com.ad.adinfo.Domain.TB_AD_POSTBACK_FORMAT;
-import com.ad.adinfo.Domain.TB_CAMPAIGN_MASTER;
-import com.ad.adinfo.Domain.TB_LANDING_PAGE;
+import com.ad.adinfo.Domain.*;
+import com.ad.adinfo.Mapper.AdExternalUrlMapper;
 import com.ad.adinfo.Mapper.AdPostbackFormatMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +25,7 @@ import java.util.Map;
 @Slf4j
 public class PostBackController {
     private final AdPostbackFormatMapper adPostbackFormatMapper;
+    private final AdExternalUrlMapper adExternalUrlMapper;
 
     @Autowired
     private PlatformTransactionManager trxManager;
@@ -61,7 +61,7 @@ public class PostBackController {
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  화면에서 수신된 입력값");
         System.out.println("----------------------------------------------------------------------------");
-        System.out.println("입력 파라메터 : [" + params + "]");
+        System.out.println("입력 파라메터 : [" + params.toString() + "]");
 
         inputArr  = (ArrayList)params.get("inputParam");
 
@@ -255,7 +255,7 @@ public class PostBackController {
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  화면에서 수신된 입력값");
         System.out.println("----------------------------------------------------------------------------");
-        System.out.println("입력 파라메터 : [" + params + "]");
+        System.out.println("입력 파라메터 : [" + params.toString() + "]");
 
         inputArr  = (ArrayList)params.get("inputParam");
 
@@ -275,7 +275,7 @@ public class PostBackController {
         tbAdPostbackFormat.setPgId(Long.parseLong(params.get("pgId").toString()));
         tbAdPostbackFormat.setPbId(Long.parseLong(params.get("pbId").toString()));
 
-        tbAdPostbackFormat.setStatus     ("00");
+        tbAdPostbackFormat.setStatus     (params.get("status").toString());
         tbAdPostbackFormat.setPostbackIo ("O");
         tbAdPostbackFormat.setPostbackUrl(params.get("sendUrl").toString());
         tbAdPostbackFormat.setSendType   (params.get("postBack").toString());
@@ -288,14 +288,14 @@ public class PostBackController {
             //------------------------------------------------------------------------------
             // 고정값 여부
             //------------------------------------------------------------------------------
-            if(inputValue.get("tp").toString().equals("true"))
+            if(inputValue.get("tp").toString().equals("Y"))
                 sAccessFlag += "Y";
             else
                 sAccessFlag += "N";
 
             switch (i) {
                 case 0:
-                    if(inputValue.get("tp").toString().equals("true")) {
+                    if(inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue01(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                     }
                     else {
@@ -303,7 +303,7 @@ public class PostBackController {
                     }
                     break;
                 case 1:
-                    if(inputValue.get("tp").toString().equals("true")) {
+                    if(inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue02(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                     }
                     else {
@@ -311,7 +311,7 @@ public class PostBackController {
                     }
                     break;
                 case 2:
-                    if(inputValue.get("tp").toString().equals("true")) {
+                    if(inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue03(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                     }
                     else {
@@ -319,7 +319,7 @@ public class PostBackController {
                     }
                     break;
                 case 3:
-                    if(inputValue.get("tp").toString().equals("true")) {
+                    if(inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue04(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                     }
                     else {
@@ -327,7 +327,7 @@ public class PostBackController {
                     }
                     break;
                 case 4:
-                    if(inputValue.get("tp").toString().equals("true")) {
+                    if(inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue05(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                     }
                     else {
@@ -335,7 +335,7 @@ public class PostBackController {
                     }
                     break;
                 case 5:
-                    if(inputValue.get("tp").toString().equals("true")) {
+                    if(inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue06(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                     }
                     else {
@@ -343,7 +343,7 @@ public class PostBackController {
                     }
                     break;
                 case 6:
-                    if(inputValue.get("tp").toString().equals("true")) {
+                    if(inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue07(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                     }
                     else {
@@ -351,7 +351,7 @@ public class PostBackController {
                     }
                     break;
                 case 7:
-                    if(inputValue.get("tp").toString().equals("true")) {
+                    if(inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue08(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                     }
                     else {
@@ -359,7 +359,7 @@ public class PostBackController {
                     }
                     break;
                 case 8:
-                    if(inputValue.get("tp").toString().equals("true")) {
+                    if(inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue09(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                     }
                     else {
@@ -367,7 +367,7 @@ public class PostBackController {
                     }
                     break;
                 case 9:
-                    if(inputValue.get("tp").toString().equals("true")) {
+                    if(inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue10(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                     }
                     else {
@@ -577,6 +577,122 @@ public class PostBackController {
         }
 
         System.out.println("리턴 데이터 : ["+ resultMap.toString() +"]");
+
+        return resultMap;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 외부 도메인 연결 등록
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.18
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C] AD_EXTERNAL_USER
+     *         [R]
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "/CreExternalUrl", method = RequestMethod.POST)
+    public Map<String, Object> CreExternalUrl(
+            @RequestPart(value = "dataObj") Map<String, Object> params) throws Exception
+    {
+        System.out.println("\n\n############################################################################");
+        System.out.println("CreExternalUrl Func Start...");
+        System.out.println("############################################################################");
+
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        TB_AD_EXTERNAL_URL tbAdExternalUrl = new TB_AD_EXTERNAL_URL();
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("입력 파라메터 : [" + params.toString() + "]");
+        // mbId, adId, caId, pgId 까지만 받는다.
+
+        //------------------------------------------------------------------------------
+        // 트랜잭션 시작
+        //------------------------------------------------------------------------------
+//        System.out.println("----------------------------------------------------------------------------");
+//        System.out.println("  트랜잭션 Start");
+//        System.out.println("----------------------------------------------------------------------------");
+        //TransactionStatus trxStatus = trxManager.getTransaction(new DefaultTransactionDefinition());
+
+        tbAdExternalUrl.setMbId(Long.parseLong(params.get("mbId").toString()));
+        tbAdExternalUrl.setAdId(Long.parseLong(params.get("adId").toString()));
+        tbAdExternalUrl.setCaId(Long.parseLong(params.get("caId").toString()));
+        tbAdExternalUrl.setPgId(Long.parseLong(params.get("pgId").toString()));
+        tbAdExternalUrl.setExternalUrl        (params.get("externalUrl").toString());
+        tbAdExternalUrl.setStatus             ("00");
+        tbAdExternalUrl.setDescription        (params.get("description").toString());
+
+        System.out.println(tbAdExternalUrl.toString());
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  adExternalUserMapper.insAdExternalUrl Start");
+        System.out.println("----------------------------------------------------------------------------");
+
+        Long    newAddUrl = -1L;
+        try {
+            newAddUrl = adExternalUrlMapper.insAdExternalUrl(tbAdExternalUrl);
+        } catch(Exception e) {
+            System.out.println("adExternalUrlMapper.insAdExternalUrl Fail : [" + e + "]");
+
+            resultMap.put("status", false);
+            resultMap.put("message", "신규 외부 도메인 연결 신청이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+            System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
+
+            //trxManager.rollback(trxStatus);
+            return resultMap;
+        }
+
+        resultMap.put("status", true);
+        resultMap.put("message", "신규 외부 도메인 연결 신청이 처리되었습니다.");
+        System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
+
+        //trxManager.commit(trxStatus);
 
         return resultMap;
     }

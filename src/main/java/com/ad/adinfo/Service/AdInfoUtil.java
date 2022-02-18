@@ -4,7 +4,6 @@ import com.ad.adinfo.Domain.AD_OPERATION_HISTORY;
 import com.ad.adinfo.Domain.AD_USER_MASTER;
 import com.ad.adinfo.Mapper.AdOperationHistoryMapper;
 import com.ad.adinfo.Mapper.AdUserMasterMapper;
-import com.ad.adinfo.Mapper.CpaCampaignDataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +18,8 @@ public class AdInfoUtil {
     @Autowired
     AdUserMasterMapper adUserMaster;
 
-    @Autowired
-    CpaCampaignDataMapper cpaCampaignData;
+//    @Autowired
+//    CpaCampaignDataMapper cpaCampaignData;
 
     @Autowired
     AdOperationHistoryMapper    adOperationHistoryMapper;
@@ -76,9 +75,9 @@ public class AdInfoUtil {
      *------------------------------------------------------------------------------------------------------------------
      * 코멘트 : 없음. getCpaCampaignDataTodayInCount
      -----------------------------------------------------------------------------------------------------------------*/
-    public Long GetCpaCampaignDataDateInCount(Long ptId, String date) {
-        return cpaCampaignData.getCpaCampaignDataTodayInCount(ptId, date);
-    }
+//    public Long GetCpaCampaignDataDateInCount(Long ptId, String date) {
+//        return cpaCampaignData.getCpaCampaignDataTodayInCount(ptId, date);
+//    }
 
     /*------------------------------------------------------------------------------------------------------------------
      * 로그인정보를 확인한다.
@@ -203,5 +202,18 @@ public class AdInfoUtil {
                 }
             }
         }
+    }
+
+    public String padLeftZeros(String inputString, int length) {
+        if (inputString.length() >= length) {
+            return inputString;
+        }
+        StringBuilder sb = new StringBuilder();
+        while (sb.length() < length - inputString.length()) {
+            sb.append('0');
+        }
+        sb.append(inputString);
+
+        return sb.toString();
     }
 }

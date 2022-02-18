@@ -275,24 +275,33 @@ public class DataCenterController {
     @CrossOrigin
     @RequestMapping(value = "/GetCampaignHeadCount", method = RequestMethod.GET)
     public Map<String, Object> GetCampaignHeadCount(HttpServletRequest params) throws Exception {
+        System.out.println("\n\n############################################################################");
+        System.out.println("ChangeLandingStatus Func Start...");
+        System.out.println("############################################################################");
+
         Map<String, Object> resultObj = new HashMap<String, Object>();
         Map<String, Object> subsObj = new HashMap<String, Object>();
 
         DecimalFormat decFormat = new DecimalFormat("###,###.#"); // 3자리마다 콤마를 찍기 위함.
 
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
         System.out.println("mbId     : [" + params.getParameter("mbId") + "]");
         System.out.println("adId     : [" + params.getParameter("adId") + "]");
         System.out.println("caId     : [" + params.getParameter("caId") + "]");
         System.out.println("mkId     : [" + params.getParameter("ptId") + "]");
         System.out.println("srtDt    : [" + params.getParameter("srtDt") + "]");
         System.out.println("endDt    : [" + params.getParameter("endDt") + "]");
-
         System.out.println("curPage  : [" + params.getParameter("curPage") + "]");
         System.out.println("rowCount : [" + params.getParameter("rowCount") + "]");
 
         //------------------------------------------------------------------------
         // 랜딩페이지 총 개수
         //------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  landingPageMapper.selLandingMbTotalCount Start");
+        System.out.println("----------------------------------------------------------------------------");
         Long landingCount = landingPageMapper.selLandingMbTotalCount(
                   Long.parseLong(params.getParameter("mbId").toString())
                 , Long.parseLong(params.getParameter("adId").toString())
@@ -304,6 +313,9 @@ public class DataCenterController {
         //------------------------------------------------------------------------
         // 조회된 페이지 열림 데이터의 총 건수
         //------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  landingPageMapper.changeStatusLandingPage Start");
+        System.out.println("----------------------------------------------------------------------------");
         Long rowViewTotalCount = cpaData.getCpaPageUsingCountForMbIdCaIdAdIdRowTotalCount(
                   Long.parseLong(params.getParameter("mbId").toString())
                 , Long.parseLong(params.getParameter("adId").toString())
@@ -317,6 +329,9 @@ public class DataCenterController {
         //------------------------------------------------------------------------
         // 조회된 수집데이터의 총 건수
         //------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  landingPageMapper.changeStatusLandingPage Start");
+        System.out.println("----------------------------------------------------------------------------");
         List<Map<String, Object>> rowCommitTotalCount = cpaData.getCpaDataForMbIdCaIdAdIdCount(
                   Long.parseLong(params.getParameter("mbId").toString())
                 , Long.parseLong(params.getParameter("adId").toString())
@@ -344,6 +359,8 @@ public class DataCenterController {
         strBuf = String.format("%.1f", commitPer);
 
         resultObj.put("commitPer", strBuf);
+
+        System.out.println("리턴 데이터 : ["+ resultObj.toString() +"]");
 
         return resultObj;
     }
