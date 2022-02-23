@@ -35,6 +35,17 @@ public interface AdExternalUrlMapper {
             ") ")
     Long insAdExternalUrl(@Param("tbAdExternalUrl") TB_AD_EXTERNAL_URL tbAdExternalUrl);
 
+    @Insert("UPDATE " +
+            "       AD_EXTERNAL_URL " +
+            "SET " +
+            "       STATUS = #{status} " +
+            "WHERE " +
+            "       MB_ID = #{mbId} " +
+            "AND    AD_ID = #{mbId} " +
+            "AND    CA_ID = #{caId} " +
+            "AND    PG_ID = #{pgId} " )
+    Long updAdExternalUrl(Long mbId, Long adId, Long caId, Long pgId, String status);
+
     @Select("SELECT " +
             "       COUNT(*) AS ROW_TOTAL_COUNT " +
             " FROM " +

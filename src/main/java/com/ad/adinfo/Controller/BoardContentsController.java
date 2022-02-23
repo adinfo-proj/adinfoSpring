@@ -31,15 +31,27 @@ public class BoardContentsController {
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
-    @RequestMapping(value = "/notice/create", method = RequestMethod.GET)
-    public Long notice_create(HttpServletRequest rq) throws Exception {
+    @RequestMapping(value = "/notice/create", method = RequestMethod.POST)
+    public Long notice_create(
+            @RequestPart(value = "dataObj") Map<String, Object> params) throws Exception {
+        System.out.println("\n\n############################################################################");
+        System.out.println("notice_create Func Start...");
+        System.out.println("############################################################################");
+
         NOTICE_BOARD noticeBoard = new NOTICE_BOARD();
+
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("입력 파라메터 : [" + params.toString() + "]");
 
         //---------------------------------------------------------------------------------------------------------
         // Max BodySeqNo를 조회한다.
         //---------------------------------------------------------------------------------------------------------
         Long lMaxBodySeqNo = noticeBoardMapper.getNoticeMaxBodySeqNo(
-                rq.getParameter("groupTp")
+                params.get("groupTp").toString()
         );
 
         //---------------------------------------------------------------------------------------------------------
@@ -48,18 +60,21 @@ public class BoardContentsController {
         //---------------------------------------------------------------------------------------------------------
         noticeBoard.setBodySeqNo   (lMaxBodySeqNo);
         noticeBoard.setCommentSeqNo(0L);
-        noticeBoard.setClntId      (rq.getParameter("clntId"));
-        noticeBoard.setGroupTp     (rq.getParameter("groupTp"));
+        noticeBoard.setClntId      (params.get("clntId").toString());
+        noticeBoard.setGroupTp     (params.get("groupTp").toString());
         noticeBoard.setUseTp       ("R");
         noticeBoard.setBodyTp      ("M");
-        noticeBoard.setHead        (rq.getParameter("head"));
-        noticeBoard.setTitle       (rq.getParameter("title"));
-        noticeBoard.setContents    (rq.getParameter("contents"));
+        noticeBoard.setHead        (params.get("head").toString());
+        noticeBoard.setTitle       (params.get("title").toString());
+        noticeBoard.setContents    (params.get("contents").toString());
 
         Long lCreateCount = noticeBoardMapper.insNoticeCreate(noticeBoard);
         System.out.println("공지사항이 "+ lCreateCount +"건 등록되었습니다.");
 
-        return noticeBoard.getBodySeqNo();
+        resultMap.put("status", true);
+        resultMap.put("message", "외부 도메인이 연결 해제 처리되었습니다.");
+
+        return lMaxBodySeqNo;
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -75,6 +90,9 @@ public class BoardContentsController {
      *------------------------------------------------------------------------------------------------------------------
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
+
+
+
     @CrossOrigin
     @RequestMapping(value = "/notice/update", method = RequestMethod.GET)
     public Long notice_update(HttpServletRequest rq) throws Exception {

@@ -602,11 +602,9 @@ public class LandingPageController {
                     phpTag += "\n        <input type='hidden' id='pgId" + i + "'          name='pgId'          value='<?php echo $pgId?>'>";
                     phpTag += "\n        <input type='hidden' id='httpReferer" + i + "'   name='httpReferer'   value='<?php echo $_SERVER['HTTP_REFERER']?>'>";
                     phpTag += "\n        <input type='hidden' id='remoteAddr" + i + "'    name='remoteAddr'    value='<?php echo $_SERVER['REMOTE_ADDR']?>'>";
-                    phpTag += "\n        <input type='hidden' id='serverName" + i + "'    name='serverName'    value='<?php echo $_SERVER['SERVER_NAME']?>'>";
                     phpTag += "\n        <input type='hidden' id='requestUri" + i + "'    name='requestUri'    value='<?php echo $_SERVER['REQUEST_URI']?>'>";
                     phpTag += "\n        <input type='hidden' id='httpUserAgent" + i + "' name='httpUserAgent' value='<?php echo $_SERVER['HTTP_USER_AGENT']?>'>";
-//                    phpTag += "\n        <input type='text'   id='value2" + i + "'        name='value2'        placeholder='이름을 입력하세요.'>";
-//                    phpTag += "\n        <input type='text'   id='value1" + i + "'        name='value1'        placeholder='연락처 (구분없이 입력해주세요)'>";
+                    phpTag += "\n        <input type='hidden' id='httpHost" + i + "'      name='serverName'    value='<?php echo $_SERVER['SERVER_NAME']?>'>";
                     phpTag += "\n";
 
                     System.out.println("inputArr In");
@@ -1201,7 +1199,7 @@ public class LandingPageController {
 
         userResult.add(1, adExternalUserArr);
 
-        System.out.println("리턴 메세지 : ["+ rq.toString() +"]");
+        System.out.println("리턴 메세지 : ["+ userResult.toString() +"]");
 
         return userResult;
     }

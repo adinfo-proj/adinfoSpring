@@ -18,7 +18,14 @@ public class TB_AD_POSTBACK_FORMAT {
     private     String      postbackUrl;
     private     String      sendType;
     private     String      sslYn;
+    private     String      useTpArr;
     private     String      accessFlag;
+
+    private     String      httpUserAgent;
+    private     String      remoteAddr;
+    private     String      httpReferer;
+    private     String      httpHost;
+    private     String      requestUri;
 
     private     String      value01;
     private     String      value02;
