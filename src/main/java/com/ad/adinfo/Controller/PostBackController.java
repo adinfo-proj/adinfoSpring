@@ -55,6 +55,7 @@ public class PostBackController {
 
         String sAccessFlag = new String();
         String sUseTpArr   = new String();
+        String sSendFlag   = new String();
 
 
         Map<String, Object> resultMap = new HashMap<String, Object>();
@@ -114,31 +115,16 @@ public class PostBackController {
             inputServer.get("memberId").toString();
 
             switch(i) {
-                case 0:
-                    if(inputServer.get("useYn").toString().equals("true")) {
-                        tbAdPostbackFormat.setHttpUserAgent(inputServer.get("memberId").toString());
-                    }
-                    break;
-                case 1:
-                    if(inputServer.get("useYn").toString().equals("true")) {
-                        tbAdPostbackFormat.setRemoteAddr(inputServer.get("memberId").toString());
-                    }
-                    break;
-                case 2:
-                    if(inputServer.get("useYn").toString().equals("true")) {
-                        tbAdPostbackFormat.setHttpReferer(inputServer.get("memberId").toString());
-                    }
-                    break;
-                case 3:
-                    if(inputServer.get("useYn").toString().equals("true")) {
-                        tbAdPostbackFormat.setHttpHost(inputServer.get("memberId").toString());
-                    }
-                    break;
-                case 4:
-                    if(inputServer.get("useYn").toString().equals("true")) {
-                        tbAdPostbackFormat.setRequestUri(inputServer.get("memberId").toString());
-                    }
-                    break;
+                case 0: tbAdPostbackFormat.setHttpUserAgent(inputServer.get("memberId").toString());
+                        break;
+                case 1: tbAdPostbackFormat.setRemoteAddr(inputServer.get("memberId").toString());
+                        break;
+                case 2: tbAdPostbackFormat.setHttpReferer(inputServer.get("memberId").toString());
+                        break;
+                case 3: tbAdPostbackFormat.setHttpHost(inputServer.get("memberId").toString());
+                        break;
+                case 4: tbAdPostbackFormat.setRequestUri(inputServer.get("memberId").toString());
+                        break;
             }
 
             if(inputServer.get("useYn").toString().equals("true"))
@@ -159,116 +145,177 @@ public class PostBackController {
             //   - sAccessFlag값이 Y이면 고정값, N이면 DB데이터값을 전송한다.
             //     S값이면 사용안함임.
             //------------------------------------------------------------------------------
+            if (inputValue.get("tp").toString().equals("Y"))
+                sAccessFlag += "Y";
+            else
+                sAccessFlag += "N";
+
+            //------------------------------------------------------------------------------
+            // 전송 여부
+            //   - sSendFlag값이 Y이면 실제 전송하고, N이면 발송하지 않는다.
+            //     S값이면 사용안함 임.
+            //------------------------------------------------------------------------------
             if(inputValue.get("useYn").toString().equals("true")) {
-                if (inputValue.get("tp").toString().equals("Y"))
-                    sAccessFlag += "Y";
-                else
-                    sAccessFlag += "N";
+                sSendFlag  += "Y";
             }
             else {
-                sAccessFlag += "S";
+                sSendFlag  += "N";
             }
 
             switch (i) {
                 case 0:
-                    if(inputValue.get("useYn").toString().equals("true")) {
                         if (inputValue.get("tp").toString().equals("Y")) {
                             tbAdPostbackFormat.setValue01(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                         } else {
                             tbAdPostbackFormat.setValue01(inputValue.get("memberId").toString() + "=1");
                         }
-                    }
-                    break;
+                        break;
                 case 1:
-                    if(inputValue.get("useYn").toString().equals("true")) {
                         if (inputValue.get("tp").toString().equals("Y")) {
                             tbAdPostbackFormat.setValue02(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                         } else {
                             tbAdPostbackFormat.setValue02(inputValue.get("memberId").toString() + "=2");
                         }
-                    }
-                    break;
+                        break;
                 case 2:
-                    if(inputValue.get("useYn").toString().equals("true")) {
                         if (inputValue.get("tp").toString().equals("Y")) {
                             tbAdPostbackFormat.setValue03(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                         } else {
                             tbAdPostbackFormat.setValue03(inputValue.get("memberId").toString() + "=3");
                         }
-                    }
-                    break;
+                        break;
                 case 3:
-                    if(inputValue.get("useYn").toString().equals("true")) {
                         if (inputValue.get("tp").toString().equals("Y")) {
                             tbAdPostbackFormat.setValue04(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                         } else {
                             tbAdPostbackFormat.setValue04(inputValue.get("memberId").toString() + "=4");
                         }
-                    }
-                    break;
+                        break;
                 case 4:
-                    if(inputValue.get("useYn").toString().equals("true")) {
                         if (inputValue.get("tp").toString().equals("Y")) {
                             tbAdPostbackFormat.setValue05(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                         } else {
                             tbAdPostbackFormat.setValue05(inputValue.get("memberId").toString() + "=5");
                         }
-                    }
-                    break;
+                        break;
                 case 5:
-                    if(inputValue.get("useYn").toString().equals("true")) {
                         if (inputValue.get("tp").toString().equals("Y")) {
                             tbAdPostbackFormat.setValue06(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                         } else {
                             tbAdPostbackFormat.setValue06(inputValue.get("memberId").toString() + "=6");
                         }
-                    }
-                    break;
+                        break;
                 case 6:
-                    if(inputValue.get("useYn").toString().equals("true")) {
                         if (inputValue.get("tp").toString().equals("Y")) {
                             tbAdPostbackFormat.setValue07(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                         } else {
                             tbAdPostbackFormat.setValue07(inputValue.get("memberId").toString() + "=7");
                         }
-                    }
-                    break;
+                        break;
                 case 7:
-                    if(inputValue.get("useYn").toString().equals("true")) {
                         if (inputValue.get("tp").toString().equals("Y")) {
                             tbAdPostbackFormat.setValue08(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                         } else {
                             tbAdPostbackFormat.setValue08(inputValue.get("memberId").toString() + "=8");
                         }
-                    }
-                    break;
+                        break;
                 case 8:
-                    if(inputValue.get("useYn").toString().equals("true")) {
                         if (inputValue.get("tp").toString().equals("Y")) {
                             tbAdPostbackFormat.setValue09(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                         } else {
                             tbAdPostbackFormat.setValue09(inputValue.get("memberId").toString() + "=9");
                         }
-                    }
-                    break;
+                        break;
                 case 9:
-                    if(inputValue.get("useYn").toString().equals("true")) {
                         if (inputValue.get("tp").toString().equals("Y")) {
                             tbAdPostbackFormat.setValue10(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
                         } else {
                             tbAdPostbackFormat.setValue10(inputValue.get("memberId").toString() + "=10");
                         }
-                    }
-                    break;
+                        break;
+                case 10:
+                        if (inputValue.get("tp").toString().equals("Y")) {
+                            tbAdPostbackFormat.setValue11(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                        } else {
+                            tbAdPostbackFormat.setValue11(inputValue.get("memberId").toString() + "=11");
+                        }
+                        break;
+                case 11:
+                        if (inputValue.get("tp").toString().equals("Y")) {
+                            tbAdPostbackFormat.setValue12(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                        } else {
+                            tbAdPostbackFormat.setValue12(inputValue.get("memberId").toString() + "=12");
+                        }
+                        break;
+                case 12:
+                        if (inputValue.get("tp").toString().equals("Y")) {
+                            tbAdPostbackFormat.setValue13(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                        } else {
+                            tbAdPostbackFormat.setValue13(inputValue.get("memberId").toString() + "=13");
+                        }
+                        break;
+                case 13:
+                        if (inputValue.get("tp").toString().equals("Y")) {
+                            tbAdPostbackFormat.setValue14(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                        } else {
+                            tbAdPostbackFormat.setValue14(inputValue.get("memberId").toString() + "=14");
+                        }
+                        break;
+                case 14:
+                        if (inputValue.get("tp").toString().equals("Y")) {
+                            tbAdPostbackFormat.setValue15(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                        } else {
+                            tbAdPostbackFormat.setValue15(inputValue.get("memberId").toString() + "=15");
+                        }
+                        break;
+                case 15:
+                        if (inputValue.get("tp").toString().equals("Y")) {
+                            tbAdPostbackFormat.setValue16(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                        } else {
+                            tbAdPostbackFormat.setValue16(inputValue.get("memberId").toString() + "=16");
+                        }
+                        break;
+                case 16:
+                        if (inputValue.get("tp").toString().equals("Y")) {
+                            tbAdPostbackFormat.setValue17(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                        } else {
+                            tbAdPostbackFormat.setValue17(inputValue.get("memberId").toString() + "=17");
+                        }
+                        break;
+                case 17:
+                        if (inputValue.get("tp").toString().equals("Y")) {
+                            tbAdPostbackFormat.setValue18(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                        } else {
+                            tbAdPostbackFormat.setValue18(inputValue.get("memberId").toString() + "=18");
+                        }
+                        break;
+                case 18:
+                        if (inputValue.get("tp").toString().equals("Y")) {
+                            tbAdPostbackFormat.setValue19(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                        } else {
+                            tbAdPostbackFormat.setValue19(inputValue.get("memberId").toString() + "=19");
+                        }
+                        break;
+                case 19:
+                        if (inputValue.get("tp").toString().equals("Y")) {
+                            tbAdPostbackFormat.setValue20(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                        } else {
+                            tbAdPostbackFormat.setValue20(inputValue.get("memberId").toString() + "=20");
+                        }
+                        break;
             }
         }
 
-        for(int i = 0 ; i < 10 - inputArr.size(); i++) {
+        tbAdPostbackFormat.setAccessFlag(sAccessFlag);
+        for(int i = 0 ; i < 20 - inputArr.size(); i++) {
             sAccessFlag += "S";
+            sSendFlag   += "S";
+
         }
+        tbAdPostbackFormat.setSendFlag  (sSendFlag);
         tbAdPostbackFormat.setAccessFlag(sAccessFlag);
 
-        for(int i = 0 ; i < 10 - serverArr.size(); i++) {
+        for(int i = 0 ; i < 20 - serverArr.size(); i++) {
             sUseTpArr += "S";
         }
         tbAdPostbackFormat.setUseTpArr  (sUseTpArr);
@@ -320,9 +367,13 @@ public class PostBackController {
         System.out.println("############################################################################");
 
         String sAccessFlag = new String();
+        String sUseTpArr   = new String();
+        String sSendFlag   = new String();
+
         Map<String, Object> resultMap = new HashMap<String, Object>();
         TB_AD_POSTBACK_FORMAT   tbAdPostbackFormat = new TB_AD_POSTBACK_FORMAT();
         ArrayList inputArr  = new ArrayList();
+        ArrayList serverArr  = new ArrayList();
 
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  화면에서 수신된 입력값");
@@ -330,6 +381,7 @@ public class PostBackController {
         System.out.println("입력 파라메터 : [" + params.toString() + "]");
 
         inputArr  = (ArrayList)params.get("inputParam");
+        serverArr = (ArrayList)params.get("serverParam");
 
         //------------------------------------------------------------------------------
         // 트랜잭션 시작
@@ -337,7 +389,6 @@ public class PostBackController {
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  트랜잭션 Start");
         System.out.println("----------------------------------------------------------------------------");
-
         TransactionStatus trxStatus = trxManager.getTransaction(new DefaultTransactionDefinition());
 
         tbAdPostbackFormat.setClntId(params.get("clntId").toString());
@@ -346,114 +397,226 @@ public class PostBackController {
         tbAdPostbackFormat.setCaId(Long.parseLong(params.get("caId").toString()));
         tbAdPostbackFormat.setPgId(Long.parseLong(params.get("pgId").toString()));
         tbAdPostbackFormat.setPbId(Long.parseLong(params.get("pbId").toString()));
-
-        tbAdPostbackFormat.setStatus     (params.get("status").toString());
+        tbAdPostbackFormat.setStatus     ("00");
         tbAdPostbackFormat.setPostbackIo ("O");
         tbAdPostbackFormat.setPostbackUrl(params.get("sendUrl").toString());
         tbAdPostbackFormat.setSendType   (params.get("postBack").toString());
         tbAdPostbackFormat.setSslYn      (params.get("encrypt").toString());
 
+        //------------------------------------------------------------------------------
+        // 헤더값 전송 정보 처리
+        //------------------------------------------------------------------------------
+        for(int i = 0 ; i < serverArr.size(); i++) {
+            Map<String, Object> inputServer = new HashMap<String, Object>();
+            inputServer = (Map<String, Object>) serverArr.get(i);
+
+            inputServer.get("memberId").toString();
+
+            switch(i) {
+                case 0: tbAdPostbackFormat.setHttpUserAgent(inputServer.get("memberId").toString());
+                    break;
+                case 1: tbAdPostbackFormat.setRemoteAddr(inputServer.get("memberId").toString());
+                    break;
+                case 2: tbAdPostbackFormat.setHttpReferer(inputServer.get("memberId").toString());
+                    break;
+                case 3: tbAdPostbackFormat.setHttpHost(inputServer.get("memberId").toString());
+                    break;
+                case 4: tbAdPostbackFormat.setRequestUri(inputServer.get("memberId").toString());
+                    break;
+            }
+
+            if(inputServer.get("useYn").toString().equals("true"))
+                sUseTpArr += "Y";
+            else
+                sUseTpArr += "N";
+        }
+
+        //------------------------------------------------------------------------------
+        // 수집데이터 전송 정보 처리
+        //------------------------------------------------------------------------------
         for(int i = 0 ; i < inputArr.size(); i++) {
             Map<String, Object> inputValue = new HashMap<String, Object>();
             inputValue = (Map<String, Object>) inputArr.get(i);
 
             //------------------------------------------------------------------------------
             // 고정값 여부
+            //   - sAccessFlag값이 Y이면 고정값, N이면 DB데이터값을 전송한다.
+            //     S값이면 사용안함임.
             //------------------------------------------------------------------------------
-            if(inputValue.get("tp").toString().equals("Y"))
+            if (inputValue.get("tp").toString().equals("Y"))
                 sAccessFlag += "Y";
             else
                 sAccessFlag += "N";
 
+            //------------------------------------------------------------------------------
+            // 전송 여부
+            //   - sSendFlag값이 Y이면 실제 전송하고, N이면 발송하지 않는다.
+            //     S값이면 사용안함 임.
+            //------------------------------------------------------------------------------
+            if(inputValue.get("useYn").toString().equals("true")) {
+                sSendFlag  += "Y";
+            }
+            else {
+                sSendFlag  += "N";
+            }
+
             switch (i) {
                 case 0:
-                    if(inputValue.get("tp").toString().equals("Y")) {
+                    if (inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue01(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
-                    }
-                    else {
+                    } else {
                         tbAdPostbackFormat.setValue01(inputValue.get("memberId").toString() + "=1");
                     }
                     break;
                 case 1:
-                    if(inputValue.get("tp").toString().equals("Y")) {
+                    if (inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue02(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
-                    }
-                    else {
+                    } else {
                         tbAdPostbackFormat.setValue02(inputValue.get("memberId").toString() + "=2");
                     }
                     break;
                 case 2:
-                    if(inputValue.get("tp").toString().equals("Y")) {
+                    if (inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue03(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
-                    }
-                    else {
+                    } else {
                         tbAdPostbackFormat.setValue03(inputValue.get("memberId").toString() + "=3");
                     }
                     break;
                 case 3:
-                    if(inputValue.get("tp").toString().equals("Y")) {
+                    if (inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue04(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
-                    }
-                    else {
+                    } else {
                         tbAdPostbackFormat.setValue04(inputValue.get("memberId").toString() + "=4");
                     }
                     break;
                 case 4:
-                    if(inputValue.get("tp").toString().equals("Y")) {
+                    if (inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue05(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
-                    }
-                    else {
+                    } else {
                         tbAdPostbackFormat.setValue05(inputValue.get("memberId").toString() + "=5");
                     }
                     break;
                 case 5:
-                    if(inputValue.get("tp").toString().equals("Y")) {
+                    if (inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue06(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
-                    }
-                    else {
+                    } else {
                         tbAdPostbackFormat.setValue06(inputValue.get("memberId").toString() + "=6");
                     }
                     break;
                 case 6:
-                    if(inputValue.get("tp").toString().equals("Y")) {
+                    if (inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue07(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
-                    }
-                    else {
+                    } else {
                         tbAdPostbackFormat.setValue07(inputValue.get("memberId").toString() + "=7");
                     }
                     break;
                 case 7:
-                    if(inputValue.get("tp").toString().equals("Y")) {
+                    if (inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue08(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
-                    }
-                    else {
+                    } else {
                         tbAdPostbackFormat.setValue08(inputValue.get("memberId").toString() + "=8");
                     }
                     break;
                 case 8:
-                    if(inputValue.get("tp").toString().equals("Y")) {
+                    if (inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue09(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
-                    }
-                    else {
+                    } else {
                         tbAdPostbackFormat.setValue09(inputValue.get("memberId").toString() + "=9");
                     }
                     break;
                 case 9:
-                    if(inputValue.get("tp").toString().equals("Y")) {
+                    if (inputValue.get("tp").toString().equals("Y")) {
                         tbAdPostbackFormat.setValue10(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
-                    }
-                    else {
+                    } else {
                         tbAdPostbackFormat.setValue10(inputValue.get("memberId").toString() + "=10");
+                    }
+                    break;
+                case 10:
+                    if (inputValue.get("tp").toString().equals("Y")) {
+                        tbAdPostbackFormat.setValue11(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                    } else {
+                        tbAdPostbackFormat.setValue11(inputValue.get("memberId").toString() + "=11");
+                    }
+                    break;
+                case 11:
+                    if (inputValue.get("tp").toString().equals("Y")) {
+                        tbAdPostbackFormat.setValue12(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                    } else {
+                        tbAdPostbackFormat.setValue12(inputValue.get("memberId").toString() + "=12");
+                    }
+                    break;
+                case 12:
+                    if (inputValue.get("tp").toString().equals("Y")) {
+                        tbAdPostbackFormat.setValue13(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                    } else {
+                        tbAdPostbackFormat.setValue13(inputValue.get("memberId").toString() + "=13");
+                    }
+                    break;
+                case 13:
+                    if (inputValue.get("tp").toString().equals("Y")) {
+                        tbAdPostbackFormat.setValue14(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                    } else {
+                        tbAdPostbackFormat.setValue14(inputValue.get("memberId").toString() + "=14");
+                    }
+                    break;
+                case 14:
+                    if (inputValue.get("tp").toString().equals("Y")) {
+                        tbAdPostbackFormat.setValue15(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                    } else {
+                        tbAdPostbackFormat.setValue15(inputValue.get("memberId").toString() + "=15");
+                    }
+                    break;
+                case 15:
+                    if (inputValue.get("tp").toString().equals("Y")) {
+                        tbAdPostbackFormat.setValue16(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                    } else {
+                        tbAdPostbackFormat.setValue16(inputValue.get("memberId").toString() + "=16");
+                    }
+                    break;
+                case 16:
+                    if (inputValue.get("tp").toString().equals("Y")) {
+                        tbAdPostbackFormat.setValue17(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                    } else {
+                        tbAdPostbackFormat.setValue17(inputValue.get("memberId").toString() + "=17");
+                    }
+                    break;
+                case 17:
+                    if (inputValue.get("tp").toString().equals("Y")) {
+                        tbAdPostbackFormat.setValue18(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                    } else {
+                        tbAdPostbackFormat.setValue18(inputValue.get("memberId").toString() + "=18");
+                    }
+                    break;
+                case 18:
+                    if (inputValue.get("tp").toString().equals("Y")) {
+                        tbAdPostbackFormat.setValue19(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                    } else {
+                        tbAdPostbackFormat.setValue19(inputValue.get("memberId").toString() + "=19");
+                    }
+                    break;
+                case 19:
+                    if (inputValue.get("tp").toString().equals("Y")) {
+                        tbAdPostbackFormat.setValue20(inputValue.get("memberId").toString() + "=" + inputValue.get("memberValue").toString());
+                    } else {
+                        tbAdPostbackFormat.setValue20(inputValue.get("memberId").toString() + "=20");
                     }
                     break;
             }
         }
 
-        for(int i = 0 ; i < 10 - inputArr.size(); i++) {
-            sAccessFlag += "_";
-        }
-
         tbAdPostbackFormat.setAccessFlag(sAccessFlag);
+        for(int i = 0 ; i < 20 - inputArr.size(); i++) {
+            sAccessFlag += "S";
+            sSendFlag   += "S";
+
+        }
+        tbAdPostbackFormat.setSendFlag  (sSendFlag);
+        tbAdPostbackFormat.setAccessFlag(sAccessFlag);
+
+        for(int i = 0 ; i < 20 - serverArr.size(); i++) {
+            sUseTpArr += "S";
+        }
+        tbAdPostbackFormat.setUseTpArr  (sUseTpArr);
 
         Long    rets = 0L;
         try {

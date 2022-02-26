@@ -1069,6 +1069,86 @@ public class CampaignManageController {
     }
 
     /*------------------------------------------------------------------------------------------------------------------
+     * 캠페인 리스트 (어드민용 / 상태값으로 조회)
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2021.12.22
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] CAMPAIGN_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "GetCampaignForMbAdCaStatus", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public ArrayList<List<Map<String, Object>>> GetCampaignForMbAdCaStatus(HttpServletRequest rq) throws Exception {
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetCampaignForMbAdCaStatus Func Start...");
+        System.out.println("############################################################################");
+
+        String      status = "";
+        ArrayList<List<Map<String, Object>>> cpaResult = new ArrayList<>();
+
+        List<Map<String, Object>> resultObj = new ArrayList<Map<String, Object>>();
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("mbId     : [" + rq.getParameter("mbId") + "]");
+        System.out.println("adId     : [" + rq.getParameter("adId") + "]");
+        System.out.println("caId     : [" + rq.getParameter("caId") + "]");
+
+        System.out.println("status   : [" + rq.getParameter("status") + "]");
+        System.out.println("curPage  : [" + rq.getParameter("curPage") + "]");
+        System.out.println("rowCount : [" + rq.getParameter("rowCount") + "]");
+
+        //---------------------------------------------------------------------------------------------------------
+        // 캠페인 목록을 조회한다.
+        //---------------------------------------------------------------------------------------------------------
+        if(rq.getParameter("status").toString().equals("00")) {
+            status = "%%";
+        }
+        else {
+            status = rq.getParameter("status").toString();
+        }
+
+        //------------------------------------------------------------------------
+        // 조회된 캠페인의 총 건수 (페이지 처리용)
+        //------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  campaignMasterMapper.getCampaignMasterForMbAdCaStatus_TotalCount Start");
+        System.out.println("----------------------------------------------------------------------------");
+        List<Map<String, Object>> rowTotalCount = campaignMasterMapper.getCampaignMasterForMbAdCaStatus_TotalCount(
+                  Long.parseLong(rq.getParameter("mbId"))
+                , Long.parseLong(rq.getParameter("adId"))
+                , Long.parseLong(rq.getParameter("caId"))
+                , status
+        );
+        cpaResult.add(0, rowTotalCount);
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  campaignMasterMapper.getCampaignMasterForMbAdCaStatus_ViewCount Start");
+        System.out.println("----------------------------------------------------------------------------");
+        resultObj = campaignMasterMapper.getCampaignMasterForMbAdCaStatus_ViewCount(
+                  Long.parseLong(rq.getParameter("mbId"))
+                , Long.parseLong(rq.getParameter("adId"))
+                , Long.parseLong(rq.getParameter("caId"))
+                , status
+                , (Long.parseLong(rq.getParameter("curPage").toString()) - 1) * Long.parseLong(rq.getParameter("rowCount").toString())
+                , Long.parseLong(rq.getParameter("rowCount").toString())
+        );
+
+        cpaResult.add(1, resultObj);
+
+        System.out.println("리턴 데이터 : ["+ cpaResult.toString() +"]");
+
+        return cpaResult;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
      * 캠페인 리스트 (캠페인번호로 조회)
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2021.12.22

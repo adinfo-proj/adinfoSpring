@@ -318,8 +318,8 @@ public interface LandingPageMapper {
             "WHERE " +
             "      MB_ID      = ${mbId} " +
             "AND   AD_ID      = ${adId} " +
-            "AND   CA_ID      = ${caId} " +
-            "AND   PG_ID      = ${pgId} " )
+            "AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
+            "AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " )
     @Results({
             @Result(property = "seqNo" , column = "SEQ_NO"),
             @Result(property = "updateDt" , column = "UPDATE_DT"),
@@ -378,7 +378,7 @@ public interface LandingPageMapper {
             "      MB_ID      = ${mbId} " +
             "AND   AD_ID      = ${adId} " +
             "AND   MK_ID      = ${mkId} " +
-            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " )
+            "AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " )
     @Results({
             @Result(property = "pgId" , column = "PG_ID")
     })

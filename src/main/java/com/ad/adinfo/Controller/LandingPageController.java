@@ -918,6 +918,10 @@ public class LandingPageController {
         //---------------------------------------------------------------------------------------------------------
         // 랜딩페이지 목록을 조회한다.
         //---------------------------------------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  landingPageMapper.selLandingPageByTableOne Start");
+        System.out.println("----------------------------------------------------------------------------");
+
         tbLandingPage = landingPageMapper.selLandingPageByTableOne(
                   Long.parseLong(rq.getParameter("mbId"))
                 , Long.parseLong(rq.getParameter("adId"))

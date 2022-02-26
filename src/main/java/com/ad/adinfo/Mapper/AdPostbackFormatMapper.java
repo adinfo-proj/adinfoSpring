@@ -23,6 +23,7 @@ public interface AdPostbackFormatMapper {
             "     , SEND_TYPE " +
             "     , SSL_YN " +
             "     , USE_TP_ARR " +
+            "     , SEND_FLAG " +
             "     , ACCESS_FLAG " +
             "     , HTTP_USER_AGENT " +
             "     , REMOTE_ADDR " +
@@ -39,6 +40,16 @@ public interface AdPostbackFormatMapper {
             "     , VALUE08 " +
             "     , VALUE09 " +
             "     , VALUE10 " +
+            "     , VALUE11 " +
+            "     , VALUE12 " +
+            "     , VALUE13 " +
+            "     , VALUE14 " +
+            "     , VALUE15 " +
+            "     , VALUE16 " +
+            "     , VALUE17 " +
+            "     , VALUE18 " +
+            "     , VALUE19 " +
+            "     , VALUE20 " +
             ") " +
             "VALUES( " +
             "       NOW() " +
@@ -54,6 +65,7 @@ public interface AdPostbackFormatMapper {
             "     , #{tbAdPostbackFormat.sendType} " +
             "     , #{tbAdPostbackFormat.sslYn} " +
             "     , #{tbAdPostbackFormat.useTpArr} " +
+            "     , #{tbAdPostbackFormat.sendFlag} " +
             "     , #{tbAdPostbackFormat.accessFlag} " +
             "     , #{tbAdPostbackFormat.httpUserAgent} " +
             "     , #{tbAdPostbackFormat.remoteAddr} " +
@@ -70,6 +82,16 @@ public interface AdPostbackFormatMapper {
             "     , #{tbAdPostbackFormat.value08} " +
             "     , #{tbAdPostbackFormat.value09} " +
             "     , #{tbAdPostbackFormat.value10} " +
+            "     , #{tbAdPostbackFormat.value11} " +
+            "     , #{tbAdPostbackFormat.value12} " +
+            "     , #{tbAdPostbackFormat.value13} " +
+            "     , #{tbAdPostbackFormat.value14} " +
+            "     , #{tbAdPostbackFormat.value15} " +
+            "     , #{tbAdPostbackFormat.value16} " +
+            "     , #{tbAdPostbackFormat.value17} " +
+            "     , #{tbAdPostbackFormat.value18} " +
+            "     , #{tbAdPostbackFormat.value19} " +
+            "     , #{tbAdPostbackFormat.value20} " +
             ") ")
     Long insPostback(@Param("tbAdPostbackFormat") TB_AD_POSTBACK_FORMAT tbAdPostbackFormat);
 
@@ -89,7 +111,13 @@ public interface AdPostbackFormatMapper {
             "     , SEND_TYPE    = #{tbAdPostbackFormat.sendType} " +
             "     , SSL_YN       = #{tbAdPostbackFormat.sslYn} " +
             "     , USE_TP_ARR   = #{tbAdPostbackFormat.useTpArr} " +
+            "     , SEND_FLAG    = #{tbAdPostbackFormat.sendFlag} " +
             "     , ACCESS_FLAG  = #{tbAdPostbackFormat.accessFlag} " +
+            "     , HTTP_USER_AGENT = #{tbAdPostbackFormat.httpUserAgent} " +
+            "     , REMOTE_ADDR     = #{tbAdPostbackFormat.remoteAddr} " +
+            "     , HTTP_REFERER    = #{tbAdPostbackFormat.httpReferer} " +
+            "     , HTTP_HOST       = #{tbAdPostbackFormat.httpHost} " +
+            "     , REQUEST_URI     = #{tbAdPostbackFormat.requestUri} " +
             "     , VALUE01      = #{tbAdPostbackFormat.value01} " +
             "     , VALUE02      = #{tbAdPostbackFormat.value02} " +
             "     , VALUE03      = #{tbAdPostbackFormat.value03} " +
@@ -100,6 +128,16 @@ public interface AdPostbackFormatMapper {
             "     , VALUE08      = #{tbAdPostbackFormat.value08} " +
             "     , VALUE09      = #{tbAdPostbackFormat.value09} " +
             "     , VALUE10      = #{tbAdPostbackFormat.value10} " +
+            "     , VALUE11      = #{tbAdPostbackFormat.value11} " +
+            "     , VALUE12      = #{tbAdPostbackFormat.value12} " +
+            "     , VALUE13      = #{tbAdPostbackFormat.value13} " +
+            "     , VALUE14      = #{tbAdPostbackFormat.value14} " +
+            "     , VALUE15      = #{tbAdPostbackFormat.value15} " +
+            "     , VALUE16      = #{tbAdPostbackFormat.value16} " +
+            "     , VALUE17      = #{tbAdPostbackFormat.value17} " +
+            "     , VALUE18      = #{tbAdPostbackFormat.value18} " +
+            "     , VALUE19      = #{tbAdPostbackFormat.value19} " +
+            "     , VALUE20      = #{tbAdPostbackFormat.value20} " +
             "WHERE " +
             "       MB_ID        = #{tbAdPostbackFormat.mbId} " +
             "AND    AD_ID        = #{tbAdPostbackFormat.adId} " +
@@ -121,7 +159,13 @@ public interface AdPostbackFormatMapper {
             "      , SEND_TYPE " +
             "      , SSL_YN " +
             "      , USE_TP_ARR " +
+            "      , SEND_FLAG " +
             "      , ACCESS_FLAG " +
+            "      , HTTP_USER_AGENT " +
+            "      , REMOTE_ADDR " +
+            "      , HTTP_REFERER " +
+            "      , HTTP_HOST " +
+            "      , REQUEST_URI " +
             "      , VALUE01 " +
             "      , VALUE02 " +
             "      , VALUE03 " +
@@ -132,6 +176,16 @@ public interface AdPostbackFormatMapper {
             "      , VALUE08 " +
             "      , VALUE09 " +
             "      , VALUE10 " +
+            "      , VALUE11 " +
+            "      , VALUE12 " +
+            "      , VALUE13 " +
+            "      , VALUE14 " +
+            "      , VALUE15 " +
+            "      , VALUE16 " +
+            "      , VALUE17 " +
+            "      , VALUE18 " +
+            "      , VALUE19 " +
+            "      , VALUE20 " +
             "FROM " +
             "        AD_POSTBACK_FORMAT " +
             "WHERE " +
@@ -152,7 +206,13 @@ public interface AdPostbackFormatMapper {
             @Result(property = "sendType" , column = "SEND_TYPE"),
             @Result(property = "sslYn" , column = "SSL_YN"),
             @Result(property = "useTpArr" , column = "USE_TP_ARR"),
+            @Result(property = "sendFlag" , column = "SEND_FLAG"),
             @Result(property = "accessFlag" , column = "ACCESS_FLAG"),
+            @Result(property = "httpUserAgent" , column = "HTTP_USER_AGENT"),
+            @Result(property = "remoteAddr" , column = "REMOTE_ADDR"),
+            @Result(property = "httpReferer" , column = "HTTP_REFERER"),
+            @Result(property = "httpHost" , column = "HTTP_HOST"),
+            @Result(property = "requestUri" , column = "REQUEST_URI"),
             @Result(property = "value01" , column = "VALUE01"),
             @Result(property = "value02" , column = "VALUE02"),
             @Result(property = "value03" , column = "VALUE03"),
@@ -162,7 +222,17 @@ public interface AdPostbackFormatMapper {
             @Result(property = "value07" , column = "VALUE07"),
             @Result(property = "value08" , column = "VALUE08"),
             @Result(property = "value09" , column = "VALUE09"),
-            @Result(property = "value10" , column = "VALUE10")
+            @Result(property = "value10" , column = "VALUE10"),
+            @Result(property = "value11" , column = "VALUE11"),
+            @Result(property = "value12" , column = "VALUE12"),
+            @Result(property = "value13" , column = "VALUE13"),
+            @Result(property = "value14" , column = "VALUE14"),
+            @Result(property = "value15" , column = "VALUE15"),
+            @Result(property = "value16" , column = "VALUE16"),
+            @Result(property = "value17" , column = "VALUE17"),
+            @Result(property = "value18" , column = "VALUE18"),
+            @Result(property = "value19" , column = "VALUE19"),
+            @Result(property = "value20" , column = "VALUE20")
     })
     Map<String, Object> selPostbackFormat(Long mbId, Long adId, Long caId, Long pgId);
 
@@ -196,7 +266,13 @@ public interface AdPostbackFormatMapper {
             "      , SEND_TYPE " +
             "      , SSL_YN " +
             "      , USE_TP_ARR " +
+            "      , SEND_FLAG " +
             "      , ACCESS_FLAG " +
+            "      , HTTP_USER_AGENT " +
+            "      , REMOTE_ADDR " +
+            "      , HTTP_REFERER " +
+            "      , HTTP_HOST " +
+            "      , REQUEST_URI " +
             "      , VALUE01 " +
             "      , VALUE02 " +
             "      , VALUE03 " +
@@ -207,6 +283,16 @@ public interface AdPostbackFormatMapper {
             "      , VALUE08 " +
             "      , VALUE09 " +
             "      , VALUE10 " +
+            "      , VALUE11 " +
+            "      , VALUE12 " +
+            "      , VALUE13 " +
+            "      , VALUE14 " +
+            "      , VALUE15 " +
+            "      , VALUE16 " +
+            "      , VALUE17 " +
+            "      , VALUE18 " +
+            "      , VALUE19 " +
+            "      , VALUE20 " +
             "FROM " +
             "        AD_POSTBACK_FORMAT A " +
             "WHERE " +
@@ -231,7 +317,13 @@ public interface AdPostbackFormatMapper {
             @Result(property = "sendType" , column = "SEND_TYPE"),
             @Result(property = "sslYn" , column = "SSL_YN"),
             @Result(property = "useTpArr" , column = "USE_TP_ARR"),
+            @Result(property = "sendFlag" , column = "SEND_FLAG"),
             @Result(property = "accessFlag" , column = "ACCESS_FLAG"),
+            @Result(property = "httpUserAgent" , column = "HTTP_USER_AGENT"),
+            @Result(property = "remoteAddr" , column = "REMOTE_ADDR"),
+            @Result(property = "httpReferer" , column = "HTTP_REFERER"),
+            @Result(property = "httpHost" , column = "HTTP_HOST"),
+            @Result(property = "requestUri" , column = "REQUEST_URI"),
             @Result(property = "value01" , column = "VALUE01"),
             @Result(property = "value02" , column = "VALUE02"),
             @Result(property = "value03" , column = "VALUE03"),
@@ -241,7 +333,17 @@ public interface AdPostbackFormatMapper {
             @Result(property = "value07" , column = "VALUE07"),
             @Result(property = "value08" , column = "VALUE08"),
             @Result(property = "value09" , column = "VALUE09"),
-            @Result(property = "value10" , column = "VALUE10")
+            @Result(property = "value10" , column = "VALUE10"),
+            @Result(property = "value11" , column = "VALUE11"),
+            @Result(property = "value12" , column = "VALUE12"),
+            @Result(property = "value13" , column = "VALUE13"),
+            @Result(property = "value14" , column = "VALUE14"),
+            @Result(property = "value15" , column = "VALUE15"),
+            @Result(property = "value16" , column = "VALUE16"),
+            @Result(property = "value17" , column = "VALUE17"),
+            @Result(property = "value18" , column = "VALUE18"),
+            @Result(property = "value19" , column = "VALUE19"),
+            @Result(property = "value20" , column = "VALUE20")
     })
     List<Map<String, Object>> selPostbackList(Long mbId, Long adId, Long caId, Long pgId);
 
@@ -262,6 +364,12 @@ public interface AdPostbackFormatMapper {
             "      , SSL_YN " +
             "      , USE_TP_ARR " +
             "      , ACCESS_FLAG " +
+            "      , SEND_FLAG " +
+            "      , HTTP_USER_AGENT " +
+            "      , REMOTE_ADDR " +
+            "      , HTTP_REFERER " +
+            "      , HTTP_HOST " +
+            "      , REQUEST_URI " +
             "      , VALUE01 " +
             "      , VALUE02 " +
             "      , VALUE03 " +
@@ -272,6 +380,16 @@ public interface AdPostbackFormatMapper {
             "      , VALUE08 " +
             "      , VALUE09 " +
             "      , VALUE10 " +
+            "      , VALUE11 " +
+            "      , VALUE12 " +
+            "      , VALUE13 " +
+            "      , VALUE14 " +
+            "      , VALUE15 " +
+            "      , VALUE16 " +
+            "      , VALUE17 " +
+            "      , VALUE18 " +
+            "      , VALUE19 " +
+            "      , VALUE20 " +
             "FROM " +
             "        AD_POSTBACK_FORMAT A " +
             "WHERE " +
@@ -298,6 +416,12 @@ public interface AdPostbackFormatMapper {
             @Result(property = "sslYn" , column = "SSL_YN"),
             @Result(property = "useTpArr" , column = "USE_TP_ARR"),
             @Result(property = "accessFlag" , column = "ACCESS_FLAG"),
+            @Result(property = "sendFlag" , column = "SEND_FLAG"),
+            @Result(property = "httpUserAgent" , column = "HTTP_USER_AGENT"),
+            @Result(property = "remoteAddr" , column = "REMOTE_ADDR"),
+            @Result(property = "httpReferer" , column = "HTTP_REFERER"),
+            @Result(property = "httpHost" , column = "HTTP_HOST"),
+            @Result(property = "requestUri" , column = "REQUEST_URI"),
             @Result(property = "value01" , column = "VALUE01"),
             @Result(property = "value02" , column = "VALUE02"),
             @Result(property = "value03" , column = "VALUE03"),
@@ -307,7 +431,17 @@ public interface AdPostbackFormatMapper {
             @Result(property = "value07" , column = "VALUE07"),
             @Result(property = "value08" , column = "VALUE08"),
             @Result(property = "value09" , column = "VALUE09"),
-            @Result(property = "value10" , column = "VALUE10")
+            @Result(property = "value10" , column = "VALUE10"),
+            @Result(property = "value11" , column = "VALUE11"),
+            @Result(property = "value12" , column = "VALUE12"),
+            @Result(property = "value13" , column = "VALUE13"),
+            @Result(property = "value14" , column = "VALUE14"),
+            @Result(property = "value15" , column = "VALUE15"),
+            @Result(property = "value16" , column = "VALUE16"),
+            @Result(property = "value17" , column = "VALUE17"),
+            @Result(property = "value18" , column = "VALUE18"),
+            @Result(property = "value19" , column = "VALUE19"),
+            @Result(property = "value20" , column = "VALUE20")
     })
     Map<String, Object> selPostbackOne(Long mbId, Long adId, Long caId, Long pgId, Long pbId);
 

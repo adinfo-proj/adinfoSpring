@@ -42,6 +42,7 @@ public class AdinfoAPIController {
     private final CpaDataMapper cpaData;
     private final AdAdvertBalanceMapper adAdvertBalance;
     private final AdUserMasterMapper adUserMaster;
+    private final AdExternalUserMapper adExternalUserMapper;
     private final AdInfoUtil            adInfoUtil;
     private final DateCalc              dateCalc;
     private final AdUtilityMapper utility;
@@ -68,7 +69,7 @@ public class AdinfoAPIController {
     public Map<String, Object> VaildAuth(HttpServletRequest rq) throws Exception {
         HashMap<String, Object> resObject = new HashMap<String, Object>();
 
-        System.out.println("token : [" + rq.getParameter("token") + "]");
+//        System.out.println("token : [" + rq.getParameter("token") + "]");
 
         String tokenString = rq.getParameter("token");
 
@@ -630,6 +631,111 @@ public class AdinfoAPIController {
                 }
             }
         }
+
+        return resMap;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 토큰 생성
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2021.07.20
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *         [R] CPA_CAMPAIGN_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "/AdminLogin", method = RequestMethod.POST)
+    public Map<String, Object> AdminLogin(@RequestBody LoginConnect loginConnect ) throws Exception {
+        System.out.println("\n\n############################################################################");
+        System.out.println("AdminLogin Func Start...");
+        System.out.println("############################################################################");
+
+        Map<String, Object> resMap = new HashMap<>();
+        TB_AD_EXTERNAL_USER  adExternalUser;
+
+        HttpStatus status = null;
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("입력 파라메터 : [" + loginConnect.toString() + "]");
+
+        //-------------------------------------------------------------------
+        // 수신된 아이디와 패스워드로 DB를 조회하여 확인한다.
+        //-------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  adExternalUserMapper.getExternalUserMasterForId Start");
+        System.out.println("----------------------------------------------------------------------------");
+        String sqlAdGrade = adExternalUserMapper.getExternalUserMasterForId(loginConnect.getClntId());
+
+        System.out.println("STATUS : [" + sqlAdGrade + "]");
+
+        if( sqlAdGrade == null || sqlAdGrade == "" ) {
+            log.error("1. 로그인 실패");
+            resMap.put("status" , "1");
+            resMap.put("message", "등록된 사용자가 없습니다.");
+            resMap.put("gradeCd", "ZZ");
+            status = HttpStatus.ACCEPTED;
+        } else {
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println("  adExternalUserMapper.getExternalUserMasterForIdPw Start");
+            System.out.println("----------------------------------------------------------------------------");
+
+            sqlAdGrade = adExternalUserMapper.getExternalUserMasterForIdPw(loginConnect.getClntId(), loginConnect.getClntPw());
+
+            System.out.println("STATUS : [" + sqlAdGrade + "]");
+
+            if( sqlAdGrade == null || sqlAdGrade == "" ) {
+                log.error("2. 로그인 실패");
+                resMap.put("status", "2");
+                resMap.put("message", "비밀번호가 틀렸습니다.");
+                resMap.put("gradeCd", "ZZ");
+                status = HttpStatus.ACCEPTED;
+            }
+            else {
+                System.out.println("STATUS 3 : [" + sqlAdGrade + "]");
+
+                try {
+                    TokenResponse loginInfo = new TokenResponse();
+                    loginInfo.setEmailId(loginConnect.getClntId());
+                    String token = jwtService.create(loginInfo);
+
+                    //System.out.println("token : [" + token + "]");
+
+                    // 회원정보를 조회하여 MB_ID, AD_ID, MK_ID 정보를 조회한다.
+                    System.out.println("----------------------------------------------------------------------------");
+                    System.out.println("  adExternalUserMapper.selAdExternalUserGet Start");
+                    System.out.println("----------------------------------------------------------------------------");
+
+                    adExternalUser = adExternalUserMapper.selAdExternalUserGet(loginConnect.getClntId());
+
+                    resMap.put("status", "0");
+                    resMap.put("gradeCd", "06");
+                    resMap.put("clntId", adExternalUser.getExternalClntId());
+                    resMap.put("mbId"  , adExternalUser.getMbId());
+                    resMap.put("adId"  , adExternalUser.getAdId());
+                    resMap.put("caId"  , adExternalUser.getCaId());
+                    resMap.put("pgId"  , adExternalUser.getPgId());
+                    resMap.put("clntNm", adExternalUser.getExternalClntId());
+                    resMap.put("nickNm", adExternalUser.getExternalClntId());
+
+                    resMap.put("authToken", token);
+                    status = HttpStatus.ACCEPTED;
+                } catch (RuntimeException e) {
+                    log.error("로그인 실패", e);
+                    resMap.put("status" , "3");
+                    resMap.put("message", e.getMessage());
+                    status = HttpStatus.ACCEPTED;
+                }
+            }
+        }
+
+        System.out.println("처리 메세지 : [" + resMap.toString() + "]");
 
         return resMap;
     }

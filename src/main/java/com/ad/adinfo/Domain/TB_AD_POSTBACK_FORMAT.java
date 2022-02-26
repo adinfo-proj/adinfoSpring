@@ -18,7 +18,9 @@ public class TB_AD_POSTBACK_FORMAT {
     private     String      postbackUrl;
     private     String      sendType;
     private     String      sslYn;
+
     private     String      useTpArr;
+    private     String      sendFlag;
     private     String      accessFlag;
 
     private     String      httpUserAgent;
@@ -37,4 +39,14 @@ public class TB_AD_POSTBACK_FORMAT {
     private     String      value08;
     private     String      value09;
     private     String      value10;
+    private     String      value11;
+    private     String      value12;
+    private     String      value13;
+    private     String      value14;
+    private     String      value15;
+    private     String      value16;
+    private     String      value17;
+    private     String      value18;
+    private     String      value19;
+    private     String      value20;
 }

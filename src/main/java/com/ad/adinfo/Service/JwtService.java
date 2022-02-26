@@ -33,7 +33,7 @@ public class JwtService {
     }
 
     public boolean checkValid(String jwt) {
-        System.out.println("jwt : [" + jwt + "]");
+//        System.out.println("jwt : [" + jwt + "]");
         try {
             Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(jwt);
             return true;
@@ -44,7 +44,7 @@ public class JwtService {
     }
 
     public boolean readToken(final String jwt) {
-        System.out.println("jwt : [" + jwt + "]");
+//        System.out.println("jwt : [" + jwt + "]");
         try {
             Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(jwt);
             return true;

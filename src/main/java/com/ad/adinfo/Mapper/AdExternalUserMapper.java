@@ -108,8 +108,8 @@ public interface AdExternalUserMapper {
             @Result(property = "createDt", column = "CREATE_DT"),
             @Result(property = "updateDt", column = "UPDATE_DT"),
             @Result(property = "clntId", column = "CLNT_ID"),
-            @Result(property = "externalClntId", column = "EXTERNLA_CLNT_ID"),
-            @Result(property = "externalClntPw", column = "EXTERNLA_CLNT_PW"),
+            @Result(property = "externalClntId", column = "EXTERNAL_CLNT_ID"),
+            @Result(property = "externalClntPw", column = "EXTERLAL_CLNT_PW"),
             @Result(property = "mbId", column = "MB_ID"),
             @Result(property = "adId", column = "AD_ID"),
             @Result(property = "caId", column = "CA_ID"),
@@ -125,29 +125,73 @@ public interface AdExternalUserMapper {
             "         SEQ_NO " +
             "       , CREATE_DT " +
             "       , UPDATE_DT " +
+            "       , CLNT_ID " +
+            "       , EXTERNAL_CLNT_ID " +
+//            "       , AES_DECRYPT(UNHEX(EXTERNAL_CLNT_PW), 'dbfactory') = #{clntPw} " +
             "       , MB_ID " +
             "       , AD_ID " +
             "       , CA_ID " +
-            "       , (SELECT NAME FROM CAMPAIGN_MASTER WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) AS CA_NM " +
             "       , PG_ID " +
-            "       , (SELECT NAME FROM LANDING_PAGE    WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID AND PG_ID = A.PG_ID) AS PG_NM " +
-            "       , CLNT_ID " +
-            "       , EXTERNAL_CLNT_ID " +
-            "       , CONVERT(AES_DECRYPT(UNHEX(EXTERNAL_CLNT_PW), 'dbfactory') USING UTF8) EXTERNAL_CLNT_PW" +
             "       , STATUS " +
             "       , SRT_DT " +
             "       , END_DT " +
             "       , DESCRIPTION " +
             " FROM " +
-            "       AD_EXTERNAL_USER A" +
+            "       AD_EXTERNAL_USER " +
             " WHERE " +
-            "       MB_ID  = #{mbId}" +
-            " AND   AD_ID  = #{adId}" +
-            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
-            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
-            " AND   STATUS = #{status}" +
-            " AND   STATUS <> '99' " +
-            " ORDER BY SEQ_NO DESC "
+            "       EXTERNAL_CLNT_ID = #{clntId} "
+    )
+    @Results({
+            @Result(property = "seqNo", column = "SEQ_NO"),
+            @Result(property = "createDt", column = "CREATE_DT"),
+            @Result(property = "updateDt", column = "UPDATE_DT"),
+            @Result(property = "clntId", column = "CLNT_ID"),
+            @Result(property = "externalClntId", column = "EXTERNAL_CLNT_ID"),
+            @Result(property = "externalClntPw", column = "EXTERNAL_CLNT_PW"),
+            @Result(property = "mbId", column = "MB_ID"),
+            @Result(property = "adId", column = "AD_ID"),
+            @Result(property = "caId", column = "CA_ID"),
+            @Result(property = "pgId", column = "PG_ID"),
+            @Result(property = "status", column = "STATUS"),
+            @Result(property = "srtDt", column = "SRT_DT"),
+            @Result(property = "endDt", column = "END_DT"),
+            @Result(property = "description", column = "DESCRIPTION")
+    })
+    TB_AD_EXTERNAL_USER selAdExternalUserGet(String clntId);
+
+    @Select("SELECT " +
+            "        A.SEQ_NO " +
+            "      , A.CREATE_DT " +
+            "      , A.UPDATE_DT " +
+            "      , A.MB_ID " +
+            "      , A.AD_ID " +
+            "      , A.CA_ID " +
+            "      , (SELECT NAME FROM CAMPAIGN_MASTER WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) AS CA_NM " +
+            "      , A.PG_ID " +
+            "      , (SELECT NAME FROM LANDING_PAGE    WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID AND PG_ID = A.PG_ID) AS PG_NM " +
+            "      , A.CLNT_ID " +
+            "      , A.EXTERNAL_CLNT_ID " +
+            "      , CONVERT(AES_DECRYPT(UNHEX(EXTERNAL_CLNT_PW), 'dbfactory') USING UTF8) EXTERNAL_CLNT_PW " +
+            "      , A.STATUS " +
+            "      , A.SRT_DT " +
+            "      , A.END_DT " +
+            "      , A.DESCRIPTION " +
+            "FROM " +
+            "         AD_EXTERNAL_USER A " +
+            "       , LANDING_PAGE     B " +
+            "WHERE " +
+            "      A.MB_ID  = #{mbId} " +
+            "AND   A.AD_ID  = #{adId} " +
+            "AND   A.MB_ID  = B.MB_ID " +
+            "AND   A.AD_ID  = B.AD_ID " +
+            "AND   A.CA_ID  = B.CA_ID " +
+            "AND   A.PG_ID  = B.PG_ID " +
+            "AND   B.USE_TP = '00' " +
+            "AND   ((-1 = ${caId}) OR (A.CA_ID = ${caId})) " +
+            "AND   ((-1 = ${pgId}) OR (A.PG_ID = ${pgId})) " +
+            "AND   A.STATUS = #{status} " +
+            "AND   A.STATUS <> '99' " +
+            "ORDER BY A.SEQ_NO DESC "
     )
     @Results({
             @Result(property = "seqNo", column = "SEQ_NO"),
@@ -177,4 +221,40 @@ public interface AdExternalUserMapper {
             @Result(property = "externalClntId" , column = "EXTERNAL_CLNT_ID")
     })
     String getAdExternalUserNewClntId();
+
+    @Select("SELECT " +
+            "       STATUS " +
+            " FROM " +
+            "       AD_EXTERNAL_USER " +
+            " WHERE " +
+            "       EXTERNAL_CLNT_ID = #{clntId} ")
+    @Results({
+            @Result(property = "status", column = "STATUS")
+    })
+    String getExternalUserMasterForId(String clntId);
+
+    @Select("SELECT " +
+            "       STATUS " +
+            " FROM " +
+            "       AD_EXTERNAL_USER" +
+            " WHERE " +
+            "       EXTERNAL_CLNT_ID = #{clntId} " +
+            " AND   AES_DECRYPT(UNHEX(EXTERNAL_CLNT_PW), 'dbfactory') = #{clntPw}")
+    @Results({
+            @Result(property = "status", column = "STATUS")
+    })
+    String getExternalUserMasterForIdPw(String clntId, String clntPw);
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

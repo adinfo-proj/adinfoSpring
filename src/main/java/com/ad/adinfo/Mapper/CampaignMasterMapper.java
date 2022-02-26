@@ -1009,4 +1009,168 @@ public interface CampaignMasterMapper {
             @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT")
     })
     List<Map<String, Object>> getCampaignMasterForMbAdStatus_TotalCount(Long mbId, Long adId, String status);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Select("SELECT " +
+            "         UPDATE_DT" +
+            "       , MB_ID" +
+            "       , AD_ID" +
+            "       , CA_ID" +
+            "       , OPER_ID" +
+            "       , CAMPAIGN_KIND" +
+            "       , CAMPAIGN_AREA" +
+            "       , CAMPAIGN_AREA_ETC" +
+            "       , STATUS" +
+            "       , NAME" +
+            "       , AD_NAME" +
+            "       , TP" +
+            "       , TOP_KIND" +
+            "       , MIDDLE_KIND" +
+            "       , PURPOSE" +
+            "       , FORMAT(PRICE, 0) PRICE" +
+            "       , FORMAT(MARKETER_PRICE, 0) MARKETER_PRICE" +
+            "       , REG_IP" +
+            "       , CONCAT( SUBSTRING(SRT_DT, 1, 4), '-', SUBSTRING(SRT_DT, 5, 2), '-', SUBSTRING(SRT_DT, 7, 2)) SRT_DT " +
+            "       , COMMENT" +
+            "       , REFER_ID" +
+            "       , SMS_YN" +
+            "       , SMS_NO" +
+            "       , (SELECT COUNT(*) FROM CPA_PAGE_USING_COUNT WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID AND EVENT_CD = 'M') VIEW_COUNT" +
+            "       , (SELECT COUNT(*) FROM CPA_DATA             WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) CREATE_COUNT" +
+            "       , (SELECT COUNT(*) FROM LANDING_PAGE         WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID AND USE_TP <> '03') LAND_COUNT" +
+            " FROM " +
+            "       CAMPAIGN_MASTER A" +
+            " WHERE " +
+            "       MB_ID  = ${mbId}" +
+            " AND   AD_ID  = ${adId}" +
+            " AND   CA_ID  = ${caId}" +
+            " AND   STATUS LIKE #{status}" +
+            " AND   STATUS != 'ZZ' " +
+            " ORDER BY CA_ID DESC" +
+            " LIMIT #{srtPos}, #{rowCount}" )
+    @Results({
+            @Result(property = "updateDt" , column = "UPDATE_DT"),
+            @Result(property = "mbId" , column = "MB_ID"),
+            @Result(property = "adId" , column = "AD_ID"),
+            @Result(property = "caId" , column = "CA_ID"),
+            @Result(property = "operId" , column = "OPER_ID"),
+            @Result(property = "campaignKind" , column = "CAMPAIGN_KIND"),
+            @Result(property = "campaignArea" , column = "CAMPAIGN_AREA"),
+            @Result(property = "campaignAreaEtc" , column = "CAMPAIGN_AREA_ETC"),
+            @Result(property = "status" , column = "STATUS"),
+            @Result(property = "name" , column = "NAME"),
+            @Result(property = "adName" , column = "AD_NAME"),
+            @Result(property = "tp" , column = "TP"),
+            @Result(property = "topKind" , column = "TOP_KIND"),
+            @Result(property = "middleKind" , column = "MIDDLE_KIND"),
+            @Result(property = "purpose" , column = "PURPOSE"),
+            @Result(property = "price" , column = "PRICE"),
+            @Result(property = "marketerPrice" , column = "MARKETER_PRICE"),
+            @Result(property = "regIp" , column = "REG_IP"),
+            @Result(property = "srtDt" , column = "SRT_DT"),
+            @Result(property = "comment" , column = "COMMENT"),
+            @Result(property = "referId" , column = "REFER_ID"),
+            @Result(property = "smsYn" , column = "SMS_YN"),
+            @Result(property = "smsNo" , column = "SMS_NO"),
+            @Result(property = "viewCount" , column = "VIEW_COUNT"),
+            @Result(property = "createCount" , column = "CREATE_COUNT"),
+            @Result(property = "landCount" , column = "LAND_COUNT")
+    })
+    List<Map<String, Object>> getCampaignMasterForMbAdCaStatus_ViewCount(Long mbId, Long adId, Long caId, String status, Long srtPos, Long rowCount);
+
+    @Select("SELECT " +
+            "       COUNT(*) AS ROW_TOTAL_COUNT " +
+            " FROM " +
+            "       CAMPAIGN_MASTER A" +
+            " WHERE " +
+            "       MB_ID      = ${mbId}" +
+            " AND   AD_ID      = ${adId}" +
+            " AND   CA_ID      = ${caId}" +
+            " AND   STATUS    != 'ZZ' " +
+            " AND   STATUS     LIKE #{status}" )
+    @Results({
+            @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT")
+    })
+    List<Map<String, Object>> getCampaignMasterForMbAdCaStatus_TotalCount(Long mbId, Long adId, Long caId, String status);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
