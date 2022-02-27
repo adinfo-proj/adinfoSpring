@@ -244,11 +244,27 @@ public interface AdPostbackFormatMapper {
             "       MB_ID      = #{mbId} " +
             " AND   AD_ID      = #{adId} " +
             " AND   CA_ID      = #{caId} " +
-            " AND   Pg_ID      = #{pgId} " )
+            " AND   PG_ID      = #{pgId} " )
     @Results({
             @Result(property = "pb" , column = "PB_ID")
     })
-    Long getPostbackMaxpbId(Long mbId, Long adId, Long caId, Long pgId);
+    Long getPostbackMaxPgId(Long mbId, Long adId, Long caId, Long pgId);
+
+    @Select("SELECT " +
+            "       COUNT(*) COUNT " +
+            " FROM " +
+            "       AD_POSTBACK_FORMAT " +
+            " WHERE " +
+            "       MB_ID      = #{mbId} " +
+            " AND   AD_ID      = #{adId} " +
+            " AND   CA_ID      = #{caId} " +
+            " AND   PG_ID      = #{pgId} " +
+            " AND   PB_ID      = 90000   " +
+            " AND   STATUS    <> 'ZZ'    " )
+    @Results({
+            @Result(property = "count" , column = "COUNT")
+    })
+    Long getSendPostbackPgId(Long mbId, Long adId, Long caId, Long pgId);
 
     @Select("SELECT " +
             "        UPDATE_DT " +

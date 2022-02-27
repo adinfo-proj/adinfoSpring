@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,12 +32,12 @@ public class PostBackController {
     private PlatformTransactionManager trxManager;
 
     /*------------------------------------------------------------------------------------------------------------------
-     * 신규 POSTBACK 등록
+     * 신규 전송 POSTBACK 등록
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2022.02.13
      * 작성자 : 박형준
      *------------------------------------------------------------------------------------------------------------------
-     * 테이블 : [C] CPA_CAMPAIGN_MASTER
+     * 테이블 : [C] AD_POSTBACK_FORMAT
      *         [R] AD_USER_MASTER
      *         [U]
      *         [D]
@@ -86,10 +87,10 @@ public class PostBackController {
         tbAdPostbackFormat.setPgId(Long.parseLong(params.get("pgId").toString()));
 
         System.out.println("----------------------------------------------------------------------------");
-        System.out.println("  adPostbackFormatMapper.getPostbackMaxpbId Start");
+        System.out.println("  adPostbackFormatMapper.getPostbackMaxPgId Start");
         System.out.println("----------------------------------------------------------------------------");
 
-        Long newPbId = adPostbackFormatMapper.getPostbackMaxpbId(
+        Long newPbId = adPostbackFormatMapper.getPostbackMaxPgId(
                   tbAdPostbackFormat.getMbId()
                 , tbAdPostbackFormat.getAdId()
                 , tbAdPostbackFormat.getCaId()
@@ -327,18 +328,18 @@ public class PostBackController {
             System.out.println("adPostbackFormatMapper.insPostback Fail : [" + e + "]");
 
             resultMap.put("result", false);
-            resultMap.put("message", "신규 포스트백 등록이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+            resultMap.put("message", "신규 전송 포스트백 등록이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
             System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
 
             trxManager.rollback(trxStatus);
             return resultMap;
         }
 
-        resultMap.put("result", true);
-        resultMap.put("message", "정상적으로 신규 포스트백이 등록되었습니다.");
-        System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
-
         trxManager.commit(trxStatus);
+
+        resultMap.put("result", true);
+        resultMap.put("message", "정상적으로 신규 전송 포스트백이 등록되었습니다.");
+        System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
 
         return resultMap;
     }
@@ -625,21 +626,244 @@ public class PostBackController {
             System.out.println("adPostbackFormatMapper.updPostback Fail : [" + e + "]");
 
             resultMap.put("result", false);
-            resultMap.put("message", "포스트백 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+            resultMap.put("message", "전송 포스트백 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
             System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
 
             trxManager.rollback(trxStatus);
             return resultMap;
         }
 
-        resultMap.put("result", true);
-        resultMap.put("message", "정상적으로 포스트백이 변경되었습니다.");
-        System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
-
         trxManager.commit(trxStatus);
+
+        resultMap.put("result", true);
+        resultMap.put("message", "정상적으로 전송 포스트백이 변경되었습니다.");
+        System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
 
         return resultMap;
     }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     * 신규 수신 POSTBACK 등록
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.27
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C] AD_POSTBACK_FORMAT
+     *         [R] AD_USER_MASTER
+     *         [U]
+     *         [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    //@Transactional(rollbackFor = Exception.class)
+    @RequestMapping(value = "/newRecvPostback", method = RequestMethod.POST)
+    public Map<String, Object> newRecvPostback(
+            NativeWebRequest nativeWebRequest,
+            @RequestPart(value = "dataObj") Map<String, Object> params) throws Exception {
+        System.out.println("\n\n############################################################################");
+        System.out.println("newRecvPostback Func Start...");
+        System.out.println("############################################################################");
+
+
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        TB_AD_POSTBACK_FORMAT   tbAdPostbackFormat = new TB_AD_POSTBACK_FORMAT();
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("입력 파라메터 : [" + params.toString() + "]");
+
+        String shortUrl = (params.get("shortUrl").toString());
+
+        tbAdPostbackFormat.setClntId     (params.get("clntId").toString());
+        tbAdPostbackFormat.setMbId       (Long.parseLong(params.get("mbId").toString()));
+        tbAdPostbackFormat.setAdId       (Long.parseLong(params.get("adId").toString()));
+        tbAdPostbackFormat.setCaId       (Long.parseLong(params.get("caId").toString()));
+        tbAdPostbackFormat.setPgId       (Long.parseLong(params.get("pgId").toString()));
+        tbAdPostbackFormat.setPbId       (90000L);
+        tbAdPostbackFormat.setStatus     ("00");
+        tbAdPostbackFormat.setPostbackIo ("I");
+        tbAdPostbackFormat.setPostbackUrl(params.get("sendUrl").toString());
+        tbAdPostbackFormat.setSendType   (params.get("postBack").toString());
+        tbAdPostbackFormat.setSslYn      (params.get("encrypt").toString());
+
+        //------------------------------------------------------------------------------
+        // 기 등록 여부 확인
+        //------------------------------------------------------------------------------
+        Long lCount = adPostbackFormatMapper.getSendPostbackPgId(
+                  tbAdPostbackFormat.getMbId()
+                , tbAdPostbackFormat.getAdId()
+                , tbAdPostbackFormat.getCaId()
+                , tbAdPostbackFormat.getPgId()
+        );
+        System.out.println("Current Count : [" + lCount + "]");
+
+        if( lCount > 0 ) {
+            resultMap.put("result", false);
+            resultMap.put("message", "이미 수신 포스트백이 등록되어 있습니다.");
+            System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
+
+            return resultMap;
+        }
+
+        //------------------------------------------------------------------------------
+        // 이전 파일 삭제
+        //------------------------------------------------------------------------------
+        String indexFullFileName = "/WebFileClient/ad/" + shortUrl + "/postback.php";
+        File reFile = new File(indexFullFileName);
+        if( reFile.exists() ) {
+            if(reFile.delete()) {
+                System.out.println("파일삭제 성공");
+            } else {
+                System.out.println("파일삭제 실패");
+            }
+        }
+        else {
+            System.out.println("파일이 존재하지 않습니다.");
+        }
+
+        //------------------------------------------------------------------------------
+        // 수신용 파일 생성
+        //------------------------------------------------------------------------------
+        try {
+            indexFullFileName = "/WebFileClient/ad/" + shortUrl + "/postback.php";
+            OutputStream file = new FileOutputStream(indexFullFileName);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("/WebFileClient/Form/postback.php"), "UTF-8"));
+
+            String strBuf = "";
+            String phpTag = "";
+            Integer     nRows = 1;
+            while ((strBuf = reader.readLine()) != null) {
+                System.out.println(strBuf);
+                phpTag += strBuf + "\n";
+
+                if(nRows == 25) {
+                    phpTag += "$mbId = " + params.get("mbId") + ";\n";
+                    phpTag += "$adId = " + params.get("mbId") + ";\n";
+                    phpTag += "$caId = " + params.get("caId") + ";\n";
+                    phpTag += "$mkId = " + params.get("mbId") + ";\n";
+                    phpTag += "$pgId = " + params.get("pgId") + ";\n";
+                    phpTag += "$pbId = 90000;\n";
+                    phpTag += "\n";
+
+                    if(params.get("postBack").toString().equals("P")) {
+                        phpTag += "$_POST = array_map('trim', $_POST);\n";
+                        phpTag += "\n";
+                        phpTag += "$referer    = $_POST['referer'];\n";
+                        phpTag += "$ip         = $_POST['ip'];\n";
+                        phpTag += "$user_agent = $_POST['agent'];\n";
+                        phpTag += "\n";
+                        phpTag += "//----------------------------------------------------------------------------------------\n";
+                        phpTag += "// 3. 입력값을 구분한다.\n";
+                        phpTag += "//----------------------------------------------------------------------------------------\n";
+                        phpTag += "for($i = 1 ; $i <= 10 ; $i++) {\n";
+                        phpTag += "    if(is_array($_POST['value'.$i])) {\n";
+                        phpTag += "        ${'value'.$i} = '';\n";
+                        phpTag += "        foreach($_POST['value'.$i] as $row) {\n";
+                        phpTag += "            ${'value'.$i} .= $row.',';\n";
+                        phpTag += "        }\n";
+                        phpTag += "        ${'value'.$i} = substr(${'value'.$i}, 0, -1);\n";
+                        phpTag += "    } else if(empty($_POST['value'.$i])) { // 비어있을 경우에 value1-1, value1-2 같은 데이터가 있는지 체크한다\n";
+                        phpTag += "        ${'value'.$i} = '';\n";
+                        phpTag += "        for($j=1;$j<=10;$j++) {\n";
+                        phpTag += "            if(empty($_POST['value'.$i.'_'.$j])) break;\n";
+                        phpTag += "            else ${'value'.$i} .= trim($_POST['value'.$i.'_'.$j]);\n";
+                        phpTag += "        }\n";
+                        phpTag += "    } else {\n";
+                        phpTag += "        ${'value'.$i} = trim($_POST['value'.$i]);\n";
+                        phpTag += "    }\n";
+                        phpTag += "\n";
+                        phpTag += "    if($i == 1) {\n";
+                        phpTag += "        ${'value'.$i} = str_replace('-', '', ${'value'.$i});\n";
+                        phpTag += "    }\n";
+                        phpTag += "}\n";
+                        phpTag += "\n";
+                    }
+                    else {
+                        phpTag += "$_GET = array_map('trim', $_GET);\n";
+                        phpTag += "\n";
+                        phpTag += "$referer    = $_GET['referer'];\n";
+                        phpTag += "$ip         = $_GET['ip'];\n";
+                        phpTag += "$user_agent = $_GET['user_agent'];\n";
+                        phpTag += "\n";
+                        phpTag += "//----------------------------------------------------------------------------------------\n";
+                        phpTag += "// 3. 입력값을 구분한다.\n";
+                        phpTag += "//----------------------------------------------------------------------------------------\n";
+                        phpTag += "for($i = 1 ; $i <= 10 ; $i++) {\n";
+                        phpTag += "    if(is_array($_GET['value'.$i])) {\n";
+                        phpTag += "        ${'value'.$i} = '';\n";
+                        phpTag += "        foreach($_GET['value'.$i] as $row) {\n";
+                        phpTag += "            ${'value'.$i} .= $row.',';\n";
+                        phpTag += "        }\n";
+                        phpTag += "        ${'value'.$i} = substr(${'value'.$i}, 0, -1);\n";
+                        phpTag += "    } else if(empty($_GET['value'.$i])) { // 비어있을 경우에 value1-1, value1-2 같은 데이터가 있는지 체크한다\n";
+                        phpTag += "        ${'value'.$i} = '';\n";
+                        phpTag += "        for($j=1;$j<=10;$j++) {\n";
+                        phpTag += "            if(empty($_GET['value'.$i.'_'.$j])) break;\n";
+                        phpTag += "            else ${'value'.$i} .= trim($_GET['value'.$i.'_'.$j]);\n";
+                        phpTag += "        }\n";
+                        phpTag += "    } else {\n";
+                        phpTag += "        ${'value'.$i} = trim($_GET['value'.$i]);\n";
+                        phpTag += "    }\n";
+                        phpTag += "\n";
+                        phpTag += "    if($i == 1) {\n";
+                        phpTag += "        ${'value'.$i} = str_replace('-', '', trim($_GET['value'.$i]));\n";
+                        phpTag += "    }\n";
+                        phpTag += "}\n";
+                        phpTag += "\n";
+                    }
+                }
+
+                nRows++;
+            }
+            reader.close();
+
+            byte[] by=phpTag.getBytes();
+            file.write(by);
+            file.close();
+        } catch(Exception e) {
+            System.out.println("FileOutputStream Fail : [" + e + "]");
+
+            resultMap.put("result", false);
+            resultMap.put("message", "수신 포스트백 등록이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+            System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
+
+            return resultMap;
+        }
+
+        //------------------------------------------------------------------------------
+        // 트랜잭션 시작
+        //------------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  트랜잭션 Start");
+        System.out.println("----------------------------------------------------------------------------");
+        TransactionStatus trxStatus = trxManager.getTransaction(new DefaultTransactionDefinition());
+
+        Long    rets = 0L;
+        try {
+            rets = adPostbackFormatMapper.insPostback(tbAdPostbackFormat);
+        } catch(Exception e) {
+            System.out.println("adPostbackFormatMapper.insPostback Fail : [" + e + "]");
+
+            resultMap.put("result", false);
+            resultMap.put("message", "수신 포스트백 등록이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+            System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
+
+            trxManager.rollback(trxStatus);
+            return resultMap;
+        }
+
+        trxManager.commit(trxStatus);
+
+        resultMap.put("result", true);
+        resultMap.put("message", "정상적으로 수신 포스트백이 등록되었습니다.");
+        System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
+
+        return resultMap;
+    }
+
 
     /*------------------------------------------------------------------------------------------------------------------
      * 포트스백 리스트 (캠페인번호로 조회)

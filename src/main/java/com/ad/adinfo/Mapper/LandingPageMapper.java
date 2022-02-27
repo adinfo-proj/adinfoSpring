@@ -387,13 +387,17 @@ public interface LandingPageMapper {
     @Select("SELECT " +
             "        COUNT(*) AS COUNT " +
             "FROM " +
-            "        LANDING_PAGE " +
+            "        LANDING_PAGE A, CAMPAIGN_MASTER B " +
             "WHERE " +
-            "      MB_ID      = ${mbId} " +
-            "AND   AD_ID      = ${adId} " +
-            "AND   MK_ID      = ${mkId} " +
-            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
-            "AND   USE_TP     = '00'    "
+            "      A.MB_ID      = ${mbId} " +
+            "AND   A.AD_ID      = ${adId} " +
+            "AND   A.MK_ID      = ${mkId} " +
+            "AND   ((-1 = ${caId}) OR (A.CA_ID = ${caId})) " +
+            "AND   A.USE_TP     = '00'    " +
+            "AND   A.MB_ID      = B.MB_ID " +
+            "AND   A.AD_ID      = B.AD_ID " +
+            "AND   A.CA_ID      = B.CA_ID " +
+            "AND   B.STATUS     = '01' "
     )
     @Results({
             @Result(property = "count" , column = "COUNT")
@@ -447,31 +451,38 @@ public interface LandingPageMapper {
     List<Map<String, Object>> GetLandingListForMbAdCaCode(Long mbId, Long adId, Long mkId, Long caId, String useTp);
 
     @Select("SELECT " +
-            "         SEQ_NO " +
-            "       , MB_ID " +
-            "       , AD_ID " +
-            "       , MK_ID " +
-            "       , CA_ID " +
-            "       , PG_ID " +
-            "       , USE_TP " +
-            "       , NAME " +
+            "         A.SEQ_NO " +
+            "       , A.MB_ID " +
+            "       , A.AD_ID " +
+            "       , A.MK_ID " +
+            "       , A.CA_ID " +
+            "       , A.PG_ID " +
+            "       , A.USE_TP " +
+            "       , A.NAME " +
             "       , (SELECT NAME     FROM CAMPAIGN_MASTER      WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) AD_NAME" +
-            "       , TITLE_NAME " +
-            "       , URL " +
+            "       , A.TITLE_NAME " +
+            "       , A.URL " +
             "       , (SELECT ASK_LIST FROM CAMPAIGN_MASTER      WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) ASK_LIST" +
-            "       , MEMO " +
+            "       , A.MEMO " +
             "       , (SELECT COUNT(*) FROM CPA_DATA             WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID AND PG_ID = A.PG_ID) CREATE_COUNT" +
 //            "       , (SELECT COUNT(*) FROM CPA_PAGE_USING_COUNT WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID AND PG_ID = A.PG_ID) VIEW_COUNT" +
             " FROM " +
             "       LANDING_PAGE A" +
+            "     , CAMPAIGN_MASTER B " +
             " WHERE " +
-            "       MB_ID  = ${mbId}" +
-            " AND   AD_ID  = ${adId}" +
-            " AND   MK_ID  = ${mkId}" +
-            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
-            " AND   ((99 = ${useTp}) OR (USE_TP = ${useTp})) " +
-            " AND   USE_TP <> '03' " +
-            " ORDER BY SEQ_NO DESC" +
+            "       A.MB_ID  = ${mbId}" +
+            " AND   A.AD_ID  = ${adId}" +
+            " AND   A.MK_ID  = ${mkId}" +
+
+            " AND   A.MB_ID  = B.MB_ID" +
+            " AND   A.AD_ID  = B.AD_ID" +
+            " AND   A.CA_ID  = B.CA_ID" +
+
+            " AND   ((-1 = ${caId}) OR (A.CA_ID = ${caId})) " +
+            " AND   ((99 = ${useTp}) OR (A.USE_TP = ${useTp})) " +
+            " AND   A.USE_TP <> '03' " +
+            " AND   B.STATUS  = '01' " +
+            " ORDER BY A.SEQ_NO DESC" +
             " LIMIT #{srtPos}, #{rowCount}"
     )
     @Results({

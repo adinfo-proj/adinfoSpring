@@ -319,7 +319,7 @@ public class LandingPageController {
             OutputStream file = new FileOutputStream(indexFullFileName);
 
             //---------------------------------------------------------------------------------------------------------
-            // PHP 기본 추가
+            // PHP 메인페이지에 기본 추가
             //---------------------------------------------------------------------------------------------------------
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("/WebFileClient/Script/PostScript.php"), "UTF-8"));
 
@@ -329,7 +329,7 @@ public class LandingPageController {
                 phpTag += strBuf + "\n";
 
                 if(nRows == 13) {
-                    phpTag += "  $pgUrl  = " + randChar + ";\n";
+                    phpTag += "  $pgUrl  = '" + randChar + "';\n";
                     phpTag += "  $mbId   = " + params.get("mbId") + ";\n";
                     phpTag += "  $adId   = " + params.get("mbId") + ";\n";
                     phpTag += "  $mkId   = " + params.get("mbId") + ";\n";
