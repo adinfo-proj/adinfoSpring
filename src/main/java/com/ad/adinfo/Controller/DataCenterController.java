@@ -260,6 +260,123 @@ public class DataCenterController {
     }
 
     /*------------------------------------------------------------------------------------------------------------------
+     *  캠페인별 DB 조회
+     *------------------------------------------------------------------------------------------------------------------
+     * 작성일 : 2022.02.28
+     * 작성자 : 박형준
+     *------------------------------------------------------------------------------------------------------------------
+     * 테이블 : [C]
+     *          [R] CPA_DATA
+     *          [U]
+     *          [D]
+     *------------------------------------------------------------------------------------------------------------------
+     * 코멘트 : 없음.
+     -----------------------------------------------------------------------------------------------------------------*/
+    @CrossOrigin
+    @RequestMapping(value = "/GetCpaDataForValue", method = RequestMethod.GET)
+    public ArrayList<List<Map<String, Object>>> GetCpaDataForValue(HttpServletRequest params) throws Exception {
+        ArrayList<List<Map<String, Object>>> cpaResult = new ArrayList<>();
+
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetCpaDataForValue Start...");
+        System.out.println("############################################################################");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+
+        System.out.println("mbId     : [" + params.getParameter("mbId") + "]");
+        System.out.println("adId     : [" + params.getParameter("adId") + "]");
+        System.out.println("caId     : [" + params.getParameter("caId") + "]");
+        System.out.println("mkId     : [" + params.getParameter("mkId") + "]");
+        System.out.println("pgId     : [" + params.getParameter("pgId") + "]");
+        System.out.println("srtDt    : [" + params.getParameter("srtDt") + "]");
+        System.out.println("endDt    : [" + params.getParameter("endDt") + "]");
+        System.out.println("curPage  : [" + params.getParameter("curPage") + "]");
+        System.out.println("rowCount : [" + params.getParameter("rowCount") + "]");
+        System.out.println("value03 : [" + params.getParameter("value03") + "]");
+        System.out.println("value04 : [" + params.getParameter("value04") + "]");
+        System.out.println("value05 : [" + params.getParameter("value05") + "]");
+        System.out.println("value06 : [" + params.getParameter("value06") + "]");
+        System.out.println("value07 : [" + params.getParameter("value07") + "]");
+        System.out.println("value08 : [" + params.getParameter("value08") + "]");
+        System.out.println("value09 : [" + params.getParameter("value09") + "]");
+        System.out.println("value10 : [" + params.getParameter("value10") + "]");
+
+        //------------------------------------------------------------------------
+        // 조회된 수집데이터의 총 건수 (페이지 처리용)
+        //------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  cpaData.getCpaDataForMbIdAdIdCaIdValueTotalCount Start");
+        System.out.println("----------------------------------------------------------------------------");
+        List<Map<String, Object>> rowTotalCount = cpaData.getCpaDataForMbIdAdIdCaIdValueTotalCount(
+                  Long.parseLong(params.getParameter("mbId").toString())
+                , Long.parseLong(params.getParameter("adId").toString())
+                , Long.parseLong(params.getParameter("caId").toString())
+                , Long.parseLong(params.getParameter("mkId").toString())
+                , Long.parseLong(params.getParameter("pgId").toString())
+                , "00"
+                , params.getParameter("srtDt").toString().replaceAll("-", "")
+                , params.getParameter("endDt").toString().replaceAll("-", "")
+                , (Long.parseLong(params.getParameter("curPage").toString()) - 1) * Long.parseLong(params.getParameter("rowCount").toString())
+                , Long.parseLong(params.getParameter("rowCount").toString())
+                , params.getParameter("value03").toString()
+                , params.getParameter("value04").toString()
+                , params.getParameter("value05").toString()
+                , params.getParameter("value06").toString()
+                , params.getParameter("value07").toString()
+                , params.getParameter("value08").toString()
+                , params.getParameter("value09").toString()
+                , params.getParameter("value10").toString());
+        cpaResult.add(0, rowTotalCount);
+
+        //------------------------------------------------------------------------
+        // 캠페인 수집정보 목록을 조회한다.
+        //------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  campaignMaster.getCampaignMasterAskList Start");
+        System.out.println("----------------------------------------------------------------------------");
+        List<Map<String, Object>> askList = campaignMaster.getCampaignMasterAskList(
+                Long.parseLong(params.getParameter("mbId")),
+                Long.parseLong(params.getParameter("adId")),
+                Long.parseLong(params.getParameter("caId"))
+        );
+        cpaResult.add(1, askList);
+
+        //------------------------------------------------------------------------
+        // 회원사의 모든 캠페인을 조회한다.
+        //------------------------------------------------------------------------
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  cpaData.getCpaDataForMbIdCaIdAdId Start");
+        System.out.println("----------------------------------------------------------------------------");
+        List<Map<String, Object>> cpaDataArr = cpaData.getCpaDataForMbIdAdIdCaIdValue(
+                  Long.parseLong(params.getParameter("mbId").toString())
+                , Long.parseLong(params.getParameter("adId").toString())
+                , Long.parseLong(params.getParameter("caId").toString())
+                , Long.parseLong(params.getParameter("mkId").toString())
+                , Long.parseLong(params.getParameter("pgId").toString())
+                , "00"
+                , params.getParameter("srtDt").toString().replaceAll("-", "")
+                , params.getParameter("endDt").toString().replaceAll("-", "")
+                , (Long.parseLong(params.getParameter("curPage").toString()) - 1) * Long.parseLong(params.getParameter("rowCount").toString())
+                , Long.parseLong(params.getParameter("rowCount").toString())
+                , params.getParameter("value03").toString()
+                , params.getParameter("value04").toString()
+                , params.getParameter("value05").toString()
+                , params.getParameter("value06").toString()
+                , params.getParameter("value07").toString()
+                , params.getParameter("value08").toString()
+                , params.getParameter("value09").toString()
+                , params.getParameter("value10").toString());
+        cpaResult.add(2, cpaDataArr);
+
+        System.out.println("############################################################################");
+        System.out.println("GetCpaDataForValue Finish...");
+        System.out.println("############################################################################\n\n");
+
+        return cpaResult;
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
      *  캠페인별 DB 합산 정보 조회
      *------------------------------------------------------------------------------------------------------------------
      * 작성일 : 2022.01.31

@@ -1010,21 +1010,109 @@ public interface CampaignMasterMapper {
     })
     List<Map<String, Object>> getCampaignMasterForMbAdStatus_TotalCount(Long mbId, Long adId, String status);
 
+    @Select("SELECT " +
+            "       VALUE03 " +
+            " FROM " +
+            "       CPA_DATA A" +
+            " WHERE " +
+            "       MB_ID      = ${mbId}" +
+            " AND   AD_ID      = ${adId}" +
+            " AND   CA_ID      = ${caId}" +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " GROUP BY VALUE03          " +
+            " ORDER BY VALUE03          " )
+    List<String> getInputValueList03(Long mbId, Long adId, Long caId, Long pgId);
 
+    @Select("SELECT " +
+            "       VALUE04 " +
+            " FROM " +
+            "       CPA_DATA A" +
+            " WHERE " +
+            "       MB_ID      = ${mbId}" +
+            " AND   AD_ID      = ${adId}" +
+            " AND   CA_ID      = ${caId}" +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " GROUP BY VALUE04          " +
+            " ORDER BY VALUE04          " )
+    List<String> getInputValueList04(Long mbId, Long adId, Long caId, Long pgId);
 
+    @Select("SELECT " +
+            "       VALUE05 " +
+            " FROM " +
+            "       CPA_DATA A" +
+            " WHERE " +
+            "       MB_ID      = ${mbId}" +
+            " AND   AD_ID      = ${adId}" +
+            " AND   CA_ID      = ${caId}" +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " GROUP BY VALUE05          " +
+            " ORDER BY VALUE05          " )
+    List<String> getInputValueList05(Long mbId, Long adId, Long caId, Long pgId);
 
+    @Select("SELECT " +
+            "       VALUE06 " +
+            " FROM " +
+            "       CPA_DATA A" +
+            " WHERE " +
+            "       MB_ID      = ${mbId}" +
+            " AND   AD_ID      = ${adId}" +
+            " AND   CA_ID      = ${caId}" +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " GROUP BY VALUE06          " +
+            " ORDER BY VALUE06          " )
+    List<String> getInputValueList06(Long mbId, Long adId, Long caId, Long pgId);
 
+    @Select("SELECT " +
+            "       VALUE07 " +
+            " FROM " +
+            "       CPA_DATA A" +
+            " WHERE " +
+            "       MB_ID      = ${mbId}" +
+            " AND   AD_ID      = ${adId}" +
+            " AND   CA_ID      = ${caId}" +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " GROUP BY VALUE07          " +
+            " ORDER BY VALUE07          " )
+    List<String> getInputValueList07(Long mbId, Long adId, Long caId, Long pgId);
 
+    @Select("SELECT " +
+            "       VALUE08 " +
+            " FROM " +
+            "       CPA_DATA A" +
+            " WHERE " +
+            "       MB_ID      = ${mbId}" +
+            " AND   AD_ID      = ${adId}" +
+            " AND   CA_ID      = ${caId}" +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " GROUP BY VALUE08          " +
+            " ORDER BY VALUE08          " )
+    List<String> getInputValueList08(Long mbId, Long adId, Long caId, Long pgId);
 
+    @Select("SELECT " +
+            "       VALUE09 " +
+            " FROM " +
+            "       CPA_DATA A" +
+            " WHERE " +
+            "       MB_ID      = ${mbId}" +
+            " AND   AD_ID      = ${adId}" +
+            " AND   CA_ID      = ${caId}" +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " GROUP BY VALUE09          " +
+            " ORDER BY VALUE09          " )
+    List<String> getInputValueList09(Long mbId, Long adId, Long caId, Long pgId);
 
-
-
-
-
-
-
-
-
+    @Select("SELECT " +
+            "       VALUE10 " +
+            " FROM " +
+            "       CPA_DATA A" +
+            " WHERE " +
+            "       MB_ID      = ${mbId}" +
+            " AND   AD_ID      = ${adId}" +
+            " AND   CA_ID      = ${caId}" +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " GROUP BY VALUE10          " +
+            " ORDER BY VALUE10          " )
+    List<String> getInputValueList10(Long mbId, Long adId, Long caId, Long pgId);
 
 
 
