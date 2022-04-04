@@ -14,8 +14,13 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +52,7 @@ public class AdExternalUserController {
     @CrossOrigin
     @RequestMapping(value = "/CreExternalUser", method = RequestMethod.POST)
     public Map<String, Object> CreExternalUser(
+            @RequestParam(value = "upFile", required = false) List<MultipartFile> upFile,
             @RequestPart(value = "dataObj") Map<String, Object> params) throws Exception
     {
         System.out.println("\n\n############################################################################");
@@ -88,7 +94,8 @@ public class AdExternalUserController {
         tbAdExternalUser.setMbId(Long.parseLong(params.get("mbId").toString()));
         tbAdExternalUser.setAdId(Long.parseLong(params.get("adId").toString()));
         tbAdExternalUser.setCaId(Long.parseLong(params.get("caId").toString()));
-        tbAdExternalUser.setPgId(Long.parseLong(params.get("pgId").toString()));
+//        tbAdExternalUser.setPgId(Long.parseLong(params.get("pgId").toString()));
+        tbAdExternalUser.setPgId(0L);
         tbAdExternalUser.setClntId(params.get("clntId").toString());
         tbAdExternalUser.setExternalClntId("DM" + sExternalClntIdFinal);
         tbAdExternalUser.setExternalClntPw(params.get("externalPw").toString());
@@ -96,6 +103,17 @@ public class AdExternalUserController {
         tbAdExternalUser.setSrtDt(params.get("srtDt").toString().replaceAll("-", ""));
         tbAdExternalUser.setEndDt(params.get("endDt").toString().replaceAll("-", ""));
         tbAdExternalUser.setDescription(params.get("description").toString());
+
+        if(upFile == null || upFile.isEmpty()) {
+            System.out.println("empty");
+            tbAdExternalUser.setLogoFileNm("");
+        }
+        else {
+            System.out.println("not empty");
+            System.out.println(upFile.get(0).getOriginalFilename());
+            tbAdExternalUser.setLogoFileNm(upFile.get(0).getOriginalFilename());
+        }
+
 
         System.out.println(tbAdExternalUser.toString());
 
@@ -112,9 +130,38 @@ public class AdExternalUserController {
             resultMap.put("status", false);
             resultMap.put("externalClntId", "");
             resultMap.put("externalClntPw", "");
-            resultMap.put("message", "신규 외부 사용자 등록이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+            resultMap.put("message", "신규 외부 사용자 등록이 실패되었습니다.\n\n고객센터에 문의주세요.");
             System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
 
+            //trxManager.rollback(trxStatus);
+            return resultMap;
+        }
+
+        //---------------------------------------------------------------------------------------------------------
+        // 광고주 페이지 상단 좌측에 회사 로고를 넣어준다.
+        //---------------------------------------------------------------------------------------------------------
+        System.out.println("upFile : [" + upFile.get(0).getSize() + "]");
+
+        String      indexPath           = "/WebFileClient/SponserHeadImage/" + "DM" + sExternalClntIdFinal;
+        System.out.println("indexPath : [" + indexPath + "]");
+
+        // 광고주 아이디에 맞는 폴더를 생성한다.
+        Path mainPath = Paths.get(indexPath);
+        Files.createDirectories(mainPath);
+
+        String srcFullName = indexPath + "/" + upFile.get(0).getOriginalFilename();
+        System.out.println("srcFullName : [" + srcFullName + "]");
+
+        try {
+            upFile.get(0).transferTo(new File(srcFullName));
+        } catch(Exception e) {
+            System.out.println("upFile.get(0).transferTo Fail : [" + e + "]");
+
+            resultMap.put("status", false);
+            resultMap.put("externalClntId", "");
+            resultMap.put("externalClntPw", "");
+            resultMap.put("message", "광고주 이미지 등록이 실패되었습니다.\n\n고객센터에 문의주세요.");
+            System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
             //trxManager.rollback(trxStatus);
             return resultMap;
         }
@@ -175,7 +222,7 @@ public class AdExternalUserController {
         tbAdExternalUser = adExternalUserMapper.selAdExternalUserOne(Long.parseLong(params.get("seqNo").toString()));
         if(tbAdExternalUser == null) {
             resultMap.put("result", false);
-            resultMap.put("message", "외부사용자 정보 조회가 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+            resultMap.put("message", "외부사용자 정보 조회가 실패되었습니다.\n\n고객센터에 문의주세요.");
             System.out.println("처리 adExternalUserMapper.selAdExternalUserOne : [" + "에러나씀 ㅠㅠ" + "]");
 
             trxManager.rollback(trxStatus);
@@ -194,7 +241,7 @@ public class AdExternalUserController {
                 System.out.println("adExternalUserMapper.updAdExternalUser Fail : [" + e + "]");
 
                 resultMap.put("result", false);
-                resultMap.put("message", "외부 사용자 변경이 실패되었습니다.\n\n고객센터에 문의주세요.\n\nTel : 1533-3757");
+                resultMap.put("message", "외부 사용자 변경이 실패되었습니다.\n\n고객센터에 문의주세요.");
                 System.out.println("처리 메세지 : [" + resultMap.toString() + "]");
 
                 trxManager.rollback(trxStatus);
@@ -250,7 +297,6 @@ public class AdExternalUserController {
                   Long.parseLong(rq.getParameter("mbId").toString())
                 , Long.parseLong(rq.getParameter("adId").toString())
                 , Long.parseLong(rq.getParameter("caId").toString())
-                , Long.parseLong(rq.getParameter("pgId").toString())
                 , rq.getParameter("status").toString()
         );
 
@@ -264,8 +310,9 @@ public class AdExternalUserController {
                   Long.parseLong(rq.getParameter("mbId").toString())
                 , Long.parseLong(rq.getParameter("adId").toString())
                 , Long.parseLong(rq.getParameter("caId").toString())
-                , Long.parseLong(rq.getParameter("pgId").toString())
                 , rq.getParameter("status").toString()
+                , (Long.parseLong(rq.getParameter("curPage").toString()) - 1) * Long.parseLong(rq.getParameter("rowCount").toString())
+                , Long.parseLong(rq.getParameter("rowCount").toString())
         );
 
         userResult.add(1, adExternalUserArr);

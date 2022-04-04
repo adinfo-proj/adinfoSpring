@@ -770,4 +770,24 @@ public class AdUserMasterAPI {
 
         return resMap;
     }
+
+    @CrossOrigin
+    @RequestMapping(value = "/GetClntSubsNo", method = RequestMethod.GET)
+    public String GetClntSubsNo(HttpServletRequest rq) throws Exception {
+        System.out.println("\n\n############################################################################");
+        System.out.println("GetClntSubsNo Func Start...");
+        System.out.println("############################################################################");
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("  화면에서 수신된 입력값");
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println(" rq : [" + rq.toString() + "]");
+
+        AD_USER_MASTER adUserMaster = new AD_USER_MASTER();
+        adUserMaster = adUserMasterMapper.getAdUserMaster(rq.getParameter("clntId").toString());
+
+        System.out.println("리턴 메세지 : ["+ adUserMaster.toString() +"]"); //로또번호 출력
+
+        return adUserMaster.getClntSubsNo();
+    }
 }

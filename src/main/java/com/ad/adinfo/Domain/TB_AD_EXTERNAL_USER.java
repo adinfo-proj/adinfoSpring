@@ -21,5 +21,5 @@ public class TB_AD_EXTERNAL_USER {
     private String  srtDt;
     private String  endDt;
     private String  description;
-
+    private String  logoFileNm;
 }

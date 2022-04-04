@@ -25,6 +25,7 @@ public interface AdExternalUserMapper {
             "     , SRT_DT " +
             "     , END_DT " +
             "     , DESCRIPTION " +
+            "     , LOGO_FILE_NM " +
             ") " +
             "VALUES( " +
             "       0 " +
@@ -41,6 +42,7 @@ public interface AdExternalUserMapper {
             "     , #{tbAdExternalUser.srtDt} " +
             "     , #{tbAdExternalUser.endDt} " +
             "     , #{tbAdExternalUser.description} " +
+            "     , #{tbAdExternalUser.logoFileNm} " +
             ") ")
     Long insAdExternalUser(@Param("tbAdExternalUser") TB_AD_EXTERNAL_USER tbAdExternalUser);
 
@@ -73,7 +75,6 @@ public interface AdExternalUserMapper {
             "       MB_ID  = ${mbId} " +
             " AND   AD_ID  = ${adId} " +
             " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
-            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
             " AND   STATUS = ${status} " +
             " AND   STATUS <> '99' " +
             " ORDER BY SEQ_NO DESC "
@@ -81,7 +82,7 @@ public interface AdExternalUserMapper {
     @Results({
             @Result(property = "rowTotalCount", column = "ROW_TOTAL_COUNT")
     })
-    List<Map<String, Object>> selAdExternalUserRowCount(Long mbId, Long adId, Long caId, Long pgId, String status);
+    List<Map<String, Object>> selAdExternalUserRowCount(Long mbId, Long adId, Long caId, String status);
 
     @Select("SELECT " +
             "         SEQ_NO " +
@@ -136,6 +137,7 @@ public interface AdExternalUserMapper {
             "       , SRT_DT " +
             "       , END_DT " +
             "       , DESCRIPTION " +
+            "       , LOGO_FILE_NM " +
             " FROM " +
             "       AD_EXTERNAL_USER " +
             " WHERE " +
@@ -155,7 +157,8 @@ public interface AdExternalUserMapper {
             @Result(property = "status", column = "STATUS"),
             @Result(property = "srtDt", column = "SRT_DT"),
             @Result(property = "endDt", column = "END_DT"),
-            @Result(property = "description", column = "DESCRIPTION")
+            @Result(property = "description", column = "DESCRIPTION"),
+            @Result(property = "logoFileNm", column = "LOGO_FILE_NM")
     })
     TB_AD_EXTERNAL_USER selAdExternalUserGet(String clntId);
 
@@ -168,7 +171,7 @@ public interface AdExternalUserMapper {
             "      , A.CA_ID " +
             "      , (SELECT NAME FROM CAMPAIGN_MASTER WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID) AS CA_NM " +
             "      , A.PG_ID " +
-            "      , (SELECT NAME FROM LANDING_PAGE    WHERE MB_ID = A.MB_ID AND AD_ID = A.AD_ID AND CA_ID = A.CA_ID AND PG_ID = A.PG_ID) AS PG_NM " +
+            "      , ' ' AS PG_NM " +
             "      , A.CLNT_ID " +
             "      , A.EXTERNAL_CLNT_ID " +
             "      , CONVERT(AES_DECRYPT(UNHEX(EXTERNAL_CLNT_PW), 'dbfactory') USING UTF8) EXTERNAL_CLNT_PW " +
@@ -178,21 +181,15 @@ public interface AdExternalUserMapper {
             "      , A.DESCRIPTION " +
             "FROM " +
             "         AD_EXTERNAL_USER A " +
-            "       , LANDING_PAGE     B " +
             "WHERE " +
             "      A.MB_ID  = #{mbId} " +
             "AND   A.AD_ID  = #{adId} " +
-            "AND   A.MB_ID  = B.MB_ID " +
-            "AND   A.AD_ID  = B.AD_ID " +
-            "AND   A.CA_ID  = B.CA_ID " +
-            "AND   A.PG_ID  = B.PG_ID " +
-            "AND   B.USE_TP = '00' " +
             "AND   ((-1 = ${caId}) OR (A.CA_ID = ${caId})) " +
-            "AND   ((-1 = ${pgId}) OR (A.PG_ID = ${pgId})) " +
             "AND   A.STATUS = #{status} " +
             "AND   A.STATUS <> '99' " +
-            "ORDER BY A.SEQ_NO DESC "
-    )
+            "ORDER BY A.SEQ_NO DESC " +
+            " LIMIT #{srtPos}, #{rowCount}" )
+
     @Results({
             @Result(property = "seqNo", column = "SEQ_NO"),
             @Result(property = "createDt", column = "CREATE_DT"),
@@ -201,7 +198,6 @@ public interface AdExternalUserMapper {
             @Result(property = "adId", column = "AD_ID"),
             @Result(property = "caId", column = "CA_ID"),
             @Result(property = "caNm", column = "CA_NM"),
-            @Result(property = "pgId", column = "PG_ID"),
             @Result(property = "pgNm", column = "PG_NM"),
             @Result(property = "clntId", column = "CLNT_ID"),
             @Result(property = "externalClntId", column = "EXTERNAL_CLNT_ID"),
@@ -211,7 +207,7 @@ public interface AdExternalUserMapper {
             @Result(property = "endDt", column = "END_DT"),
             @Result(property = "description", column = "DESCRIPTION")
     })
-    List<Map<String, Object>> selAdExternalUser(Long mbId, Long adId, Long caId, Long pgId, String status);
+    List<Map<String, Object>> selAdExternalUser(Long mbId, Long adId, Long caId, String status, Long srtPos, Long rowCount);
 
     @Select("SELECT " +
             "       SUBSTR(MAX(EXTERNAL_CLNT_ID), 3, 6) AS EXTERNAL_CLNT_ID " +

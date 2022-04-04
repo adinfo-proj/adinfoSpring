@@ -16,7 +16,7 @@ public interface AdUtilityMapper {
     })
     String getCalcWeeks(String calcDate, Long calcDay);
 
-    @Select("SELECT DATE_FORMAT(DATE_SUB(#{calcDate}, INTERVAL ${calcMonth} MONTH), '%Y-%m-%d') CALC_DATE FROM DUAL")
+    @Select("SELECT DATE_FORMAT(DATE_ADD(#{calcDate}, INTERVAL ${calcMonth} MONTH), '%Y-%m-%d') CALC_DATE FROM DUAL")
     @Results({
             @Result(property = "calcDate" , column = "CALC_DATE")
     })
@@ -26,7 +26,25 @@ public interface AdUtilityMapper {
     @Results({
             @Result(property = "calcDate" , column = "CALC_DATE")
     })
-    String getCalcCurDt(String calcDate);
+    String getCalcCurDt();
+
+    @Select("SELECT DATE_FORMAT(NOW(), '%Y%m%d') CALC_DATE FROM DUAL")
+    @Results({
+            @Result(property = "calcDate" , column = "CALC_DATE")
+    })
+    String getCurToday();
+
+    @Select("SELECT DATE_FORMAT(NOW(), '%h%i%s') CALC_DATE FROM DUAL")
+    @Results({
+            @Result(property = "calcDate" , column = "CALC_DATE")
+    })
+    String getCurTime();
+
+    @Select("SELECT DATE_FORMAT(NOW(), '%Y-%m-%d') CALC_DATE FROM DUAL")
+    @Results({
+            @Result(property = "calcDate" , column = "CALC_DATE")
+    })
+    String getCalcTodayByDash();
 
     @Insert("INSERT INTO msg.msg(payload) " +
             "VALUES( " +

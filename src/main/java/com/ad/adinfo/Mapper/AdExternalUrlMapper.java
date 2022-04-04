@@ -86,8 +86,8 @@ public interface AdExternalUrlMapper {
             " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
             " AND   STATUS = #{status}" +
             " AND   STATUS <> '99' " +
-            " ORDER BY SEQ_NO DESC "
-    )
+            " ORDER BY SEQ_NO DESC " +
+            " LIMIT #{srtPos}, #{rowCount}" )
     @Results({
             @Result(property = "seqNo", column = "SEQ_NO"),
             @Result(property = "createDt", column = "CREATE_DT"),
@@ -102,5 +102,5 @@ public interface AdExternalUrlMapper {
             @Result(property = "status", column = "STATUS"),
             @Result(property = "description", column = "DESCRIPTION")
     })
-    List<Map<String, Object>> selAdExternalUrl(Long mbId, Long adId, Long caId, Long pgId, String status);
+    List<Map<String, Object>> selAdExternalUrl(Long mbId, Long adId, Long caId, Long pgId, String status, Long srtPos, Long rowCount);
 }

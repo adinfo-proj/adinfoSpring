@@ -20,12 +20,15 @@ import com.ad.adinfo.Service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.ibatis.annotations.Insert;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -97,84 +100,84 @@ public class AdinfoAPIController {
      *------------------------------------------------------------------------------------------------------------------
      * 코멘트 : 없음.
      -----------------------------------------------------------------------------------------------------------------*/
-    @CrossOrigin
-    @RequestMapping(value = "dateRange", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public List<Map<String, Object>> dateRange(HttpServletRequest rq) throws Exception {
-        List<Map<String, Object>> dateResult = new ArrayList<Map<String, Object>>();
-        HashMap<String, Object>   allObj     = new HashMap<String, Object>();
-
-        String beforeDt = "";
-        String currentDt = utility.getCalcCurDt(rq.getParameter("curDt"));
-
-        System.out.println(rq.getParameter("tp"));
-        System.out.println(rq.getParameter("curDt"));
-        System.out.println(rq.getParameter("befDt"));
-
-        if( rq.getParameter("tp").equals("0") ) {
-            System.out.println("당일");
-
-            SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd");
-            Date date = new Date();
-            String curDt = format1.format(date);
-
-            beforeDt = curDt;
-            currentDt = curDt;
-        }
-        else if( rq.getParameter("tp").equals("1") ) {
-            System.out.println("전일");
-
-            SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd");
-            Date date = new Date();
-            String curDt = format1.format(date);
-
-            currentDt = curDt;
-            beforeDt = utility.getCalcDays(curDt, Long.parseLong(rq.getParameter("befDt")) * -1);
-        }
-
-        else if( rq.getParameter("tp").equals("2") ) {
-            System.out.println("일주");
-
-            SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd");
-            Date date = new Date();
-            String curDt = format1.format(date);
-
-            currentDt = curDt;
-            beforeDt = utility.getCalcWeeks(curDt, Long.parseLong(rq.getParameter("befDt")) * -1);
-        }
-        else if( rq.getParameter("tp").equals("2") ) {
-            System.out.println("보름");
-
-            SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd");
-            Date date = new Date();
-            String curDt = format1.format(date);
-
-            currentDt = curDt;
-            beforeDt = utility.getCalcWeeks(curDt, Long.parseLong(rq.getParameter("befDt")) * -2);
-        }
-        else if( rq.getParameter("tp").equals("3") ) {
-            System.out.println("한달");
-
-            SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd");
-            Date date = new Date();
-            String curDt = format1.format(date);
-
-            currentDt = curDt;
-            beforeDt = utility.getCalcWeeks(curDt, Long.parseLong(rq.getParameter("befDt")) * -2);
-        }
-
-        Map<String, Object> result = new HashMap<String, Object>();
-
-        result.put("currentDt", currentDt);
-        result.put("beforeDt" , beforeDt);
-
-        dateResult.add(result);
-
-        System.out.println("currentDt : [" + currentDt + "]");
-        System.out.println("beforeDt  : [" + beforeDt + "]");
-
-        return dateResult;
-    }
+//    @CrossOrigin
+//    @RequestMapping(value = "dateRange", method = RequestMethod.GET)
+//    @ResponseStatus(value = HttpStatus.OK)
+//    public List<Map<String, Object>> dateRange(HttpServletRequest rq) throws Exception {
+//        List<Map<String, Object>> dateResult = new ArrayList<Map<String, Object>>();
+//        HashMap<String, Object>   allObj     = new HashMap<String, Object>();
+//
+//        String beforeDt = "";
+//        String currentDt = utility.getCalcCurDt(rq.getParameter("curDt"));
+//
+//        System.out.println(rq.getParameter("tp"));
+//        System.out.println(rq.getParameter("curDt"));
+//        System.out.println(rq.getParameter("befDt"));
+//
+//        if( rq.getParameter("tp").equals("0") ) {
+//            System.out.println("당일");
+//
+//            SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd");
+//            Date date = new Date();
+//            String curDt = format1.format(date);
+//
+//            beforeDt = curDt;
+//            currentDt = curDt;
+//        }
+//        else if( rq.getParameter("tp").equals("1") ) {
+//            System.out.println("전일");
+//
+//            SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd");
+//            Date date = new Date();
+//            String curDt = format1.format(date);
+//
+//            currentDt = curDt;
+//            beforeDt = utility.getCalcDays(curDt, Long.parseLong(rq.getParameter("befDt")) * -1);
+//        }
+//
+//        else if( rq.getParameter("tp").equals("2") ) {
+//            System.out.println("일주");
+//
+//            SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd");
+//            Date date = new Date();
+//            String curDt = format1.format(date);
+//
+//            currentDt = curDt;
+//            beforeDt = utility.getCalcWeeks(curDt, Long.parseLong(rq.getParameter("befDt")) * -1);
+//        }
+//        else if( rq.getParameter("tp").equals("2") ) {
+//            System.out.println("보름");
+//
+//            SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd");
+//            Date date = new Date();
+//            String curDt = format1.format(date);
+//
+//            currentDt = curDt;
+//            beforeDt = utility.getCalcWeeks(curDt, Long.parseLong(rq.getParameter("befDt")) * -2);
+//        }
+//        else if( rq.getParameter("tp").equals("3") ) {
+//            System.out.println("한달");
+//
+//            SimpleDateFormat format1 = new SimpleDateFormat ( "yyyy-MM-dd");
+//            Date date = new Date();
+//            String curDt = format1.format(date);
+//
+//            currentDt = curDt;
+//            beforeDt = utility.getCalcWeeks(curDt, Long.parseLong(rq.getParameter("befDt")) * -2);
+//        }
+//
+//        Map<String, Object> result = new HashMap<String, Object>();
+//
+//        result.put("currentDt", currentDt);
+//        result.put("beforeDt" , beforeDt);
+//
+//        dateResult.add(result);
+//
+//        System.out.println("currentDt : [" + currentDt + "]");
+//        System.out.println("beforeDt  : [" + beforeDt + "]");
+//
+//        return dateResult;
+//    }
 
     /*------------------------------------------------------------------------------------------------------------------
      * 캠페인 목록 조회
@@ -564,7 +567,10 @@ public class AdinfoAPIController {
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public Map<String, Object> login(@RequestBody LoginConnect loginConnect ) throws Exception {
+    public Map<String, Object> login(
+            NativeWebRequest nativeWebRequest,
+            @RequestBody LoginConnect loginConnect
+    ) throws Exception {
         Map<String, Object> resMap = new HashMap<>();
         AD_USER_MASTER  adUserMasterMember;
 
@@ -623,6 +629,37 @@ public class AdinfoAPIController {
 
                     resMap.put("authToken", token);
                     status = HttpStatus.ACCEPTED;
+
+                    //---------------------------------------------------------------------------------------------------------
+                    // 접속 IP 확인
+                    //---------------------------------------------------------------------------------------------------------
+                    HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
+
+                    String clientIp = request.getHeader("X-Forwarded-For");
+                    if (StringUtils.isEmpty(clientIp)|| "unknown".equalsIgnoreCase(clientIp)) {
+                        //Proxy 서버인 경우
+                        clientIp = request.getHeader("Proxy-Client-IP");
+                    }
+                    if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                        //Weblogic 서버인 경우
+                        clientIp = request.getHeader("WL-Proxy-Client-IP");
+                    }
+                    if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                        clientIp = request.getHeader("HTTP_CLIENT_IP");
+                    }
+                    if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                        clientIp = request.getHeader("HTTP_X_FORWARDED_FOR");
+                    }
+                    if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                        clientIp = request.getRemoteAddr();
+                    }
+
+                    adUserMaster.insAdClntConnHistory(
+                              adUserMasterMember.getClntId()
+                            , clientIp
+                            , "C"
+                            , ""
+                    );
                 } catch (RuntimeException e) {
                     log.error("로그인 실패", e);
                     resMap.put("status" , "3");
@@ -723,6 +760,7 @@ public class AdinfoAPIController {
                     resMap.put("pgId"  , adExternalUser.getPgId());
                     resMap.put("clntNm", adExternalUser.getExternalClntId());
                     resMap.put("nickNm", adExternalUser.getExternalClntId());
+                    resMap.put("logo"  , adExternalUser.getLogoFileNm());
 
                     resMap.put("authToken", token);
                     status = HttpStatus.ACCEPTED;

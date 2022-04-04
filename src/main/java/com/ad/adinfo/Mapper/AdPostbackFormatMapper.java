@@ -490,7 +490,8 @@ public interface AdPostbackFormatMapper {
             "      MB_ID      = ${mbId} " +
             "AND   AD_ID      = ${adId} " +
             "AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
-            "ORDER BY CREATE_DT DESC "
+            "ORDER BY CREATE_DT DESC " +
+            " LIMIT #{srtPos}, #{rowCount}"
     )
     @Results({
             @Result(property = "createDt" , column = "CREATE_DT"),
@@ -503,7 +504,7 @@ public interface AdPostbackFormatMapper {
             @Result(property = "sendUrl" , column = "SEND_URL"),
             @Result(property = "sendValue" , column = "SEND_VALUE")
     })
-    List<Map<String, Object>> selPostbackResultTp0(Long mbId, Long adId, Long caId, Long pgId);
+    List<Map<String, Object>> selPostbackResultTp0(Long mbId, Long adId, Long caId, Long pgId, Long srtPos, Long rowCount);
 
     @Select("SELECT " +
             "        COUNT(*) AS ROW_TOTAL_COUNT " +
@@ -536,7 +537,8 @@ public interface AdPostbackFormatMapper {
             "AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
             "AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
             "AND   RESULT_CD = '0' " +
-            "ORDER BY CREATE_DT DESC "
+            "ORDER BY CREATE_DT DESC " +
+            " LIMIT #{srtPos}, #{rowCount}"
     )
     @Results({
             @Result(property = "createDt" , column = "CREATE_DT"),
@@ -549,7 +551,7 @@ public interface AdPostbackFormatMapper {
             @Result(property = "sendUrl" , column = "SEND_URL"),
             @Result(property = "sendValue" , column = "SEND_VALUE")
     })
-    List<Map<String, Object>> selPostbackResultTp1(Long mbId, Long adId, Long caId, Long pgId);
+    List<Map<String, Object>> selPostbackResultTp1(Long mbId, Long adId, Long caId, Long pgId, Long srtPos, Long rowCount);
 
     @Select("SELECT " +
             "        COUNT(*) AS ROW_TOTAL_COUNT " +
@@ -585,7 +587,8 @@ public interface AdPostbackFormatMapper {
             "AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
             "AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
             "AND   RESULT_CD <> '0' " +
-            "ORDER BY CREATE_DT DESC "
+            "ORDER BY CREATE_DT DESC " +
+            " LIMIT #{srtPos}, #{rowCount}"
     )
     @Results({
             @Result(property = "createDt" , column = "CREATE_DT"),
@@ -598,7 +601,7 @@ public interface AdPostbackFormatMapper {
             @Result(property = "sendUrl" , column = "SEND_URL"),
             @Result(property = "sendValue" , column = "SEND_VALUE")
     })
-    List<Map<String, Object>> selPostbackResultTp2(Long mbId, Long adId, Long caId, Long pgId);
+    List<Map<String, Object>> selPostbackResultTp2(Long mbId, Long adId, Long caId, Long pgId, Long srtPos, Long rowCount);
 
     @Select("SELECT " +
             "        COUNT(*) AS ROW_TOTAL_COUNT " +

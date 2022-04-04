@@ -129,7 +129,7 @@ public interface AdUserMasterMapper {
             "       , #{adUserMaster.sponserRate}" +
             "       , #{adUserMaster.comment}" +
             ")" )
-    @Options(useGeneratedKeys = true, keyProperty = "mbId")
+    @Options(useGeneratedKeys = true, keyProperty = "seqNo")
     @Results({
             @Result(property = "updateDt" , column = "UPDATE_DT"),
             @Result(property = "mbId" , column = "MB_ID"),
@@ -251,4 +251,21 @@ public interface AdUserMasterMapper {
             " WHERE " +
             "       CLNT_ID      = #{clntId} " )
     Long updAdUserMasterNoPass(String clntId, String clntNm, String clntSubsNo);
+
+    @Insert("INSERT INTO AD_CLNT_CONN_HISTORY " +
+            "( " +
+            "         UPDATE_DT" +
+            "       , CLNT_ID" +
+            "       , CONNECT_IP" +
+            "       , CONNECT_TP" +
+            "       , CONNECT_PAGE" +
+            ") " +
+            "VALUES(" +
+            "         NOW()" +
+            "       , #{clntId}" +
+            "       , #{connectIp}" +
+            "       , #{connectTp}" +
+            "       , #{connectPage}" +
+            ")" )
+    Long insAdClntConnHistory(String clntId, String connectIp, String connectTp, String connectPage);
 }

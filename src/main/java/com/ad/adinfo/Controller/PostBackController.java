@@ -58,10 +58,9 @@ public class PostBackController {
         String sUseTpArr   = new String();
         String sSendFlag   = new String();
 
-
         Map<String, Object> resultMap = new HashMap<String, Object>();
         TB_AD_POSTBACK_FORMAT   tbAdPostbackFormat = new TB_AD_POSTBACK_FORMAT();
-        ArrayList inputArr  = new ArrayList();
+        ArrayList inputArr   = new ArrayList();
         ArrayList serverArr  = new ArrayList();
 
         System.out.println("----------------------------------------------------------------------------");
@@ -76,7 +75,7 @@ public class PostBackController {
         // 트랜잭션 시작
         //------------------------------------------------------------------------------
         System.out.println("----------------------------------------------------------------------------");
-        System.out.println("  트랜잭션 Start");
+        System.out.println(" 트랜잭션 Start");
         System.out.println("----------------------------------------------------------------------------");
         TransactionStatus trxStatus = trxManager.getTransaction(new DefaultTransactionDefinition());
 
@@ -116,16 +115,11 @@ public class PostBackController {
             inputServer.get("memberId").toString();
 
             switch(i) {
-                case 0: tbAdPostbackFormat.setHttpUserAgent(inputServer.get("memberId").toString());
-                        break;
-                case 1: tbAdPostbackFormat.setRemoteAddr(inputServer.get("memberId").toString());
-                        break;
-                case 2: tbAdPostbackFormat.setHttpReferer(inputServer.get("memberId").toString());
-                        break;
-                case 3: tbAdPostbackFormat.setHttpHost(inputServer.get("memberId").toString());
-                        break;
-                case 4: tbAdPostbackFormat.setRequestUri(inputServer.get("memberId").toString());
-                        break;
+                case 0: tbAdPostbackFormat.setHttpUserAgent(inputServer.get("memberId").toString()); break;
+                case 1: tbAdPostbackFormat.setRemoteAddr   (inputServer.get("memberId").toString()); break;
+                case 2: tbAdPostbackFormat.setHttpReferer  (inputServer.get("memberId").toString()); break;
+                case 3: tbAdPostbackFormat.setHttpHost     (inputServer.get("memberId").toString()); break;
+                case 4: tbAdPostbackFormat.setRequestUri   (inputServer.get("memberId").toString()); break;
             }
 
             if(inputServer.get("useYn").toString().equals("true"))
@@ -1259,6 +1253,10 @@ public class PostBackController {
         System.out.println("pgId         : [" + rq.getParameter("pgId") + "]");
         System.out.println("resultSelect : [" + rq.getParameter("resultSelect") + "]");
 
+        System.out.println("curPage      : [" + rq.getParameter("curPage") + "]");
+        System.out.println("rowCount     : [" + rq.getParameter("rowCount") + "]");
+
+
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  adPostbackFormatMapper.selPostbackResultRowCount Start");
         System.out.println("----------------------------------------------------------------------------");
@@ -1311,6 +1309,8 @@ public class PostBackController {
                     , Long.parseLong(rq.getParameter("adId"))
                     , Long.parseLong(rq.getParameter("caId"))
                     , Long.parseLong(rq.getParameter("pgId"))
+                    , (Long.parseLong(rq.getParameter("curPage").toString()) - 1) * Long.parseLong(rq.getParameter("rowCount").toString())
+                    , Long.parseLong(rq.getParameter("rowCount").toString())
             );
         }
         else if(rq.getParameter("resultSelect").toString().equals("0")) {
@@ -1319,6 +1319,8 @@ public class PostBackController {
                     , Long.parseLong(rq.getParameter("adId"))
                     , Long.parseLong(rq.getParameter("caId"))
                     , Long.parseLong(rq.getParameter("pgId"))
+                    , (Long.parseLong(rq.getParameter("curPage").toString()) - 1) * Long.parseLong(rq.getParameter("rowCount").toString())
+                    , Long.parseLong(rq.getParameter("rowCount").toString())
             );
         }
         else {
@@ -1327,6 +1329,8 @@ public class PostBackController {
                     , Long.parseLong(rq.getParameter("adId"))
                     , Long.parseLong(rq.getParameter("caId"))
                     , Long.parseLong(rq.getParameter("pgId"))
+                    , (Long.parseLong(rq.getParameter("curPage").toString()) - 1) * Long.parseLong(rq.getParameter("rowCount").toString())
+                    , Long.parseLong(rq.getParameter("rowCount").toString())
             );
         }
 

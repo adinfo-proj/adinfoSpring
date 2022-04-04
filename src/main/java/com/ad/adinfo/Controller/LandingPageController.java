@@ -53,7 +53,8 @@ public class LandingPageController {
             @RequestParam(value = "upFile", required = false) List<MultipartFile> upFile,
             @RequestPart (value = "dataObj"                 ) Map<String, Object> params) throws Exception
     {
-        System.out.println("\n\n############################################################################");
+        System.out.println("\n");
+        System.out.println("############################################################################");
         System.out.println("newlandingpage Func Start...");
         System.out.println("############################################################################");
 
@@ -82,6 +83,10 @@ public class LandingPageController {
         contentArr  = (ArrayList)params.get("formType");
         textArr     = (ArrayList)params.get("textData");
         formArr     = (ArrayList)params.get("formData");
+
+        System.out.println("formType : [" + contentArr.toString() + "]");
+        System.out.println("textData : [" + textArr.toString() + "]");
+        System.out.println("formArr  : [" + formArr.toString() + "]");
 
         Long        lNewPgId = 0L;
 
@@ -162,9 +167,9 @@ public class LandingPageController {
                 System.out.println("Stepsss 03");
 //                System.out.println(tbLandingPage.toString());
 
-                lNewPgId = Long.parseLong(tbLandingPageObj.get("pgId").toString());
-                tbLandingPage.setPgId    (Long.parseLong(tbLandingPageObj.get("pgId").toString()));
-                tbLandingPage.setUseTp("00");
+                lNewPgId = Long.parseLong (tbLandingPageObj.get("pgId").toString());
+                tbLandingPage.setPgId     (Long.parseLong(tbLandingPageObj.get("pgId").toString()));
+                tbLandingPage.setUseTp    ("00");
                 tbLandingPage.setName     (tbLandingPageObj.get("name").toString());
                 tbLandingPage.setAdName   (tbLandingPageObj.get("adName").toString());
                 tbLandingPage.setTitleName(tbLandingPageObj.get("titleName").toString());
@@ -328,13 +333,13 @@ public class LandingPageController {
             while ((strBuf = reader.readLine()) != null) {
                 phpTag += strBuf + "\n";
 
-                if(nRows == 13) {
-                    phpTag += "  $pgUrl  = '" + randChar + "';\n";
-                    phpTag += "  $mbId   = " + params.get("mbId") + ";\n";
-                    phpTag += "  $adId   = " + params.get("mbId") + ";\n";
-                    phpTag += "  $mkId   = " + params.get("mbId") + ";\n";
-                    phpTag += "  $caId   = " + params.get("caId") + ";\n";
-                    phpTag += "  $pgId   = " + lNewPgId + ";\n";
+                if(nRows == 18) {
+                    phpTag += "    $pgUrl  = '" + randChar + "';\n";
+                    phpTag += "    $mbId   = " + params.get("mbId") + ";\n";
+                    phpTag += "    $adId   = " + params.get("mbId") + ";\n";
+                    phpTag += "    $mkId   = " + params.get("mbId") + ";\n";
+                    phpTag += "    $caId   = " + params.get("caId") + ";\n";
+                    phpTag += "    $pgId   = " + lNewPgId + ";\n";
                 }
 
                 nRows++;
@@ -346,6 +351,125 @@ public class LandingPageController {
             System.out.println("----------------------------------------------------------------------------");
             phpTag += "      " + params.get("scriptHeader").toString();
             phpTag += "\n";
+
+            //---------------------------------------------------------------------------------------------------------
+            // 픽셀 등록 처리
+            //   - 2022.03.31 신규 추가
+            //---------------------------------------------------------------------------------------------------------
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println("  구글 에드워즈 이벤트 확인");
+            System.out.println("----------------------------------------------------------------------------");
+            if(params.get("pixel01").toString().equals("")) {
+                System.out.println("    - 구글 에드워즈 이벤트 스크립트 없음");
+            }
+            else {
+                phpTag += "<!-- Global site tag (gtag.js) -->\n";
+                phpTag += "<script async='' src='https://www.googletagmanager.com/gtag/js?id=" + params.get("pixel01").toString() + "'></script>\n";
+                phpTag += "<script>\n";
+                phpTag += "window.dataLayer = window.dataLayer || [];\n";
+                phpTag += "function gtag(){dataLayer.push(arguments);}\n";
+                phpTag += "gtag('js', new Date());\n";
+                phpTag += "gtag('config', '" + params.get("pixel01").toString() + "');\n";
+                phpTag += "</script>\n\n";
+            }
+
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println("  구글 애널리틱스 추적 확인");
+            System.out.println("----------------------------------------------------------------------------");
+            if(params.get("pixel02").toString().equals("")) {
+                System.out.println("    - 구글 애널리틱스 추적 스크립트 없음");
+            }
+            else {
+                phpTag += "<!-- Global site tag (gtag.js) - Google Analytics -->\n";
+                phpTag += "<script async='' src='https://www.googletagmanager.com/gtag/js?id=" + params.get("pixel02").toString() + "'></script>\n";
+                phpTag += "<script>\n";
+                phpTag += "window.dataLayer = window.dataLayer || [];\n";
+                phpTag += "function gtag(){dataLayer.push(arguments);}\n";
+                phpTag += "gtag('js', new Date());\n";
+                phpTag += "gtag('config', '" + params.get("pixel02").toString() +"');\n";
+                phpTag += "</script>\n\n";
+            }
+
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println("  페이스북 픽셀 확인");
+            System.out.println("----------------------------------------------------------------------------");
+            if(params.get("pixel03").toString().equals("")) {
+                System.out.println("    - 페이스북 픽셀 스크립트 없음");
+            }
+            else {
+                phpTag += "<!-- Facebook Pixel Code -->\n";
+                phpTag += "<script>\n";
+                phpTag += "!function(f,b,e,v,n,t,s)\n";
+                phpTag += "{if(f.fbq)return;n=f.fbq=function(){n.callMethod?\n";
+                phpTag += "n.callMethod.apply(n,arguments):n.queue.push(arguments)};\n";
+                phpTag += "if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';\n";
+                phpTag += "n.queue=[];t=b.createElement(e);t.async=!0;\n";
+                phpTag += "t.src=v;s=b.getElementsByTagName(e)[0];\n";
+                phpTag += "s.parentNode.insertBefore(t,s)}(window, document,'script',\n";
+                phpTag += "'https://connect.facebook.net/en_US/fbevents.js');\n";
+                phpTag += "fbq('init', '" + params.get("pixel03").toString() +"');\n";
+                phpTag += "fbq('track', 'PageView');\n";
+                phpTag += "</script>\n";
+                phpTag += "<noscript><img height='1' width='1' style='display:none'\n";
+                phpTag += "src='https://www.facebook.com/tr?id=" + params.get("pixel03").toString() + "&ev=PageView&noscript=1'/></noscript>\n";
+                phpTag += "<!-- End Facebook Pixel Code -->\n\n";
+            }
+
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println("  틱톡 픽셀 확인");
+            System.out.println("----------------------------------------------------------------------------");
+            if(params.get("pixel04").toString().equals("")) {
+                System.out.println("    - 틱톡 픽셀 스크립트 없음");
+            }
+            else {
+                phpTag += "<!-- TikTok Pixel Code Start -->\n";
+                phpTag += "<script>\n";
+                phpTag += "!function (w, d, t) {\n";
+                phpTag += "w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie'],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i='https://analytics.tiktok.com/i18n/pixel/events.js';ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement('script');o.type='text/javascript',o.async=!0,o.src=i+'?sdkid='+e+'&lib='+t;var a=document.getElementsByTagName('script')[0];a.parentNode.insertBefore(o,a)};\n";
+                phpTag += "ttq.load('" + params.get("pixel04").toString() + "');\n";
+                phpTag += "ttq.page();\n";
+                phpTag += "}(window, document, 'ttq');\n";
+
+                phpTag += "ttq.track('ViewContent');\n";
+                phpTag += "</script>\n";
+                phpTag += "<!-- TikTok Pixel Code End -->\n\n";
+            }
+
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println("  카카오 픽셀 확인");
+            System.out.println("----------------------------------------------------------------------------");
+            if(params.get("pixel05").toString().equals("")) {
+                System.out.println("    - 카카오 픽셀 스크립트 없음");
+            }
+            else {
+                phpTag += "<!-- kakao Pixel Code -->\n";
+                phpTag += "<script type='text/javascript' charset='UTF-8' src='//t1.daumcdn.net/adfit/static/kp.js'></script>\n";
+                phpTag += "<script type='text/javascript'>\n";
+                phpTag += "kakaoPixel('" + params.get("pixel05").toString() + "').pageView();\n";
+                phpTag += "</script>\n";
+                phpTag += "<!-- End kakao Pixel Code -->\n\n";
+            }
+
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println("  네이버 광고 로그 분석 확인");
+            System.out.println("----------------------------------------------------------------------------");
+            if(params.get("pixel06").toString().equals("")) {
+                System.out.println("    - 네이버 광고 로그 분석 스크립트 없음");
+            }
+            else {
+                phpTag += "<!-- Naver log Start -->\n";
+                phpTag += "<script type='text/javascript' src='//wcs.naver.net/wcslog.js'></script>\n";
+                phpTag += "<script type='text/javascript'>\n";
+                phpTag += "if(!wcs_add) var wcs_add = {};\n";
+                phpTag += "wcs_add['wa'] = '" + params.get("pixel06").toString() + "';\n";
+                phpTag += "if (!_nasa) var _nasa={};\n";
+                phpTag += "if (window.wcs) {\n";
+                phpTag += "wcs.inflow();\n";
+                phpTag += "wcs_do(_nasa);\n";
+                phpTag += "}\n";
+                phpTag += "</script>\n";
+                phpTag += "<!-- Naver log End -->\n\n";
+            }
 
             System.out.println("----------------------------------------------------------------------------");
             System.out.println("  헤더안에 valid function 추가 Start");
@@ -361,17 +485,6 @@ public class LandingPageController {
             phpTag += "            e.agree.focus();\n";
             phpTag += "            return false;\n";
             phpTag += "          }\n";
-//            phpTag += "        if(e.value2.value == '') {\n";
-//            phpTag += "          alert('이름을 입력해주세요');\n";
-//            phpTag += "          e.value2.focus();\n";
-//            phpTag += "          return false;\n";
-//            phpTag += "        }\n";
-//            phpTag += "        if(e.value1.value == '') {\n";
-//            phpTag += "          alert('연락처를 입력해주세요');\n";
-//            phpTag += "          e.value1.focus();\n";
-//            phpTag += "          return false;\n";
-//            phpTag += "        }\n";
-
             System.out.println("inputArr.size() : " + inputArr.size());
 
             //---------------------------------------------------------------------------------------------------------
@@ -580,190 +693,905 @@ public class LandingPageController {
 
 //                    System.out.println("resultMap() : " + resultMap.toString());
 
+                    if     (inputFormArr.get("formStyle").equals("01")) {
+                        phpTag += "\n    <div class='formPrev formPrev01'";
+                        phpTag += " style='border-color: " + resultMap.get("lineColor").toString() + "; ";
+                        phpTag += "border-width: " + resultMap.get("borderLine").toString() +  "; ";
+                        phpTag += "background-color: " + resultMap.get("bgColor").toString() +  ";'>" + "\n";
 
-                    phpTag += "\n    <div class='formPrev'";
-                    phpTag += " style='border-color: " + resultMap.get("lineColor").toString() + "; ";
-                    phpTag += "border-width: " + resultMap.get("borderLine").toString() +  ";'>";
+                        if(!resultMap.get("formTitle").toString().equals("")) {
+                            phpTag += "<h1 style='color: " + resultMap.get("titleColor").toString() + "; ";
+                            phpTag += "font-family: " + resultMap.get("fontType").toString() + ";'>";
+                            phpTag += resultMap.get("formTitle").toString();
+                            phpTag += "</h1>\n";
+                        }
 
-                    phpTag += "\n      <form method='post' onsubmit='return chk_validate(this)'>";
+                        phpTag += "\n      <form method='post' onsubmit='return chk_validate(this)'>";
 
-                    System.out.println("----------------------------------------------------------------------------");
-                    System.out.println("  폼 스크립트 삽입 Start");
-                    System.out.println("----------------------------------------------------------------------------");
+                        System.out.println("----------------------------------------------------------------------------");
+                        System.out.println("  폼 스크립트 삽입 Start");
+                        System.out.println("----------------------------------------------------------------------------");
 
-                    phpTag += "\n";
-                    phpTag += "      " + params.get("scriptForm").toString();
-                    phpTag += "\n";
+                        phpTag += "\n";
+                        phpTag += "      " + params.get("scriptForm").toString();
+                        phpTag += "\n";
 
-                    phpTag += "\n        <input type='hidden' id='mbId" + i + "'          name='mbId'          value='<?php echo $mbId?>'>";
-                    phpTag += "\n        <input type='hidden' id='adId" + i + "'          name='adId'          value='<?php echo $adId?>'>";
-                    phpTag += "\n        <input type='hidden' id='caId" + i + "'          name='caId'          value='<?php echo $caId?>'>";
-                    phpTag += "\n        <input type='hidden' id='mkId" + i + "'          name='mkId'          value='<?php echo $mkId?>'>";
-                    phpTag += "\n        <input type='hidden' id='pgId" + i + "'          name='pgId'          value='<?php echo $pgId?>'>";
-                    phpTag += "\n        <input type='hidden' id='httpReferer" + i + "'   name='httpReferer'   value='<?php echo $_SERVER['HTTP_REFERER']?>'>";
-                    phpTag += "\n        <input type='hidden' id='remoteAddr" + i + "'    name='remoteAddr'    value='<?php echo $_SERVER['REMOTE_ADDR']?>'>";
-                    phpTag += "\n        <input type='hidden' id='requestUri" + i + "'    name='requestUri'    value='<?php echo $_SERVER['REQUEST_URI']?>'>";
-                    phpTag += "\n        <input type='hidden' id='httpUserAgent" + i + "' name='httpUserAgent' value='<?php echo $_SERVER['HTTP_USER_AGENT']?>'>";
-                    phpTag += "\n        <input type='hidden' id='httpHost" + i + "'      name='serverName'    value='<?php echo $_SERVER['SERVER_NAME']?>'>";
-                    phpTag += "\n";
+                        phpTag += "\n        <input type='hidden' id='mbId" + i + "'          name='mbId'          value='<?php echo $mbId?>'>";
+                        phpTag += "\n        <input type='hidden' id='adId" + i + "'          name='adId'          value='<?php echo $adId?>'>";
+                        phpTag += "\n        <input type='hidden' id='caId" + i + "'          name='caId'          value='<?php echo $caId?>'>";
+                        phpTag += "\n        <input type='hidden' id='mkId" + i + "'          name='mkId'          value='<?php echo $mkId?>'>";
+                        phpTag += "\n        <input type='hidden' id='pgId" + i + "'          name='pgId'          value='<?php echo $pgId?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpReferer" + i + "'   name='httpReferer'   value='<?php echo $_SERVER['HTTP_REFERER']?>'>";
+                        phpTag += "\n        <input type='hidden' id='remoteAddr" + i + "'    name='remoteAddr'    value='<?php echo $_SERVER['REMOTE_ADDR']?>'>";
+                        phpTag += "\n        <input type='hidden' id='requestUri" + i + "'    name='requestUri'    value='<?php echo $_SERVER['REQUEST_URI']?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpUserAgent" + i + "' name='httpUserAgent' value='<?php echo $_SERVER['HTTP_USER_AGENT']?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpHost" + i + "'      name='serverName'    value='<?php echo $_SERVER['SERVER_NAME']?>'>";
+                        phpTag += "\n";
 
-                    System.out.println("inputArr In");
+                        System.out.println("inputArr In");
 //                    System.out.println("inputArr : " + inputArr.toString());
 
-                    for(int j = 0 ; j < inputArr.size() ; j++) {
-                        Map<String, Object> arrGab = new HashMap<String, Object>();
-                        arrGab = (Map<String, Object>)inputArr.get(j);
+                        for(int j = 0 ; j < inputArr.size() ; j++) {
+                            Map<String, Object> arrGab = new HashMap<String, Object>();
+                            arrGab = (Map<String, Object>)inputArr.get(j);
 
 //                        System.out.println("arrGab : " + arrGab.toString());
 
-                        //-------------------------------------------------------------------
-                        // html 테그중 name을 설정하기 위해 문자열을 만든다.
-                        //-------------------------------------------------------------------
-                        String namevalue = "value"  + (j + 1);
+                            //-------------------------------------------------------------------
+                            // html 테그중 name을 설정하기 위해 문자열을 만든다.
+                            //-------------------------------------------------------------------
+                            String namevalue = "value"  + (j + 1);
 
-                        if(j == 0) {
-                            namevalue = "value2";
-                        }
-                        if(j == 1) {
-                            namevalue = "value1";
-                        }
-
-                        //-------------------------------------------------------------------
-                        // 입력항목 추가만 되어있고 입력정보가 없는 경우
-                        //-------------------------------------------------------------------
-                        if(arrGab.get("values") == null) {
-                            System.out.println("arrGab : NULL");
-                            continue;
-                        }
-                        //-------------------------------------------------------------------
-                        // 텍스트 박스
-                        //-------------------------------------------------------------------
-                        if(arrGab.get("values").equals("textForm")) {
-                            System.out.println("textForm In");
-
-                            phpTag += "\n        <div class='formInput'>";
-                            phpTag += "\n          <span class='formInputName '>" + arrGab.get("names") +"</span>";
-                            phpTag += "\n          <input type='text'   name='" + namevalue + "' >";
-                            phpTag += "\n        </div>";
-
-                            switch(i) {
-                                case 0 : tbLandingPage.setPage01(arrGab.get("names").toString()); break;
-                                case 1 : tbLandingPage.setPage02(arrGab.get("names").toString()); break;
-                                case 2 : tbLandingPage.setPage03(arrGab.get("names").toString()); break;
-                                case 3 : tbLandingPage.setPage04(arrGab.get("names").toString()); break;
-                                case 4 : tbLandingPage.setPage05(arrGab.get("names").toString()); break;
-                                case 5 : tbLandingPage.setPage06(arrGab.get("names").toString()); break;
-                                case 6 : tbLandingPage.setPage07(arrGab.get("names").toString()); break;
-                                case 7 : tbLandingPage.setPage08(arrGab.get("names").toString()); break;
-                                case 8 : tbLandingPage.setPage09(arrGab.get("names").toString()); break;
-                                case 9 : tbLandingPage.setPage10(arrGab.get("names").toString()); break;
+                            if(j == 0) {
+                                namevalue = "value2";
+                            }
+                            if(j == 1) {
+                                namevalue = "value1";
                             }
 
-                            System.out.println("textForm 1 : " + arrGab.get("names").toString());
-                        }
-                        //-------------------------------------------------------------------
-                        // 라디오 박스
-                        //-------------------------------------------------------------------
-                        else if(arrGab.get("values").equals("radioForm")) {
-                            String[] strArr    = arrGab.get("lab").toString().split(",");
-                            String   formNames = arrGab.get("names").toString();
-
-//                            System.out.println("radioForm 1 : " + strArr);
-//                            System.out.println("radioForm 2 : " + formNames);
-
-                            phpTag += "\n        <div class='formInput'>";
-                            phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
-
-                            for(int k = 0 ; k < strArr.length; k++) {
-                                String      strArrVals = strArr[k].replaceAll("\\[", "");
-                                strArrVals = strArrVals.replaceAll("\\]", "");
-
-                                phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArrVals + namevalue+ "'" + "value='" + strArrVals + "'>";
-                                phpTag += "\n          <label for='" + strArrVals + namevalue + "'>" + strArrVals + "</label>";
+                            //-------------------------------------------------------------------
+                            // 입력항목 추가만 되어있고 입력정보가 없는 경우
+                            //-------------------------------------------------------------------
+                            if(arrGab.get("values") == null) {
+                                System.out.println("arrGab : NULL");
+                                continue;
                             }
-                            phpTag += "\n        </div>";
-                        }
-                        //-------------------------------------------------------------------
-                        // 체크 박스
-                        //-------------------------------------------------------------------
-                        else if(arrGab.get("values").equals("checkForm")) {
-                            String[] strArr    = arrGab.get("lab").toString().split(",");
-                            String   formNames = arrGab.get("names").toString();
+                            //-------------------------------------------------------------------
+                            // 텍스트 박스
+                            //-------------------------------------------------------------------
+                            if(arrGab.get("values").equals("textForm")) {
+                                System.out.println("textForm In");
+
+                                phpTag += "\n        <div class='formInput'>";
+//                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+//                                phpTag += arrGab.get("names") +"</h2>";
+                                phpTag += "\n          <input type='text'   name='" + namevalue + "' ";
+                                phpTag += "placeholder='" + arrGab.get("names").toString() + "'>";
+                                phpTag += "\n        </div>";
+
+                                switch(i) {
+                                    case 0 : tbLandingPage.setPage01(arrGab.get("names").toString()); break;
+                                    case 1 : tbLandingPage.setPage02(arrGab.get("names").toString()); break;
+                                    case 2 : tbLandingPage.setPage03(arrGab.get("names").toString()); break;
+                                    case 3 : tbLandingPage.setPage04(arrGab.get("names").toString()); break;
+                                    case 4 : tbLandingPage.setPage05(arrGab.get("names").toString()); break;
+                                    case 5 : tbLandingPage.setPage06(arrGab.get("names").toString()); break;
+                                    case 6 : tbLandingPage.setPage07(arrGab.get("names").toString()); break;
+                                    case 7 : tbLandingPage.setPage08(arrGab.get("names").toString()); break;
+                                    case 8 : tbLandingPage.setPage09(arrGab.get("names").toString()); break;
+                                    case 9 : tbLandingPage.setPage10(arrGab.get("names").toString()); break;
+                                }
+
+                                System.out.println("textForm 1 : " + arrGab.get("names").toString());
+                            }
+                            //-------------------------------------------------------------------
+                            // 라디오 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("radioForm")) {
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+                                phpTag += "\n        <div class='formInput'>";
+                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+                                phpTag += arrGab.get("names") +"</h2>";
+
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                    phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArrVals + namevalue+ "'" + "value='" + strArrVals + "'>";
+                                    phpTag += "\n          <label for='" + strArrVals + namevalue + "' ";
+                                    phpTag += "style='color: " + resultMap.get("textB").toString() + ";'>" + strArrVals + "</label>";
+                                }
+                                phpTag += "\n        </div>";
+                            }
+                            //-------------------------------------------------------------------
+                            // 체크 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("checkForm")) {
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
 
 //                            System.out.println("checkForm 1 : " + strArr);
 //                            System.out.println("checkForm 2 : " + formNames);
 
-                            phpTag += "\n        <div class='formInput'>";
-                            phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
+                                phpTag += "\n        <div class='formInput'>";
+                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+                                phpTag += arrGab.get("names") +"</h2>";
 
-                            for(int k = 0 ; k < strArr.length; k++) {
-                                String      strArrVals = strArr[k].replaceAll("\\[", "");
-                                strArrVals = strArrVals.replaceAll("\\]", "");
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
 
-                                phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArrVals + namevalue + "'" + "value='" + strArrVals + "'>";
-                                phpTag += "\n          <label for='" + strArrVals + namevalue + "'>" + strArrVals + "</label>";
+                                    phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArrVals + namevalue + "'" + "value='" + strArrVals + "'>";
+                                    phpTag += "\n          <label for='" + strArrVals + namevalue + "' ";
+                                    phpTag += "style='color: " + resultMap.get("textB").toString() + ";'>" + strArrVals + "</label>";
+                                }
+                                phpTag += "\n        </div>";
                             }
-                            phpTag += "\n        </div>";
-                        }
-                        //-------------------------------------------------------------------
-                        // 셀렉트 박스
-                        //-------------------------------------------------------------------
-                        else if(arrGab.get("values").equals("selForm")) {
-                            System.out.println("selForm In");
+                            //-------------------------------------------------------------------
+                            // 셀렉트 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("selForm")) {
+                                System.out.println("selForm In");
 
-
-
-                            String[] strArr    = arrGab.get("lab").toString().split(",");
-                            String   formNames = arrGab.get("names").toString();
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
 
 //                            System.out.println("selForm 1 : " + strArr);
 //                            System.out.println("selForm 2 : " + formNames);
 
-                            phpTag += "\n        <div class='formInput'>";
-                            phpTag += "\n          <span class='formInputName'>" + formNames + "</span>";
-                            phpTag += "\n          <select name='" + namevalue + "'>";
+                                phpTag += "\n        <div class='formInput'>";
+//                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+//                                phpTag += arrGab.get("names") +"</h2>";
+                                phpTag += "\n          <select name='" + namevalue + "'>";
+                                phpTag += "\n            <option value='0' selected disabled>" + arrGab.get("names").toString() + "</option>";
 
-                            for(int k = 0 ; k < strArr.length; k++) {
-                                String      strArrVals = strArr[k].replaceAll("\\[", "");
-                                strArrVals = strArrVals.replaceAll("\\]", "");
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
 
-                                phpTag += "\n          <option value='" + strArrVals + "'>" + strArrVals + "</option>";
+                                    phpTag += "\n          <option value='" + strArrVals + "'>" + strArrVals + "</option>";
+                                }
+                                phpTag += "\n          </select>";
+                                phpTag += "\n        </div>";
                             }
-                            phpTag += "\n          </select>";
-                            phpTag += "\n        </div>";
+                            //-------------------------------------------------------------------
+                            // 확장 에디트
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("textArea")) {
+                                System.out.println("textArea In");
+
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+//                            System.out.println("selForm 1 : " + strArr);
+//                            System.out.println("selForm 2 : " + formNames);
+
+                                phpTag += "\n        <div class='textArea'>";
+                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+                                phpTag += arrGab.get("names") +"</h2>";
+                                phpTag += "\n          <textarea name='" + namevalue + "'></textarea>";
+                                phpTag += "\n        </div>";
+                            }
                         }
+
+                        phpTag += "\n      <div class='agreeBox'>";
+                        phpTag += "\n        <input type='checkbox' name='agree' id='agree" + i + "'>";
+                        phpTag += "\n        <label for='agree" + i + "' ";
+                        phpTag += "style='color: " + resultMap.get("agreeColor").toString() +  ";'>";
+                        phpTag += "개인정보 수집 동의 </label> <span ";
+                        phpTag += "style='color: " + resultMap.get("agreeColor").toString() +  ";'>";
+                        phpTag += "[보러가기]</span>";
+
+                        phpTag += "\n      </div>";
+
+                        phpTag += "\n        <div class='centerBox'>";
+                        phpTag += "\n          <button style='background: " + resultMap.get("btnColor").toString() + "; ";
+                        phpTag += "font-family: " + resultMap.get("fontType").toString() + "; ";
+                        phpTag += "border-radius: " + resultMap.get("btnShape").toString() +  ";";
+                        phpTag += "color: " + resultMap.get("textColor").toString() +  ";'>";
+                        phpTag += resultMap.get("btnNm") + "</button>";
+
+                        phpTag += "\n        </div>";
+                        phpTag += "\n      </form>";
+
+                        System.out.println("check 4 : ");
+
+                        phpTag += "\n      <div class='priBox'>";
+                        phpTag += "\n        <h6>" + params.get("stipulationTitle").toString() + "</h6>";
+                        phpTag += "\n        <div>" + params.get("stipulationDesc").toString() + "</div>";
+                        phpTag += "\n        <button>확인</button>";
+                        phpTag += "\n      </div>";
+                        phpTag += "\n    </div>";
+
+                        System.out.println("phpTag 12 : ");
+
+                        formCount++;
                     }
+                    else if(inputFormArr.get("formStyle").equals("02")) {
+                        phpTag += "\n    <div class='formPrev formPrev02'";
+                        phpTag += " style='border-color: " + resultMap.get("lineColor").toString() + "; ";
+                        phpTag += "border-width: " + resultMap.get("borderLine").toString() +  "; ";
+                        phpTag += "background-color: " + resultMap.get("bgColor").toString() +  ";'>" + "\n";
 
-                    //System.out.println("phpTag 11 : " + phpTag);
+                        if(!resultMap.get("formTitle").toString().equals("")) {
+                            phpTag += "<h1 style='color: " + resultMap.get("titleColor").toString() + "; ";
+                            phpTag += "font-family: " + resultMap.get("fontType").toString() + ";'>";
+                            phpTag += resultMap.get("formTitle").toString();
+                            phpTag += "</h1>\n";
+                        }
 
-                    System.out.println("check 1 : ");
+                        phpTag += "\n      <form method='post' onsubmit='return chk_validate(this)'>";
 
-                    phpTag += "\n      <div class='agreeBox'>";
-                    phpTag += "\n        <input type='checkbox' name='agree' id='agree" + i + "'>";
-                    phpTag += "\n        <label for='agree" + i + "'>개인정보 수집 동의 </label> <span>[보러가기]</span>";
-                    phpTag += "\n      </div>";
+                        System.out.println("----------------------------------------------------------------------------");
+                        System.out.println("  폼 스크립트 삽입 Start");
+                        System.out.println("----------------------------------------------------------------------------");
 
-                    phpTag += "\n        <div class='centerBox'>";
-                    phpTag += "\n          <button style='background: " + resultMap.get("btnColor").toString() + "; ";
-                    phpTag += "border-radius: " + resultMap.get("btnShape").toString() +  ";";
-                    phpTag += "color: " + resultMap.get("textColor").toString() +  ";'>";
-                    phpTag += resultMap.get("btnNm") + "</button>";
+                        phpTag += "\n";
+                        phpTag += "      " + params.get("scriptForm").toString();
+                        phpTag += "\n";
 
-                    phpTag += "\n        </div>";
-                    phpTag += "\n      </form>";
+                        phpTag += "\n        <input type='hidden' id='mbId" + i + "'          name='mbId'          value='<?php echo $mbId?>'>";
+                        phpTag += "\n        <input type='hidden' id='adId" + i + "'          name='adId'          value='<?php echo $adId?>'>";
+                        phpTag += "\n        <input type='hidden' id='caId" + i + "'          name='caId'          value='<?php echo $caId?>'>";
+                        phpTag += "\n        <input type='hidden' id='mkId" + i + "'          name='mkId'          value='<?php echo $mkId?>'>";
+                        phpTag += "\n        <input type='hidden' id='pgId" + i + "'          name='pgId'          value='<?php echo $pgId?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpReferer" + i + "'   name='httpReferer'   value='<?php echo $_SERVER['HTTP_REFERER']?>'>";
+                        phpTag += "\n        <input type='hidden' id='remoteAddr" + i + "'    name='remoteAddr'    value='<?php echo $_SERVER['REMOTE_ADDR']?>'>";
+                        phpTag += "\n        <input type='hidden' id='requestUri" + i + "'    name='requestUri'    value='<?php echo $_SERVER['REQUEST_URI']?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpUserAgent" + i + "' name='httpUserAgent' value='<?php echo $_SERVER['HTTP_USER_AGENT']?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpHost" + i + "'      name='serverName'    value='<?php echo $_SERVER['SERVER_NAME']?>'>";
+                        phpTag += "\n";
 
-                    System.out.println("check 4 : ");
+                        System.out.println("inputArr In");
+//                    System.out.println("inputArr : " + inputArr.toString());
 
-                    phpTag += "\n      <div class='priBox'>";
-                    phpTag += "\n        <h6>" + params.get("stipulationTitle").toString() + "</h6>";
-                    phpTag += "\n        <div>" + params.get("stipulationDesc").toString() + "</div>";
-                    phpTag += "\n        <button>확인</button>";
-                    phpTag += "\n      </div>";
+                        for(int j = 0 ; j < inputArr.size() ; j++) {
+                            Map<String, Object> arrGab = new HashMap<String, Object>();
+                            arrGab = (Map<String, Object>)inputArr.get(j);
+
+//                        System.out.println("arrGab : " + arrGab.toString());
+
+                            //-------------------------------------------------------------------
+                            // html 테그중 name을 설정하기 위해 문자열을 만든다.
+                            //-------------------------------------------------------------------
+                            String namevalue = "value"  + (j + 1);
+
+                            if(j == 0) {
+                                namevalue = "value2";
+                            }
+                            if(j == 1) {
+                                namevalue = "value1";
+                            }
+
+                            //-------------------------------------------------------------------
+                            // 입력항목 추가만 되어있고 입력정보가 없는 경우
+                            //-------------------------------------------------------------------
+                            if(arrGab.get("values") == null) {
+                                System.out.println("arrGab : NULL");
+                                continue;
+                            }
+                            //-------------------------------------------------------------------
+                            // 텍스트 박스
+                            //-------------------------------------------------------------------
+                            if(arrGab.get("values").equals("textForm")) {
+                                System.out.println("textForm In");
+
+                                phpTag += "\n        <div class='flex'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right'>";
+                                phpTag += "\n            <input type='text' name='" + namevalue + "' >";
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+
+                                switch(i) {
+                                    case 0 : tbLandingPage.setPage01(arrGab.get("names").toString()); break;
+                                    case 1 : tbLandingPage.setPage02(arrGab.get("names").toString()); break;
+                                    case 2 : tbLandingPage.setPage03(arrGab.get("names").toString()); break;
+                                    case 3 : tbLandingPage.setPage04(arrGab.get("names").toString()); break;
+                                    case 4 : tbLandingPage.setPage05(arrGab.get("names").toString()); break;
+                                    case 5 : tbLandingPage.setPage06(arrGab.get("names").toString()); break;
+                                    case 6 : tbLandingPage.setPage07(arrGab.get("names").toString()); break;
+                                    case 7 : tbLandingPage.setPage08(arrGab.get("names").toString()); break;
+                                    case 8 : tbLandingPage.setPage09(arrGab.get("names").toString()); break;
+                                    case 9 : tbLandingPage.setPage10(arrGab.get("names").toString()); break;
+                                }
+
+                                System.out.println("textForm 1 : " + arrGab.get("names").toString());
+                            }
+                            //-------------------------------------------------------------------
+                            // 라디오 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("radioForm")) {
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+
+                                phpTag += "\n        <div class='flex'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right'>";
+
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                    phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArrVals + namevalue+ "'" + "value='" + strArrVals + "'>";
+                                    phpTag += "\n          <label for='" + strArrVals + namevalue + "' ";
+                                    phpTag += "style='color: " + resultMap.get("textB").toString() + ";'>" + strArrVals + "</label>";
+                                }
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+                            }
+                            //-------------------------------------------------------------------
+                            // 체크 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("checkForm")) {
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+//                            System.out.println("checkForm 1 : " + strArr);
+//                            System.out.println("checkForm 2 : " + formNames);
+
+
+                                phpTag += "\n        <div class='flex'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right'>";
+
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                    phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArrVals + namevalue + "'" + "value='" + strArrVals + "'>";
+                                    phpTag += "\n          <label for='" + strArrVals + namevalue + "' ";
+                                    phpTag += "style='color: " + resultMap.get("textB").toString() + ";'>" + strArrVals + "</label>";
+                                }
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+
+                            }
+                            //-------------------------------------------------------------------
+                            // 셀렉트 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("selForm")) {
+                                System.out.println("selForm In");
+
+
+
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+//                            System.out.println("selForm 1 : " + strArr);
+//                            System.out.println("selForm 2 : " + formNames);
+
+
+
+
+
+                                phpTag += "\n        <div class='flex'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right'>";
+                                phpTag += "\n            <select name='" + namevalue + "'>";
+
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                    phpTag += "\n          <option value='" + strArrVals + "'>" + strArrVals + "</option>";
+                                }
+                                phpTag += "\n            </select>";
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+                            }
+                            //-------------------------------------------------------------------
+                            // 확장 에디트
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("textArea")) {
+                                System.out.println("textArea In");
+
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+//                            System.out.println("selForm 1 : " + strArr);
+//                            System.out.println("selForm 2 : " + formNames);
+
+                                phpTag += "\n        <div class='flex'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right'>";
+                                phpTag += "\n            <textarea name='" + namevalue + "'></textarea>";
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+                            }
+                        }
+
+                        phpTag += "\n      <div class='agreeBox'>";
+                        phpTag += "\n        <input type='checkbox' name='agree' id='agree" + i + "'>";
+                        phpTag += "\n        <label for='agree" + i + "' ";
+                        phpTag += "style='color: " + resultMap.get("agreeColor").toString() +  ";'>";
+                        phpTag += "개인정보 수집 동의 </label> <span ";
+                        phpTag += "style='color: " + resultMap.get("agreeColor").toString() +  ";'>";
+                        phpTag += "[보러가기]</span>";
+
+                        phpTag += "\n      </div>";
+
+                        phpTag += "\n        <div class='centerBox'>";
+                        phpTag += "\n          <button style='background: " + resultMap.get("btnColor").toString() + "; ";
+                        phpTag += "font-family: " + resultMap.get("fontType").toString() + "; ";
+                        phpTag += "border-radius: " + resultMap.get("btnShape").toString() +  ";";
+                        phpTag += "color: " + resultMap.get("textColor").toString() +  ";'>";
+                        phpTag += resultMap.get("btnNm") + "</button>";
+
+                        phpTag += "\n        </div>";
+                        phpTag += "\n      </form>";
+
+                        System.out.println("check 4 : ");
+
+                        phpTag += "\n      <div class='priBox'>";
+                        phpTag += "\n        <h6>" + params.get("stipulationTitle").toString() + "</h6>";
+                        phpTag += "\n        <div>" + params.get("stipulationDesc").toString() + "</div>";
+                        phpTag += "\n        <button>확인</button>";
+                        phpTag += "\n      </div>";
+                        phpTag += "\n    </div>";
+
+                        System.out.println("phpTag 12 : ");
+
+                        formCount++;
+                    }
+                    else if(inputFormArr.get("formStyle").equals("03")) {
+                        phpTag += "\n    <div class='formPrev formPrev03'";
+                        phpTag += " style='border-color: " + resultMap.get("lineColor").toString() + "; ";
+                        phpTag += "border-width: " + resultMap.get("borderLine").toString() +  "; ";
+                        phpTag += "background-color: " + resultMap.get("bgColor").toString() +  ";'>" + "\n";
+
+                        if(!resultMap.get("formTitle").toString().equals("")) {
+                            phpTag += "<h1 style='color: " + resultMap.get("titleColor").toString() + "; ";
+                            phpTag += "font-family: " + resultMap.get("fontType").toString() + ";'>";
+                            phpTag += resultMap.get("formTitle").toString();
+                            phpTag += "</h1>\n";
+                        }
+
+                        phpTag += "\n      <form method='post' onsubmit='return chk_validate(this)'>";
+
+                        System.out.println("----------------------------------------------------------------------------");
+                        System.out.println("  폼 스크립트 삽입 Start");
+                        System.out.println("----------------------------------------------------------------------------");
+
+                        phpTag += "\n";
+                        phpTag += "      " + params.get("scriptForm").toString();
+                        phpTag += "\n";
+
+                        phpTag += "\n        <input type='hidden' id='mbId" + i + "'          name='mbId'          value='<?php echo $mbId?>'>";
+                        phpTag += "\n        <input type='hidden' id='adId" + i + "'          name='adId'          value='<?php echo $adId?>'>";
+                        phpTag += "\n        <input type='hidden' id='caId" + i + "'          name='caId'          value='<?php echo $caId?>'>";
+                        phpTag += "\n        <input type='hidden' id='mkId" + i + "'          name='mkId'          value='<?php echo $mkId?>'>";
+                        phpTag += "\n        <input type='hidden' id='pgId" + i + "'          name='pgId'          value='<?php echo $pgId?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpReferer" + i + "'   name='httpReferer'   value='<?php echo $_SERVER['HTTP_REFERER']?>'>";
+                        phpTag += "\n        <input type='hidden' id='remoteAddr" + i + "'    name='remoteAddr'    value='<?php echo $_SERVER['REMOTE_ADDR']?>'>";
+                        phpTag += "\n        <input type='hidden' id='requestUri" + i + "'    name='requestUri'    value='<?php echo $_SERVER['REQUEST_URI']?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpUserAgent" + i + "' name='httpUserAgent' value='<?php echo $_SERVER['HTTP_USER_AGENT']?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpHost" + i + "'      name='serverName'    value='<?php echo $_SERVER['SERVER_NAME']?>'>";
+                        phpTag += "\n";
+
+                        System.out.println("inputArr In");
+//                    System.out.println("inputArr : " + inputArr.toString());
+
+                        for(int j = 0 ; j < inputArr.size() ; j++) {
+                            Map<String, Object> arrGab = new HashMap<String, Object>();
+                            arrGab = (Map<String, Object>)inputArr.get(j);
+
+//                        System.out.println("arrGab : " + arrGab.toString());
+
+                            //-------------------------------------------------------------------
+                            // html 테그중 name을 설정하기 위해 문자열을 만든다.
+                            //-------------------------------------------------------------------
+                            String namevalue = "value"  + (j + 1);
+
+                            if(j == 0) {
+                                namevalue = "value2";
+                            }
+                            if(j == 1) {
+                                namevalue = "value1";
+                            }
+
+                            //-------------------------------------------------------------------
+                            // 입력항목 추가만 되어있고 입력정보가 없는 경우
+                            //-------------------------------------------------------------------
+                            if(arrGab.get("values") == null) {
+                                System.out.println("arrGab : NULL");
+                                continue;
+                            }
+                            //-------------------------------------------------------------------
+                            // 텍스트 박스
+                            //-------------------------------------------------------------------
+                            if(arrGab.get("values").equals("textForm")) {
+                                System.out.println("textForm In");
+
+                                phpTag += "\n        <div class='flex after'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right'>";
+                                phpTag += "\n            <input type='text' name='" + namevalue + "' >";
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+
+                                switch(i) {
+                                    case 0 : tbLandingPage.setPage01(arrGab.get("names").toString()); break;
+                                    case 1 : tbLandingPage.setPage02(arrGab.get("names").toString()); break;
+                                    case 2 : tbLandingPage.setPage03(arrGab.get("names").toString()); break;
+                                    case 3 : tbLandingPage.setPage04(arrGab.get("names").toString()); break;
+                                    case 4 : tbLandingPage.setPage05(arrGab.get("names").toString()); break;
+                                    case 5 : tbLandingPage.setPage06(arrGab.get("names").toString()); break;
+                                    case 6 : tbLandingPage.setPage07(arrGab.get("names").toString()); break;
+                                    case 7 : tbLandingPage.setPage08(arrGab.get("names").toString()); break;
+                                    case 8 : tbLandingPage.setPage09(arrGab.get("names").toString()); break;
+                                    case 9 : tbLandingPage.setPage10(arrGab.get("names").toString()); break;
+                                }
+
+                                System.out.println("textForm 1 : " + arrGab.get("names").toString());
+                            }
+                            //-------------------------------------------------------------------
+                            // 라디오 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("radioForm")) {
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+
+                                phpTag += "\n        <div class='flex'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right'>";
+
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                    phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArrVals + namevalue+ "'" + "value='" + strArrVals + "'>";
+                                    phpTag += "\n          <label for='" + strArrVals + namevalue + "' ";
+                                    phpTag += "style='color: " + resultMap.get("textB").toString() + ";'>" + strArrVals + "</label>";
+                                }
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+                            }
+                            //-------------------------------------------------------------------
+                            // 체크 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("checkForm")) {
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+//                            System.out.println("checkForm 1 : " + strArr);
+//                            System.out.println("checkForm 2 : " + formNames);
+
+
+                                phpTag += "\n        <div class='flex'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right'>";
+
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                    phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArrVals + namevalue + "'" + "value='" + strArrVals + "'>";
+                                    phpTag += "\n          <label for='" + strArrVals + namevalue + "' ";
+                                    phpTag += "style='color: " + resultMap.get("textB").toString() + ";'>" + strArrVals + "</label>";
+                                }
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+
+                            }
+                            //-------------------------------------------------------------------
+                            // 셀렉트 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("selForm")) {
+                                System.out.println("selForm In");
+
+
+
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+//                            System.out.println("selForm 1 : " + strArr);
+//                            System.out.println("selForm 2 : " + formNames);
+
+
+
+
+
+                                phpTag += "\n        <div class='flex'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right'>";
+                                phpTag += "\n            <select name='" + namevalue + "'>";
+
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                    phpTag += "\n          <option value='" + strArrVals + "'>" + strArrVals + "</option>";
+                                }
+                                phpTag += "\n            </select>";
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+                            }
+                            //-------------------------------------------------------------------
+                            // 확장 에디트
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("textArea")) {
+                                System.out.println("textArea In");
+
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+//                            System.out.println("selForm 1 : " + strArr);
+//                            System.out.println("selForm 2 : " + formNames);
+
+                                phpTag += "\n        <div class='flex after'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right'>";
+                                phpTag += "\n            <textarea name='" + namevalue + "'></textarea>";
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+                            }
+                        }
+
+                        phpTag += "\n      <div class='agreeBox'>";
+                        phpTag += "\n        <input type='checkbox' name='agree' id='agree" + i + "'>";
+                        phpTag += "\n        <label for='agree" + i + "' ";
+                        phpTag += "style='color: " + resultMap.get("agreeColor").toString() +  ";'>";
+                        phpTag += "개인정보 수집 동의 </label> <span ";
+                        phpTag += "style='color: " + resultMap.get("agreeColor").toString() +  ";'>";
+                        phpTag += "[보러가기]</span>";
+
+                        phpTag += "\n      </div>";
+
+                        phpTag += "\n        <div class='centerBox'>";
+                        phpTag += "\n          <button style='background: " + resultMap.get("btnColor").toString() + "; ";
+                        phpTag += "font-family: " + resultMap.get("fontType").toString() + "; ";
+                        phpTag += "border-radius: " + resultMap.get("btnShape").toString() +  ";";
+                        phpTag += "color: " + resultMap.get("textColor").toString() +  ";'>";
+                        phpTag += resultMap.get("btnNm") + "</button>";
+
+                        phpTag += "\n        </div>";
+                        phpTag += "\n      </form>";
+
+                        System.out.println("check 4 : ");
+
+                        phpTag += "\n      <div class='priBox'>";
+                        phpTag += "\n        <h6>" + params.get("stipulationTitle").toString() + "</h6>";
+                        phpTag += "\n        <div>" + params.get("stipulationDesc").toString() + "</div>";
+                        phpTag += "\n        <button>확인</button>";
+                        phpTag += "\n      </div>";
+                        phpTag += "\n    </div>";
+
+                        System.out.println("phpTag 12 : ");
+
+                        formCount++;
+                    }
+                    else { //if(inputFormArr.get("formStyle").equals("04")) {
+                        phpTag += "\n    <div class='formPrev formPrev04'";
+                        phpTag += " style='border-color: " + resultMap.get("lineColor").toString() + "; ";
+                        phpTag += "border-width: " + resultMap.get("borderLine").toString() +  "; ";
+                        phpTag += "background-color: " + resultMap.get("bgColor").toString() +  ";'>" + "\n";
+
+                        if(!resultMap.get("formTitle").toString().equals("")) {
+                            phpTag += "<h1 style='color: " + resultMap.get("titleColor").toString() + "; ";
+                            phpTag += "font-family: " + resultMap.get("fontType").toString() + ";'>";
+                            phpTag += resultMap.get("formTitle").toString();
+                            phpTag += "</h1>\n";
+                        }
+
+                        phpTag += "\n      <form method='post' onsubmit='return chk_validate(this)'>";
+
+                        System.out.println("----------------------------------------------------------------------------");
+                        System.out.println("  폼 스크립트 삽입 Start");
+                        System.out.println("----------------------------------------------------------------------------");
+
+                        phpTag += "\n";
+                        phpTag += "      " + params.get("scriptForm").toString();
+                        phpTag += "\n";
+
+                        phpTag += "\n        <input type='hidden' id='mbId" + i + "'          name='mbId'          value='<?php echo $mbId?>'>";
+                        phpTag += "\n        <input type='hidden' id='adId" + i + "'          name='adId'          value='<?php echo $adId?>'>";
+                        phpTag += "\n        <input type='hidden' id='caId" + i + "'          name='caId'          value='<?php echo $caId?>'>";
+                        phpTag += "\n        <input type='hidden' id='mkId" + i + "'          name='mkId'          value='<?php echo $mkId?>'>";
+                        phpTag += "\n        <input type='hidden' id='pgId" + i + "'          name='pgId'          value='<?php echo $pgId?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpReferer" + i + "'   name='httpReferer'   value='<?php echo $_SERVER['HTTP_REFERER']?>'>";
+                        phpTag += "\n        <input type='hidden' id='remoteAddr" + i + "'    name='remoteAddr'    value='<?php echo $_SERVER['REMOTE_ADDR']?>'>";
+                        phpTag += "\n        <input type='hidden' id='requestUri" + i + "'    name='requestUri'    value='<?php echo $_SERVER['REQUEST_URI']?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpUserAgent" + i + "' name='httpUserAgent' value='<?php echo $_SERVER['HTTP_USER_AGENT']?>'>";
+                        phpTag += "\n        <input type='hidden' id='httpHost" + i + "'      name='serverName'    value='<?php echo $_SERVER['SERVER_NAME']?>'>";
+                        phpTag += "\n";
+
+                        System.out.println("inputArr In");
+//                    System.out.println("inputArr : " + inputArr.toString());
+
+                        for(int j = 0 ; j < inputArr.size() ; j++) {
+                            Map<String, Object> arrGab = new HashMap<String, Object>();
+                            arrGab = (Map<String, Object>)inputArr.get(j);
+
+//                        System.out.println("arrGab : " + arrGab.toString());
+
+                            //-------------------------------------------------------------------
+                            // html 테그중 name을 설정하기 위해 문자열을 만든다.
+                            //-------------------------------------------------------------------
+                            String namevalue = "value"  + (j + 1);
+
+                            if(j == 0) {
+                                namevalue = "value2";
+                            }
+                            if(j == 1) {
+                                namevalue = "value1";
+                            }
+
+                            //-------------------------------------------------------------------
+                            // 입력항목 추가만 되어있고 입력정보가 없는 경우
+                            //-------------------------------------------------------------------
+                            if(arrGab.get("values") == null) {
+                                System.out.println("arrGab : NULL");
+                                continue;
+                            }
+                            //-------------------------------------------------------------------
+                            // 텍스트 박스
+                            //-------------------------------------------------------------------
+                            if(arrGab.get("values").equals("textForm")) {
+                                System.out.println("textForm In");
+
+                                phpTag += "\n        <div class='formInput'>";
+                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+                                phpTag += arrGab.get("names") +"</h2>";
+                                phpTag += "\n          <input type='text'   name='" + namevalue + "' >";
+                                phpTag += "\n        </div>";
+
+                                switch(i) {
+                                    case 0 : tbLandingPage.setPage01(arrGab.get("names").toString()); break;
+                                    case 1 : tbLandingPage.setPage02(arrGab.get("names").toString()); break;
+                                    case 2 : tbLandingPage.setPage03(arrGab.get("names").toString()); break;
+                                    case 3 : tbLandingPage.setPage04(arrGab.get("names").toString()); break;
+                                    case 4 : tbLandingPage.setPage05(arrGab.get("names").toString()); break;
+                                    case 5 : tbLandingPage.setPage06(arrGab.get("names").toString()); break;
+                                    case 6 : tbLandingPage.setPage07(arrGab.get("names").toString()); break;
+                                    case 7 : tbLandingPage.setPage08(arrGab.get("names").toString()); break;
+                                    case 8 : tbLandingPage.setPage09(arrGab.get("names").toString()); break;
+                                    case 9 : tbLandingPage.setPage10(arrGab.get("names").toString()); break;
+                                }
+
+                                System.out.println("textForm 1 : " + arrGab.get("names").toString());
+                            }
+                            //-------------------------------------------------------------------
+                            // 라디오 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("radioForm")) {
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+                                phpTag += "\n        <div class='formInput'>";
+                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+                                phpTag += arrGab.get("names") +"</h2>";
+
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                    phpTag += "\n          <input type='radio' name='" + namevalue + "' id='" + strArrVals + namevalue+ "'" + "value='" + strArrVals + "'>";
+                                    phpTag += "\n          <label for='" + strArrVals + namevalue + "' ";
+                                    phpTag += "style='color: " + resultMap.get("textB").toString() + ";'>" + strArrVals + "</label>";
+                                }
+                                phpTag += "\n        </div>";
+                            }
+                            //-------------------------------------------------------------------
+                            // 체크 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("checkForm")) {
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+//                            System.out.println("checkForm 1 : " + strArr);
+//                            System.out.println("checkForm 2 : " + formNames);
+
+                                phpTag += "\n        <div class='formInput'>";
+                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+                                phpTag += arrGab.get("names") +"</h2>";
+
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                    phpTag += "\n          <input type='checkbox' name='" + namevalue + "' id='" + strArrVals + namevalue + "'" + "value='" + strArrVals + "'>";
+                                    phpTag += "\n          <label for='" + strArrVals + namevalue + "' ";
+                                    phpTag += "style='color: " + resultMap.get("textB").toString() + ";'>" + strArrVals + "</label>";
+                                }
+                                phpTag += "\n        </div>";
+                            }
+                            //-------------------------------------------------------------------
+                            // 셀렉트 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("selForm")) {
+                                System.out.println("selForm In");
+
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+//                            System.out.println("selForm 1 : " + strArr);
+//                            System.out.println("selForm 2 : " + formNames);
+
+                                phpTag += "\n        <div class='formInput'>";
+                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+                                phpTag += arrGab.get("names") +"</h2>";
+                                phpTag += "\n          <select name='" + namevalue + "'>";
+
+                                for(int k = 0 ; k < strArr.length; k++) {
+                                    String      strArrVals = strArr[k].replaceAll("\\[", "");
+                                    strArrVals = strArrVals.replaceAll("\\]", "");
+
+                                    phpTag += "\n          <option value='" + strArrVals + "'>" + strArrVals + "</option>";
+                                }
+                                phpTag += "\n          </select>";
+                                phpTag += "\n        </div>";
+                            }
+                            //-------------------------------------------------------------------
+                            // 확장 에디트
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("textArea")) {
+                                System.out.println("textArea In");
+
+                                String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("names").toString();
+
+//                            System.out.println("selForm 1 : " + strArr);
+//                            System.out.println("selForm 2 : " + formNames);
+
+                                phpTag += "\n        <div class='textArea'>";
+                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+                                phpTag += arrGab.get("names") +"</h2>";
+                                phpTag += "\n          <textarea name='" + namevalue + "'></textarea>";
+                                phpTag += "\n        </div>";
+                            }
+                        }
+
+                        phpTag += "\n      <div class='agreeBox'>";
+                        phpTag += "\n        <input type='checkbox' name='agree' id='agree" + i + "'>";
+                        phpTag += "\n        <label for='agree" + i + "' ";
+                        phpTag += "style='color: " + resultMap.get("agreeColor").toString() +  ";'>";
+                        phpTag += "개인정보 수집 동의 </label> <span ";
+                        phpTag += "style='color: " + resultMap.get("agreeColor").toString() +  ";'>";
+                        phpTag += "[보러가기]</span>";
+
+                        phpTag += "\n      </div>";
+
+                        phpTag += "\n        <div class='centerBox'>";
+                        phpTag += "\n          <button style='background: " + resultMap.get("btnColor").toString() + "; ";
+                        phpTag += "font-family: " + resultMap.get("fontType").toString() + "; ";
+                        phpTag += "border-radius: " + resultMap.get("btnShape").toString() +  ";";
+                        phpTag += "color: " + resultMap.get("textColor").toString() +  ";'>";
+                        phpTag += resultMap.get("btnNm") + "</button>";
+
+                        phpTag += "\n        </div>";
+                        phpTag += "\n      </form>";
+
+                        System.out.println("check 4 : ");
+
+                        phpTag += "\n      <div class='priBox'>";
+                        phpTag += "\n        <h6>" + params.get("stipulationTitle").toString() + "</h6>";
+                        phpTag += "\n        <div>" + params.get("stipulationDesc").toString() + "</div>";
+                        phpTag += "\n        <button>확인</button>";
+                        phpTag += "\n      </div>";
+                        phpTag += "\n    </div>";
+
+                        System.out.println("phpTag 12 : ");
+
+                        formCount++;
+                    }
+                }
+                //-------------------------------------------------------------------
+                // 유투브(영상 링크 추가)
+                //-------------------------------------------------------------------
+                if( contentArr.get(i).equals("04")) {
+                    System.out.println("----------------------------------------------------------------------------");
+                    System.out.println("  유튜브 영상 링크 : [" + textArr.get(textCount).toString() + "]");
+                    System.out.println("----------------------------------------------------------------------------");
+
+                    phpTag += "\n    <div>";
+                    phpTag += "\n      <iframe src=" + textArr.get(textCount).toString() + " title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>";
                     phpTag += "\n    </div>";
-
-                    System.out.println("phpTag 12 : ");
-
-                    formCount++;
+                    phpTag += "\n";
                 }
             }
 
@@ -824,11 +1652,13 @@ public class LandingPageController {
             resultObj.put("status", true);
             resultObj.put("message", "신규 랜딩페이지가 생성되었습니다.");
             resultObj.put("landingUrl", "http://www.dbmaster.co.kr/ad/" + tbLandingPage.getUrl().toString());
+//            resultObj.put("landingUrl", "http://192.168.0.200/ad/" + tbLandingPage.getUrl().toString());
         }
         else {
             resultObj.put("status", true);
             resultObj.put("message", "신규 랜딩페이지가 대체되었습니다.");
             resultObj.put("landingUrl", "http://www.dbmaster.co.kr/ad/" + tbLandingPage.getUrl().toString());
+//            resultObj.put("landingUrl", "http://192.168.0.200/ad/" + tbLandingPage.getUrl().toString());
         }
 
         System.out.println("리턴 메세지 : ["+ resultObj.toString() +"]");
@@ -1174,6 +2004,8 @@ public class LandingPageController {
         System.out.println("caId   : [" + rq.getParameter("caId") + "]");
         System.out.println("pgId   : [" + rq.getParameter("pgId") + "]");
         System.out.println("status : [" + rq.getParameter("status") + "]");
+        System.out.println("curPage : [" + rq.getParameter("curPage") + "]");
+        System.out.println("rowCount : [" + rq.getParameter("rowCount") + "]");
 
         System.out.println("----------------------------------------------------------------------------");
         System.out.println("  adExternalUserMapper.selAdExternalUserRowCount Start");
@@ -1199,6 +2031,8 @@ public class LandingPageController {
                 , Long.parseLong(rq.getParameter("caId").toString())
                 , Long.parseLong(rq.getParameter("pgId").toString())
                 , rq.getParameter("status").toString()
+                , (Long.parseLong(rq.getParameter("curPage").toString()) - 1) * Long.parseLong(rq.getParameter("rowCount").toString())
+                , Long.parseLong(rq.getParameter("rowCount").toString())
         );
 
         userResult.add(1, adExternalUserArr);
