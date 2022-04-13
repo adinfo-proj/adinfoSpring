@@ -687,7 +687,7 @@ public class AdinfoAPIController {
      -----------------------------------------------------------------------------------------------------------------*/
     @CrossOrigin
     @RequestMapping(value = "/AdminLogin", method = RequestMethod.POST)
-    public Map<String, Object> AdminLogin(@RequestBody LoginConnect loginConnect ) throws Exception {
+    public Map<String, Object> AdminLogin(NativeWebRequest nativeWebRequest, @RequestBody LoginConnect loginConnect ) throws Exception {
         System.out.println("\n\n############################################################################");
         System.out.println("AdminLogin Func Start...");
         System.out.println("############################################################################");
@@ -764,6 +764,37 @@ public class AdinfoAPIController {
 
                     resMap.put("authToken", token);
                     status = HttpStatus.ACCEPTED;
+
+                    //---------------------------------------------------------------------------------------------------------
+                    // 접속 IP 확인
+                    //---------------------------------------------------------------------------------------------------------
+                    HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
+
+                    String clientIp = request.getHeader("X-Forwarded-For");
+                    if (StringUtils.isEmpty(clientIp)|| "unknown".equalsIgnoreCase(clientIp)) {
+                        //Proxy 서버인 경우
+                        clientIp = request.getHeader("Proxy-Client-IP");
+                    }
+                    if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                        //Weblogic 서버인 경우
+                        clientIp = request.getHeader("WL-Proxy-Client-IP");
+                    }
+                    if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                        clientIp = request.getHeader("HTTP_CLIENT_IP");
+                    }
+                    if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                        clientIp = request.getHeader("HTTP_X_FORWARDED_FOR");
+                    }
+                    if (StringUtils.isEmpty(clientIp) || "unknown".equalsIgnoreCase(clientIp)) {
+                        clientIp = request.getRemoteAddr();
+                    }
+
+                    adUserMaster.insAdClntConnHistory(
+                            adExternalUser.getExternalClntId()
+                            , clientIp
+                            , "C"
+                            , ""
+                    );
                 } catch (RuntimeException e) {
                     log.error("로그인 실패", e);
                     resMap.put("status" , "3");

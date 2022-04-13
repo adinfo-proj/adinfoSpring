@@ -504,6 +504,16 @@ public class LandingPageController {
                 System.out.println("nameValue : " + nameValue);
 
                 //-------------------------------------------------------------------
+                // html 테그중 name을 설정하기 위해 문자열을 만든다.
+                //-------------------------------------------------------------------
+                if(j == 0) {
+                    nameValue = "value2";
+                }
+                if(j == 1) {
+                    nameValue = "value1";
+                }
+
+                //-------------------------------------------------------------------
                 // 입력항목 추가만 되어있고 입력정보가 없는 경우
                 //-------------------------------------------------------------------
                 if(arrGab.get("values") == null) {
@@ -519,6 +529,30 @@ public class LandingPageController {
                     phpTag += "        if(e." + nameValue + ".value == '') {\n";
                     phpTag += "          alert('" + textNames + " 정보를 입력해 주세요.');\n";
                     phpTag += "          e." +  nameValue + ".focus();\n";
+                    phpTag += "          return false;\n";
+                    phpTag += "        }\n";
+                }
+                //-------------------------------------------------------------------
+                // 전화번호 박스
+                //-------------------------------------------------------------------
+                else if(arrGab.get("values").equals("telForm")) {
+                    String   textNames = arrGab.get("names").toString();
+
+                    phpTag += "        if(e." + nameValue + "_1.value == '') {\n";
+                    phpTag += "          alert('" + textNames + " 정보를 입력해 주세요.');\n";
+                    phpTag += "          e." +  nameValue + "_1.focus();\n";
+                    phpTag += "          return false;\n";
+                    phpTag += "        }\n";
+
+                    phpTag += "        if(e." + nameValue + "_3.value == '') {\n";
+                    phpTag += "          alert('" + textNames + " 정보를 입력해 주세요.');\n";
+                    phpTag += "          e." +  nameValue + "_3.focus();\n";
+                    phpTag += "          return false;\n";
+                    phpTag += "        }\n";
+
+                    phpTag += "        if(e." + nameValue + "_5.value == '') {\n";
+                    phpTag += "          alert('" + textNames + " 정보를 입력해 주세요.');\n";
+                    phpTag += "          e." +  nameValue + "_5.focus();\n";
                     phpTag += "          return false;\n";
                     phpTag += "        }\n";
                 }
@@ -785,6 +819,35 @@ public class LandingPageController {
                                 System.out.println("textForm 1 : " + arrGab.get("names").toString());
                             }
                             //-------------------------------------------------------------------
+                            // 연락처 박스
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("telForm")) {
+                                System.out.println("telForm In");
+
+                                phpTag += "\n        <div class='formInput telBox'>";
+                                phpTag += "\n          <select name='" + namevalue + "_1' >";
+                                phpTag += "\n            <option value='' selected disabled >" + arrGab.get("names").toString() + "</option>";
+                                phpTag += "\n            <option value='010'>010</option>";
+                                phpTag += "\n            <option value='011'>011</option>";
+                                phpTag += "\n            <option value='016'>016</option>";
+                                phpTag += "\n            <option value='017'>017</option>";
+                                phpTag += "\n            <option value='018'>018</option>";
+                                phpTag += "\n            <option value='019'>019</option>";
+                                phpTag += "\n          </select>";
+                                phpTag += "\n          <span>";
+                                phpTag += "\n            -";
+                                phpTag += "\n            <input type='hidden' name='" + namevalue + "_2' value='-'>";
+                                phpTag += "\n          </span>";
+                                phpTag += "\n          <input type='tel' name='" + namevalue + "_3' maxlength='4' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\">   ";
+                                phpTag += "\n          <span>";
+                                phpTag += "\n            -";
+                                phpTag += "\n            <input type='hidden' name='" + namevalue + "_4' value='-'>";
+                                phpTag += "\n          </span>";
+                                phpTag += "\n          <input type='tel' name='" + namevalue + "_5' maxlength='4' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\">";
+                                phpTag += "\n        </div>";
+
+                            }
+                            //-------------------------------------------------------------------
                             // 라디오 박스
                             //-------------------------------------------------------------------
                             else if(arrGab.get("values").equals("radioForm")) {
@@ -845,7 +908,7 @@ public class LandingPageController {
 //                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
 //                                phpTag += arrGab.get("names") +"</h2>";
                                 phpTag += "\n          <select name='" + namevalue + "'>";
-                                phpTag += "\n            <option value='0' selected disabled>" + arrGab.get("names").toString() + "</option>";
+                                phpTag += "\n            <option value='' selected disabled>" + arrGab.get("names").toString() + "</option>";
 
                                 for(int k = 0 ; k < strArr.length; k++) {
                                     String      strArrVals = strArr[k].replaceAll("\\[", "");
@@ -978,10 +1041,12 @@ public class LandingPageController {
                             if(arrGab.get("values").equals("textForm")) {
                                 System.out.println("textForm In");
 
+                                String   formNames = arrGab.get("lab").toString();
+
                                 phpTag += "\n        <div class='flex'>";
                                 phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
                                 phpTag += "\n          <div class='right'>";
-                                phpTag += "\n            <input type='text' name='" + namevalue + "' >";
+                                phpTag += "\n            <input type='text' name='" + namevalue + "' placeholder='" + formNames + "'>";
                                 phpTag += "\n          </div>";
                                 phpTag += "\n        </div>";
 
@@ -1000,6 +1065,38 @@ public class LandingPageController {
 
                                 System.out.println("textForm 1 : " + arrGab.get("names").toString());
                             }
+                            //-------------------------------------------------------------------
+                            // 전화번호 3:4:4
+                            // -------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("telForm")) {
+                                System.out.println("telForm In");
+
+                                phpTag += "\n        <div class='flex'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right telBox'>";
+                                phpTag += "\n            <select name='" + namevalue + "_1' >";
+                                phpTag += "\n              <option value='' selected disabled >연락처</option>";
+                                phpTag += "\n              <option value='010'>010</option>";
+                                phpTag += "\n              <option value='011'>011</option>";
+                                phpTag += "\n              <option value='016'>016</option>";
+                                phpTag += "\n              <option value='017'>017</option>";
+                                phpTag += "\n              <option value='018'>018</option>";
+                                phpTag += "\n              <option value='019'>019</option>";
+                                phpTag += "\n            </select>";
+                                phpTag += "\n            <span>";
+                                phpTag += "\n              -";
+                                phpTag += "\n              <input type='hidden' name='" + namevalue + "_2' value='-'>";
+                                phpTag += "\n            </span>";
+                                phpTag += "\n            <input type='tel' name='" + namevalue + "_3' maxlength='4' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\">";
+                                phpTag += "\n            <span>";
+                                phpTag += "\n              -";
+                                phpTag += "\n              <input type='hidden' name='" + namevalue + "_4' value='-'>";
+                                phpTag += "\n            </span>";
+                                phpTag += "\n            <input type='tel' name='" + namevalue + "_5' maxlength='4' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\">";
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+                            }
+
                             //-------------------------------------------------------------------
                             // 라디오 박스
                             //-------------------------------------------------------------------
@@ -1056,17 +1153,11 @@ public class LandingPageController {
                             else if(arrGab.get("values").equals("selForm")) {
                                 System.out.println("selForm In");
 
-
-
                                 String[] strArr    = arrGab.get("lab").toString().split(",");
                                 String   formNames = arrGab.get("names").toString();
 
 //                            System.out.println("selForm 1 : " + strArr);
 //                            System.out.println("selForm 2 : " + formNames);
-
-
-
-
 
                                 phpTag += "\n        <div class='flex'>";
                                 phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
@@ -1089,8 +1180,10 @@ public class LandingPageController {
                             else if(arrGab.get("values").equals("textArea")) {
                                 System.out.println("textArea In");
 
-                                String[] strArr    = arrGab.get("lab").toString().split(",");
-                                String   formNames = arrGab.get("names").toString();
+                                String   formNames = arrGab.get("lab").toString();
+
+                                //String[] strArr    = arrGab.get("lab").toString().split(",");
+                                //String   formNames = arrGab.get("names").toString();
 
 //                            System.out.println("selForm 1 : " + strArr);
 //                            System.out.println("selForm 2 : " + formNames);
@@ -1098,7 +1191,8 @@ public class LandingPageController {
                                 phpTag += "\n        <div class='flex'>";
                                 phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
                                 phpTag += "\n          <div class='right'>";
-                                phpTag += "\n            <textarea name='" + namevalue + "'></textarea>";
+                                //phpTag += "\n            <textarea name='" + namevalue + "'></textarea>";
+                                phpTag += "\n          <textarea name='" + namevalue + "' placeholder='" + formNames + "'></textarea>";
                                 phpTag += "\n          </div>";
                                 phpTag += "\n        </div>";
                             }
@@ -1206,10 +1300,13 @@ public class LandingPageController {
                             if(arrGab.get("values").equals("textForm")) {
                                 System.out.println("textForm In");
 
+                                String   formNames = arrGab.get("lab").toString();
+
                                 phpTag += "\n        <div class='flex after'>";
                                 phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
                                 phpTag += "\n          <div class='right'>";
-                                phpTag += "\n            <input type='text' name='" + namevalue + "' >";
+                                //phpTag += "\n            <input type='text' name='" + namevalue + "' >";
+                                phpTag += "\n            <input type='text' name='" + namevalue + "' placeholder='" + formNames + "'>";
                                 phpTag += "\n          </div>";
                                 phpTag += "\n        </div>";
 
@@ -1229,12 +1326,41 @@ public class LandingPageController {
                                 System.out.println("textForm 1 : " + arrGab.get("names").toString());
                             }
                             //-------------------------------------------------------------------
+                            // 전화번호 3:4:4
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("telForm")) {
+                                System.out.println("telForm In");
+                                phpTag += "\n        <div class='flex after'>";
+                                phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
+                                phpTag += "\n          <div class='right telBox'>";
+                                phpTag += "\n            <select name='" + namevalue + "_1' >";
+                                phpTag += "\n              <option value='' selected disabled >연락처</option>";
+                                phpTag += "\n              <option value='010'>010</option>";
+                                phpTag += "\n              <option value='011'>011</option>";
+                                phpTag += "\n              <option value='016'>016</option>";
+                                phpTag += "\n              <option value='017'>017</option>";
+                                phpTag += "\n              <option value='018'>018</option>";
+                                phpTag += "\n              <option value='019'>019</option>";
+                                phpTag += "\n            </select>";
+                                phpTag += "\n            <span>";
+                                phpTag += "\n              -";
+                                phpTag += "\n              <input type='hidden' name='" + namevalue + "_2' value='-'>";
+                                phpTag += "\n            </span>";
+                                phpTag += "\n            <input type='tel' name='" + namevalue + "_3' maxlength='4' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\">";
+                                phpTag += "\n            <span>";
+                                phpTag += "\n              -";
+                                phpTag += "\n              <input type='hidden' name='" + namevalue + "_4' value='-'>";
+                                phpTag += "\n            </span>";
+                                phpTag += "\n            <input type='tel' name='" + namevalue + "_5' maxlength='4' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\">";
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
+                            }
+                            //-------------------------------------------------------------------
                             // 라디오 박스
                             //-------------------------------------------------------------------
                             else if(arrGab.get("values").equals("radioForm")) {
                                 String[] strArr    = arrGab.get("lab").toString().split(",");
                                 String   formNames = arrGab.get("names").toString();
-
 
                                 phpTag += "\n        <div class='flex'>";
                                 phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
@@ -1261,7 +1387,6 @@ public class LandingPageController {
 //                            System.out.println("checkForm 1 : " + strArr);
 //                            System.out.println("checkForm 2 : " + formNames);
 
-
                                 phpTag += "\n        <div class='flex'>";
                                 phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
                                 phpTag += "\n          <div class='right'>";
@@ -1284,17 +1409,11 @@ public class LandingPageController {
                             else if(arrGab.get("values").equals("selForm")) {
                                 System.out.println("selForm In");
 
-
-
                                 String[] strArr    = arrGab.get("lab").toString().split(",");
                                 String   formNames = arrGab.get("names").toString();
 
 //                            System.out.println("selForm 1 : " + strArr);
 //                            System.out.println("selForm 2 : " + formNames);
-
-
-
-
 
                                 phpTag += "\n        <div class='flex'>";
                                 phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
@@ -1317,8 +1436,9 @@ public class LandingPageController {
                             else if(arrGab.get("values").equals("textArea")) {
                                 System.out.println("textArea In");
 
-                                String[] strArr    = arrGab.get("lab").toString().split(",");
-                                String   formNames = arrGab.get("names").toString();
+                                //String[] strArr    = arrGab.get("lab").toString().split(",");
+                                //String   formNames = arrGab.get("names").toString();
+                                String   formNames = arrGab.get("lab").toString();
 
 //                            System.out.println("selForm 1 : " + strArr);
 //                            System.out.println("selForm 2 : " + formNames);
@@ -1326,7 +1446,8 @@ public class LandingPageController {
                                 phpTag += "\n        <div class='flex after'>";
                                 phpTag += "\n          <div class='left' style='color: " + resultMap.get("textA").toString() + ";'>" + arrGab.get("names") +"</div>";
                                 phpTag += "\n          <div class='right'>";
-                                phpTag += "\n            <textarea name='" + namevalue + "'></textarea>";
+                                //phpTag += "\n            <textarea name='" + namevalue + "'></textarea>";
+                                phpTag += "\n          <textarea name='" + namevalue + "' placeholder='" + formNames + "'></textarea>";
                                 phpTag += "\n          </div>";
                                 phpTag += "\n        </div>";
                             }
@@ -1434,10 +1555,13 @@ public class LandingPageController {
                             if(arrGab.get("values").equals("textForm")) {
                                 System.out.println("textForm In");
 
+                                String   formNames = arrGab.get("lab").toString();
+
                                 phpTag += "\n        <div class='formInput'>";
                                 phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
                                 phpTag += arrGab.get("names") +"</h2>";
-                                phpTag += "\n          <input type='text'   name='" + namevalue + "' >";
+                                //phpTag += "\n          <input type='text'   name='" + namevalue + "' >";
+                                phpTag += "\n            <input type='text' name='" + namevalue + "' placeholder='" + formNames + "'>";
                                 phpTag += "\n        </div>";
 
                                 switch(i) {
@@ -1454,6 +1578,37 @@ public class LandingPageController {
                                 }
 
                                 System.out.println("textForm 1 : " + arrGab.get("names").toString());
+                            }
+                            //-------------------------------------------------------------------
+                            // 전화번호 3:4:4
+                            //-------------------------------------------------------------------
+                            else if(arrGab.get("values").equals("telForm")) {
+                                System.out.println("telForm In");
+                                phpTag += "\n        <div class='formInput'>";
+                                phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
+                                phpTag += arrGab.get("names") +"</h2>";
+                                phpTag += "\n          <div class='inputBox telBox'>";
+                                phpTag += "\n            <select name='" + namevalue + "_1' >";
+                                phpTag += "\n              <option value='' selected disabled >연락처</option>";
+                                phpTag += "\n              <option value='010'>010</option>";
+                                phpTag += "\n              <option value='011'>011</option>";
+                                phpTag += "\n              <option value='016'>016</option>";
+                                phpTag += "\n              <option value='017'>017</option>";
+                                phpTag += "\n              <option value='018'>018</option>";
+                                phpTag += "\n              <option value='019'>019</option>";
+                                phpTag += "\n            </select>";
+                                phpTag += "\n            <span>";
+                                phpTag += "\n              -";
+                                phpTag += "\n              <input type='hidden' name='" + namevalue + "_2' value='-'>";
+                                phpTag += "\n            </span>";
+                                phpTag += "\n            <input type='tel' name='" + namevalue + "_3' maxlength='4' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\">";
+                                phpTag += "\n            <span>";
+                                phpTag += "\n              -";
+                                phpTag += "\n              <input type='hidden' name='" + namevalue + "_4' value='-'>";
+                                phpTag += "\n            </span>";
+                                phpTag += "\n            <input type='tel' name='" + namevalue + "_5' maxlength='4' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\">";
+                                phpTag += "\n          </div>";
+                                phpTag += "\n        </div>";
                             }
                             //-------------------------------------------------------------------
                             // 라디오 박스
@@ -1532,8 +1687,8 @@ public class LandingPageController {
                             else if(arrGab.get("values").equals("textArea")) {
                                 System.out.println("textArea In");
 
-                                String[] strArr    = arrGab.get("lab").toString().split(",");
-                                String   formNames = arrGab.get("names").toString();
+                                //String[] strArr    = arrGab.get("lab").toString().split(",");
+                                String   formNames = arrGab.get("lab").toString();
 
 //                            System.out.println("selForm 1 : " + strArr);
 //                            System.out.println("selForm 2 : " + formNames);
@@ -1541,7 +1696,7 @@ public class LandingPageController {
                                 phpTag += "\n        <div class='textArea'>";
                                 phpTag += "\n          <h2 class='formInputName' style='color: " + resultMap.get("textA").toString() + ";'>";
                                 phpTag += arrGab.get("names") +"</h2>";
-                                phpTag += "\n          <textarea name='" + namevalue + "'></textarea>";
+                                phpTag += "\n          <textarea name='" + namevalue + "' placeholder='" + formNames + "'></textarea>";
                                 phpTag += "\n        </div>";
                             }
                         }

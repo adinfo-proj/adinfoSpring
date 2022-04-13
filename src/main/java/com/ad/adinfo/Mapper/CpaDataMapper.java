@@ -193,6 +193,7 @@ public interface CpaDataMapper {
             "                           ELSE CONFIRM_TP " +
             "                      END) " +
             " AND   INS_DT BETWEEN #{startDt} AND #{finishDt} " +
+            " AND   (OTHER_DB_DUP <> 'Y' OR OTHER_DB_DUP IS NULL) \n" +
             " ORDER BY SEQ_NO DESC " +
             " LIMIT #{srtPos}, #{rowCount}" )
     @Results({
@@ -335,6 +336,7 @@ public interface CpaDataMapper {
             "                           ELSE CONFIRM_TP " +
             "                      END) " +
             " AND   INS_DT BETWEEN #{startDt} AND #{finishDt} " +
+            " AND (OTHER_DB_DUP <> 'Y' OR OTHER_DB_DUP IS NULL) " +
             " ORDER BY SEQ_NO DESC " +
             " LIMIT #{srtPos}, #{rowCount}" )
     @Results({
@@ -409,6 +411,7 @@ public interface CpaDataMapper {
             " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
             "                ELSE      #{mkId}     END " +
             " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
+            " AND   (OTHER_DB_DUP <> 'Y' OR OTHER_DB_DUP IS NULL) " +
             " AND   INS_DT BETWEEN #{startDt} AND #{finishDt}" )
     @Results({
             @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT"),
@@ -435,25 +438,26 @@ public interface CpaDataMapper {
     })
     Long getCpaPageUsingCountForMbIdCaIdAdIdRowTotalCount(Long mbId, Long adId, Long caId, Long mkId, Long pgId, String startDt, String finishDt);
 
-    @Select("SELECT " +
-            "       COUNT(*) AS ROW_TOTAL_COUNT " +
-            " FROM " +
-            "       CPA_DATA " +
-            " WHERE " +
-            "       MB_ID  = #{mbId} " +
-            " AND   AD_ID  = #{adId} " +
-            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) " +
-            " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
-            "                ELSE      #{mkId}     END " +
-            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) " +
-            " AND   CONFIRM_TP IN (CASE WHEN #{dbKind} = '대기DB' THEN 'N' " +
-            "                           WHEN #{dbKind} = '접수DB' THEN 'R' " +
-            "                           WHEN #{dbKind} = '확정DB' THEN 'Y' " +
-            "                           WHEN #{dbKind} = '취소DB' THEN 'C' " +
-            "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' " +
-            "                           ELSE CONFIRM_TP " +
-            "                      END) " +
-            " AND   INS_DT BETWEEN #{startDt} AND #{finishDt}" )
+    @Select("SELECT \n" +
+            "       COUNT(*) AS ROW_TOTAL_COUNT \n" +
+            " FROM \n" +
+            "       CPA_DATA \n" +
+            " WHERE \n" +
+            "       MB_ID  = #{mbId} \n" +
+            " AND   AD_ID  = #{adId} \n" +
+            " AND   ((-1 = ${caId}) OR (CA_ID = ${caId})) \n" +
+            " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID \n" +
+            "                ELSE      #{mkId}     END \n" +
+            " AND   ((-1 = ${pgId}) OR (PG_ID = ${pgId})) \n" +
+            " AND   CONFIRM_TP IN (CASE WHEN #{dbKind} = '대기DB' THEN 'N' \n" +
+            "                           WHEN #{dbKind} = '접수DB' THEN 'R' \n" +
+            "                           WHEN #{dbKind} = '확정DB' THEN 'Y' \n" +
+            "                           WHEN #{dbKind} = '취소DB' THEN 'C' \n" +
+            "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' \n" +
+            "                           ELSE CONFIRM_TP \n" +
+            "                      END) \n" +
+            " AND (OTHER_DB_DUP <> 'Y' OR OTHER_DB_DUP IS NULL) \n" +
+            " AND   INS_DT BETWEEN #{startDt} AND #{finishDt}\n" )
     @Results({
             @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT")
     })
@@ -486,6 +490,7 @@ public interface CpaDataMapper {
             "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' " +
             "                           ELSE CONFIRM_TP " +
             "                      END) " +
+            " AND   (OTHER_DB_DUP <> 'Y' OR OTHER_DB_DUP IS NULL) " +
             " AND   INS_DT BETWEEN #{startDt} AND #{finishDt}" )
     @Results({
             @Result(property = "rowTotalCount" , column = "ROW_TOTAL_COUNT")
@@ -512,6 +517,7 @@ public interface CpaDataMapper {
             "                           WHEN #{dbKind} = '자동확정DB' THEN 'A' " +
             "                           ELSE CONFIRM_TP " +
             "                      END) " +
+            " AND   (OTHER_DB_DUP <> 'Y' OR OTHER_DB_DUP IS NULL) " +
             "AND    INS_DT BETWEEN #{startDt} AND #{finishDt} " )
     @Results({
             @Result(property = "count" , column = "COUNT")
@@ -530,6 +536,7 @@ public interface CpaDataMapper {
             " AND   MK_ID  = CASE WHEN #{mkId} = 0 THEN MK_ID " +
             " ELSE                     #{mkId}     END " +
             " AND   INS_DT BETWEEN #{startDt} AND #{finishDt} " +
+            " AND   (OTHER_DB_DUP <> 'Y' OR OTHER_DB_DUP IS NULL) " +
             " GROUP BY CONFIRM_TP " )
     @Results({
             @Result(property = "confirmTp" , column = "CONFIRM_TP"),
